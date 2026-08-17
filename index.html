@@ -71,19 +71,15 @@
   .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;
          background: #fee2e2; color: #991b1b; margin-top: 3px; }
 
-  button.main { display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
-                color: #fff; background: #0f172a; border: none; border-radius: 10px; cursor: pointer; }
-  button.main:disabled { background: #94a3b8; }
-  button.save { display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
-                color: #fff; background: #b45309; border: none; border-radius: 10px; cursor: pointer;
-                margin-top: 4px; }
-  button.save:hover { background: #92400e; }
-  button.save:disabled { background: #94a3b8; }
-  button.sub2 { display: block; width: 100%; padding: 13px; font-size: 14px; font-weight: 700;
-                color: #fff; background: #64748b; border: none; border-radius: 8px; cursor: pointer; }
-  .guide-before { font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 6px; }
-  .guide-after { font-size: 12px; color: #64748b; text-align: center; margin-top: 10px;
-                 background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; }
+  /* 실행 버튼 — 좌우 반반 */
+  .btnrow { display: flex; gap: 8px; margin-top: 14px; }
+  .btnrow button { flex: 1 1 50%; min-width: 0; padding: 16px 10px; font-size: 15px;
+                   font-weight: 800; color: #fff; border: none; border-radius: 10px;
+                   cursor: pointer; line-height: 1.3; }
+  .btnrow button.main { background: #0f172a; }
+  .btnrow button.save { background: #b45309; }
+  .btnrow button.save:hover { background: #92400e; }
+  .btnrow button:disabled { background: #94a3b8; }
 
   /* 아코디언 */
   .acc { border: 1px solid #e2e8f0; border-radius: 10px; margin-top: 10px; overflow: hidden; }
@@ -118,6 +114,7 @@
     body { padding: 8px; }
     .wrap { padding: 14px 12px; }
     .inputs { grid-template-columns: 1fr; }
+    .btnrow button { font-size: 14px; padding: 15px 8px; }
     table.rt thead { display: none; }
     table.rt tr { display: block; border: 1px solid #e2e8f0; border-radius: 9px;
                   margin-bottom: 9px; overflow: hidden; }
@@ -140,7 +137,8 @@
          onkeydown="if(event.key==='Enter')doLogin()">
   <input type="password" id="lpw" placeholder="비밀번호" autocomplete="current-password"
          onkeydown="if(event.key==='Enter')doLogin()">
-  <button class="main" id="lbtn" onclick="doLogin()">로그인</button>
+  <button class="main" id="lbtn" onclick="doLogin()"
+          style="display:block;width:100%;padding:16px;font-size:16px;font-weight:800;color:#fff;background:#0f172a;border:none;border-radius:10px;cursor:pointer">로그인</button>
   <button class="link" onclick="doSignUp()">처음 사용하기 (새 계정 만들기)</button>
   <div id="loginMsg"></div>
   <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
@@ -192,17 +190,13 @@
 
   <div class="card profit" id="sumBox" style="margin-top:14px"></div>
 
-  <p class="guide-before">① 지금 입력값으로 무엇을 사고팔지 계산합니다. 저장되지 않습니다.</p>
-  <button class="main" id="calcBtn" onclick="calc()">계산해보기</button>
-
-  <p class="guide-after">
-    ② 계산대로 <b>증권사에서 매매를 마쳤다면</b>, 바뀐 보유수량을 입력하고 아래를 누르세요.<br>
-    실제 매매 내역이 기록에 남고, 현금·입금액 칸은 비워집니다.
-  </p>
-  <button class="save" id="saveBtn" onclick="saveIt()">매매 완료 · 저장하기</button>
+  <div class="btnrow">
+    <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
+    <button class="save" id="saveBtn" onclick="saveIt()">② 매매 완료 · 저장하기</button>
+  </div>
 
   <!-- 하단 이탈 자산이 있을 때만 나타남 -->
-  <div id="belowBanner" class="card below" style="display:none"></div>
+  <div id="belowBanner" class="card below" style="display:none;margin-top:12px"></div>
 
   <div class="acc">
     <div class="accH" onclick="togLoad(this, loadAum)"><span>ETF 운용자산 규모</span><span class="ar">▼</span></div>
@@ -224,7 +218,8 @@
     <div class="accB">
       <p class="quiet">시장 흐름 참고용 시세 변동률입니다. 내 매수 가격과는 무관합니다.
         MDD는 최근 1년 안에서 고점 대비 가장 크게 빠졌던 폭입니다.</p>
-      <button class="sub2" id="retBtn" onclick="loadRet()">최근 수익률 조회</button>
+      <button class="sub2" id="retBtn" onclick="loadRet()"
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:#64748b;border:none;border-radius:8px;cursor:pointer">최근 수익률 조회</button>
       <div class="prog" id="retProg" style="display:none"></div>
       <div id="retArea" style="margin-top:12px"></div>
     </div>
@@ -273,8 +268,8 @@
       <p>장 시작 직후와 마감 직전은 피해서 체결합니다. 어느 시점에 매매하든 손해 볼 일이 없는
          습관이므로 늘 적용합니다.</p>
       <p>국내 상장 해외 ETF에는 순자산가치(NAV)와 거래가격이 벌어지는 괴리율이 있습니다.
-         평소에는 작지만 변동성이 큰 날에는 눈에 띄게 벌어지기도 하며, 증권사 앱의 ETF 화면에서
-         확인할 수 있습니다. 괴리율이 평소보다 크게 벌어져 있으면 체결을 미뤄도 됩니다.
+         평소에는 작지만 변동성이 큰 날에는 눈에 띄게 벌어지기도 하며, 이 앱의 ETF 운용자산 규모
+         항목에서 확인할 수 있습니다. 괴리율이 평소보다 크게 벌어져 있으면 체결을 미뤄도 됩니다.
          무엇을 얼마나 사고팔지는 카드를 연 날의 종가로 이미 확정돼 있으므로, 체결일이 하루 이틀
          늦어져도 실행 내용 자체는 바뀌지 않습니다.</p>
 
@@ -580,6 +575,22 @@ function price(v) { return krw() ? Math.round(v).toLocaleString('ko-KR') : '$' +
 function num(el) { return parseFloat(String(el.value).replace(/[^0-9.\-]/g, '')) || 0; }
 function pct(v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; }
 
+// 서버가 어떤 형태로 날짜를 보내도 항상 yyyy-MM-dd 로 표시한다
+function fmtDate(v) {
+  var s = String(v == null ? '' : v).trim();
+  var m = s.match(/^(\d{4})[-.\/](\d{1,2})[-.\/](\d{1,2})/);
+  if (m) {
+    return m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2);
+  }
+  var d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    return d.getFullYear() + '-' +
+           ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+           ('0' + d.getDate()).slice(-2);
+  }
+  return s.slice(0, 10);
+}
+
 // 원화 입력칸 실시간 콤마 포맷 (달러 모드는 소수점 쓰므로 건드리지 않음)
 function fmtCashInput(el) {
   if (!krw()) return;
@@ -654,15 +665,15 @@ function switchMarket(m) {
   if (m === mkt) return;
   var btns = document.querySelectorAll('.tabs button');
   for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
-  function go() {
-    mkt = m; skin();
-    document.getElementById('retArea').innerHTML = '';
-    document.getElementById('retProg').style.display = 'none';
-    document.getElementById('retBtn').innerText = '최근 수익률 조회';
-    load();
-    for (var i = 0; i < btns.length; i++) btns[i].disabled = false;
-  }
-  go();   // 저장은 '매매 완료 · 저장하기' 버튼으로만 한다
+  mkt = m; skin();
+  document.getElementById('retArea').innerHTML = '';
+  document.getElementById('retProg').style.display = 'none';
+  document.getElementById('retBtn').innerText = '최근 수익률 조회';
+  // 시장을 바꾸면 AUM·기록도 다시 불러야 한다
+  var accs = document.querySelectorAll('.accH');
+  for (var j = 0; j < accs.length; j++) delete accs[j].dataset.loaded;
+  load();
+  for (var k = 0; k < btns.length; k++) btns[k].disabled = false;
 }
 
 // ===== 데이터 =====
@@ -683,7 +694,7 @@ function grab() {
 function busy(on, id, txt) {
   var b = document.getElementById(id);
   b.disabled = on;
-  b.innerText = on ? txt : (id === 'calcBtn' ? '계산해보기' : '매매 완료 · 저장하기');
+  b.innerText = on ? txt : (id === 'calcBtn' ? '① 계산하기' : '② 매매 완료 · 저장하기');
 }
 
 // ① 계산만 — 시트에 아무것도 쓰지 않음
@@ -756,7 +767,7 @@ function show(d) {
     bb.style.display = 'block';
   } else bb.style.display = 'none';
 
-  // 표
+  // 표 — 굵게 국내 ETF 정식 종목명, 아래 작게 미국 직투 티커
   var tb = document.getElementById('tbody');
   tb.innerHTML = '';
   d.assets.forEach(function (a, i) {
@@ -768,7 +779,7 @@ function show(d) {
     var tag = a.isOver ? '<br><span class="tag">상단 초과</span>' : '';
     tb.innerHTML +=
       '<tr class="' + (a.adjShares === 0 ? 'idle-row' : '') + '">' +
-      '<td class="nm">' + (a.short || a.name) + '<div class="cd">' + a.name + '</div></td>' +
+      '<td class="nm">' + a.name + '<div class="cd">' + (a.usTicker || a.code) + '</div></td>' +
       '<td data-l="목표(상단)">' + a.target + '% <span class="quiet">(' + a.upper + '%)</span></td>' +
       '<td data-l="현재가">' + price(a.price) + '</td>' +
       '<td data-l="보유수량"><input type="text" id="sh' + i + '" inputmode="numeric" value="' + a.shares + '"></td>' +
@@ -789,8 +800,7 @@ function show(d) {
   }
   document.getElementById('sumBox').innerHTML = s;
 
-  var b = document.getElementById('calcBtn');
-  b.disabled = false; b.innerText = '계산하기';
+  busy(false, 'calcBtn'); busy(false, 'saveBtn');
 }
 
 // ===== 아코디언 =====
@@ -828,7 +838,7 @@ function loadAum(el) {
     function (e) {
       document.getElementById('aumArea').innerHTML =
         '<span class="na">불러오지 못했습니다 (' + (e ? e.message : '알 수 없음') + '). 다시 펼쳐보세요.</span>';
-    }, 25000);
+    });
 }
 
 function loadLogs(el) {
@@ -837,14 +847,14 @@ function loadLogs(el) {
     function (rows) {
       el.dataset.loaded = '1';
       if (!rows || !rows.length) {
-        document.getElementById('logArea').innerHTML = '<span class="quiet">아직 기록이 없습니다. 계산을 실행하면 여기에 쌓입니다.</span>';
+        document.getElementById('logArea').innerHTML = '<span class="quiet">아직 기록이 없습니다. 매매 완료·저장하기를 누르면 여기에 쌓입니다.</span>';
         return;
       }
       var h = '';
       rows.forEach(function (r) {
         var cash = r.cash ? ' · 현금 ' + money(r.cash) : '';
         var dep = r.deposit ? ' · 입금 ' + money(r.deposit) : '';
-        h += '<div style="margin-bottom:6px">· <b>' + String(r.date).slice(0, 10) + '</b> ' + r.summary +
+        h += '<div style="margin-bottom:6px">· <b>' + fmtDate(r.date) + '</b> ' + r.summary +
              '<div class="quiet" style="font-size:11px;padding-left:10px">' +
              (cash + dep).replace(/^ · /, '') + '</div></div>';
       });
@@ -892,7 +902,8 @@ function render() {
   var h = '<table class="rt"><thead><tr><th>종목명</th><th>1일</th><th>1주일</th><th>1개월</th>' +
           '<th>6개월</th><th>1년</th><th>1년 MDD</th></tr></thead><tbody>';
   rows.forEach(function (r) {
-    h += '<tr><td class="nm">' + (r.short || r.name) + '<div class="cd">' + (r.code || '') + '</div></td>';
+    h += '<tr><td class="nm">' + (r.short || r.name) +
+         '<div class="cd">' + (r.usTicker || r.code || '') + '</div></td>';
     keys.forEach(function (k) { h += '<td data-l="' + k + '">' + cell(r.values ? r.values[k] : null) + '</td>'; });
     h += '<td data-l="1년 MDD">' + (r.mdd === null || r.mdd === undefined
          ? '<span class="na">-</span>' : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</td></tr>';
