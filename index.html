@@ -74,6 +74,11 @@
   button.main { display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
                 color: #fff; background: #0f172a; border: none; border-radius: 10px; cursor: pointer; }
   button.main:disabled { background: #94a3b8; }
+  button.save { display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
+                color: #fff; background: #b45309; border: none; border-radius: 10px; cursor: pointer;
+                margin-top: 4px; }
+  button.save:hover { background: #92400e; }
+  button.save:disabled { background: #94a3b8; }
   button.sub2 { display: block; width: 100%; padding: 13px; font-size: 14px; font-weight: 700;
                 color: #fff; background: #64748b; border: none; border-radius: 8px; cursor: pointer; }
   .guide-before { font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 6px; }
@@ -187,12 +192,14 @@
 
   <div class="card profit" id="sumBox" style="margin-top:14px"></div>
 
-  <p class="guide-before">지금 입력한 보유수량과 현금 기준으로 사고팔 것을 계산합니다.</p>
-  <button class="main" id="calcBtn" onclick="calc()">계산하기</button>
+  <p class="guide-before">① 지금 입력값으로 무엇을 사고팔지 계산합니다. 저장되지 않습니다.</p>
+  <button class="main" id="calcBtn" onclick="calc()">계산해보기</button>
+
   <p class="guide-after">
-    계산대로 <b>증권사에서 매매를 마쳤다면</b>, 바뀐 보유수량과 남은 현금을 다시 입력하고
-    '계산하기'를 눌러 저장하세요.
+    ② 계산대로 <b>증권사에서 매매를 마쳤다면</b>, 바뀐 보유수량을 입력하고 아래를 누르세요.<br>
+    실제 매매 내역이 기록에 남고, 현금·입금액 칸은 비워집니다.
   </p>
+  <button class="save" id="saveBtn" onclick="saveIt()">매매 완료 · 저장하기</button>
 
   <!-- 하단 이탈 자산이 있을 때만 나타남 -->
   <div id="belowBanner" class="card below" style="display:none"></div>
@@ -204,7 +211,7 @@
     </div>
   </div>
 
-  <div class="acc">
+  <div class="acc" data-logs>
     <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar">▼</span></div>
     <div class="accB">
       <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
@@ -544,49 +551,21 @@
 </div>
 
 <script>
-// ▼▼▼ Apps Script 정식 배포(/exec) 주소를 여기에 붙여넣으세요 ▼▼▼
-var API = 'https://script.google.com/macros/s/AKfycbzvjLfSACG7pVq2RthvNRfA-icTcmTCzuzM8UqUbyuwxwatxAXq9Jg5OK0YOOEjqNY/exec';
-// ▲▲▲
-
-// GET 하나로 통신. JSONP 방식 — <script> 태그로 불러와서 CORS를 아예 안 탐.
-var __jsonpN = 0;
-function api(params, onOk, onErr, timeoutMs) {
-  if (API.indexOf('PASTE_') === 0) {
-    (onErr || function(){})({ message: 'index.html 맨 위 API 주소를 아직 넣지 않았습니다.' });
-    return;
-  }
-  var cb = '__cb' + (__jsonpN++);
-  var script = document.createElement('script');
-  var timer = setTimeout(function () {
-    cleanup();
-    (onErr || function(){})({ message: '응답이 없습니다. 네트워크를 확인하고 다시 시도해주세요.' });
-  }, timeoutMs || 15000);
-
-  function cleanup() {
-    clearTimeout(timer);
-    delete window[cb];
-    if (script.parentNode) script.parentNode.removeChild(script);
-  }
-
-  window[cb] = function (d) {
-    cleanup();
-    if (d && d.error) { (onErr || function(){})({ message: d.error }); return; }
-    onOk(d);
-  };
-
-  var all = {};
-  for (var k in params) all[k] = params[k];
-  all.callback = cb;
-  var q = Object.keys(all).map(function (k) {
-    return encodeURIComponent(k) + '=' + encodeURIComponent(all[k]);
+// 같은 사이트의 /api/proxy 를 통해 통신한다. CORS가 적용되지 않는 구조.
+function api(params, onOk, onErr) {
+  var q = Object.keys(params).map(function (k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
   }).join('&');
 
-  script.src = API + '?' + q;
-  script.onerror = function () {
-    cleanup();
-    (onErr || function(){})({ message: '스크립트를 불러오지 못했습니다.' });
-  };
-  document.body.appendChild(script);
+  fetch('/api/proxy?' + q, { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.error) { (onErr || function () {})({ message: d.error }); return; }
+      onOk(d);
+    })
+    .catch(function (e) {
+      (onErr || function () {})({ message: (e && e.message) || '통신 실패' });
+    });
 }
 
 var uid = null, mkt = 'domestic', loaded = null, N = 5;
@@ -683,11 +662,7 @@ function switchMarket(m) {
     load();
     for (var i = 0; i < btns.length; i++) btns[i].disabled = false;
   }
-  if (loaded) {
-    var v = grab();
-    api({ action: 'save', user: uid, market: mkt, cash: v.cash, dep: v.dep,
-           shares: v.shares.join(',') }, go, go);
-  } else go();
+  go();   // 저장은 '매매 완료 · 저장하기' 버튼으로만 한다
 }
 
 // ===== 데이터 =====
@@ -705,18 +680,38 @@ function grab() {
   return { cash: num(document.getElementById('cash')), dep: num(document.getElementById('dep')), shares: s };
 }
 
+function busy(on, id, txt) {
+  var b = document.getElementById(id);
+  b.disabled = on;
+  b.innerText = on ? txt : (id === 'calcBtn' ? '계산해보기' : '매매 완료 · 저장하기');
+}
+
+// ① 계산만 — 시트에 아무것도 쓰지 않음
 function calc() {
-  var b = document.getElementById('calcBtn');
-  b.disabled = true; b.innerText = '계산 중...';
+  busy(true, 'calcBtn', '계산 중...');
+  var v = grab();
+  api({ action: 'calc', user: uid, market: mkt, cash: v.cash, dep: v.dep,
+        shares: v.shares.join(',') }, show, fail);
+}
+
+// ② 실제 매매 후 저장 — 기록에 남고 입력칸이 비워짐
+function saveIt() {
+  if (!confirm('증권사에서 매매를 마치고 바뀐 보유수량을 입력하셨나요?\n\n저장하면 실제 매매 내역이 기록되고, 현금·입금액 칸은 0으로 초기화됩니다.')) return;
+  busy(true, 'saveBtn', '저장 중...');
   var v = grab();
   api({ action: 'save', user: uid, market: mkt, cash: v.cash, dep: v.dep,
-         shares: v.shares.join(',') }, show, fail);
+        shares: v.shares.join(',') },
+    function (d) {
+      show(d);
+      var el = document.querySelector('.acc[data-logs] .accH');
+      if (el) delete el.dataset.loaded;
+      alert('저장했습니다. 최근 기록에서 확인하실 수 있습니다.');
+    }, fail);
 }
 
 function fail(e) {
   alert('처리 중 오류가 발생했습니다: ' + (e ? e.message : '알 수 없는 오류'));
-  var b = document.getElementById('calcBtn');
-  b.disabled = false; b.innerText = '계산하기';
+  busy(false, 'calcBtn'); busy(false, 'saveBtn');
 }
 
 function months(d) {
