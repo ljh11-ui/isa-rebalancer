@@ -3,111 +3,296 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" id="themeColor" content="#f4f6f8">
+<meta name="theme-color" id="themeColor" content="#f5efe0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="항해">
 <base target="_top">
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
-         margin: 0; padding: 14px; line-height: 1.6; color: #1e293b;
-         background: #f4f6f8; transition: background .25s; }
-  body.ov { background: #3f4650; }
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 
-  .wrap { background: #fff; border-radius: 12px; padding: 18px; max-width: 1060px;
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root{
+    --ink:#0b1d33; --ink-deep:#071426; --chart:#f5efe0; --paper:#fffdf6;
+    --brass:#b5713f; --brass-light:#e2b463; --verdigris:#3d7a7a;
+    --fog:#7c8a9a; --foam:#e3eeec;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+         margin: 0; padding: 14px; line-height: 1.6; color: var(--ink);
+         background: var(--chart); transition: background .25s; }
+  body.ov { background: var(--ink-deep); }
+
+  .wrap { background: var(--paper); border-radius: 12px; padding: 18px; max-width: 1060px;
           margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
 
-  /* 로그인 */
-  #login { max-width: 400px; margin: 48px auto; background: #fff; padding: 34px 26px;
-           border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
-  .big { text-align: center; font-size: 23px; font-weight: 800; letter-spacing: -.6px; }
-  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 24px; }
-  input[type=text], input[type=password] { width: 100%; padding: 13px; margin-bottom: 10px;
-    font-size: 16px; border: 1px solid #cbd5e1; border-radius: 8px; }
-  #loginMsg { text-align: center; color: #dc2626; font-size: 13px; min-height: 20px; margin-top: 8px; }
-  .link { background: none; border: none; color: #2563eb; text-decoration: underline;
+  /* ===== 로그인: 항해 컨셉 ===== */
+  #login{ display:none; }
+  #loginStage{
+    position:fixed; inset:0; width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; z-index:1000;
+  }
+  #loginStage .sky{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, #0b1d33 0%, #14304f 38%, #1c4363 58%, #2a5d78 100%);
+  }
+  body.day #loginStage .sky{
+    background: linear-gradient(180deg, #4f9bd6 0%, #7ec2e6 45%, #a9d9e8 70%, #cfe9e6 100%);
+  }
+  #loginStage .stars{ position:absolute; inset:0 0 55% 0; opacity:.55; }
+  #loginStage .stars span{
+    position:absolute; width:2px; height:2px; background:#fff; border-radius:50%;
+    animation: lg-twinkle 3.5s ease-in-out infinite;
+  }
+  @keyframes lg-twinkle{ 0%,100%{opacity:.15} 50%{opacity:.9} }
+  body.day #loginStage .stars{ display:none; }
+
+  #loginStage .moon{
+    position:absolute; top:8%; right:12%;
+    width:60px; height:60px; border-radius:50%;
+    background:#f4d35e;
+  }
+  body.day #loginStage .moon{ background:#ffd94a; }
+
+  #loginStage .cloud{ position:absolute; opacity:0; background:#fff; border-radius:40px; }
+  body.day #loginStage .cloud{ opacity:.85; }
+
+  #loginStage .sea{
+    position:absolute; left:0; right:0; bottom:0; height:46%;
+    background: linear-gradient(180deg, #12405a 0%, #0c2e44 60%, #081f31 100%);
+    overflow:hidden;
+  }
+  body.day #loginStage .sea{
+    background: linear-gradient(180deg, #2f7fa8 0%, #1e5f85 60%, #144a6b 100%);
+  }
+  #loginStage .wave{
+    position:absolute; left:-10%; width:120%; height:70px;
+    background-repeat: repeat-x; background-size: 220px 70px; opacity:.5;
+  }
+  #loginStage .wave.w1{ top:0; background-image: radial-gradient(ellipse 110px 26px at 50% 0, transparent 24px, #143d55 25px); animation: lg-drift 9s linear infinite; }
+  #loginStage .wave.w2{ top:26px; background-image: radial-gradient(ellipse 110px 22px at 50% 0, transparent 24px, #0f3247 25px); animation: lg-drift 13s linear infinite reverse; opacity:.4; }
+  @keyframes lg-drift{ from{ background-position-x:0 } to{ background-position-x:-220px } }
+
+  #loginStage .dock{
+    position:absolute; left:0; bottom:44%; width:34%; height:10%;
+    background: linear-gradient(180deg,#3a2b1d,#241a11); border-top:3px solid #52402c; z-index:3;
+  }
+  #loginStage .dock .post{ position:absolute; bottom:-26px; width:10px; height:26px; background:#241a11; }
+
+  #loginStage .shipWrap{
+    position:absolute; bottom:39%; left:6%; width:300px; height:220px;
+    transform-origin: 50% 100%;
+    animation: lg-sail 9s ease-in-out infinite, lg-bob 3.4s ease-in-out infinite;
+    z-index:4;
+  }
+  @keyframes lg-sail{ 0%{left:6%} 45%{left:6%} 100%{left:112%} }
+  @keyframes lg-bob{ 0%,100%{ transform: translateY(0) rotate(-1.2deg); } 50%{ transform: translateY(-7px) rotate(1.2deg); } }
+  #loginStage .shipWrap svg{ width:100%; height:100%; overflow:visible; }
+  #loginStage .sailcloth{ animation: lg-flutter 2.6s ease-in-out infinite; transform-origin: 50% 0%; }
+  #loginStage .sailcloth.s2{ animation-delay:.4s; }
+  @keyframes lg-flutter{ 0%,100%{ transform: skewX(-2.5deg) scaleX(1); } 50%{ transform: skewX(2.5deg) scaleX(.985); } }
+
+  #loginStage .wake{
+    position:absolute; bottom:38%; left:2%; width:270px; height:16px;
+    background: linear-gradient(90deg, rgba(232,241,242,.35), transparent);
+    border-radius:50%; animation: lg-sail 9s ease-in-out infinite; filter: blur(1px); z-index:3;
+  }
+
+  #loginStage .gull{ position:absolute; opacity:.9; animation: lg-fly linear infinite; z-index:5; }
+  #loginStage .gull svg{ width:26px; height:14px; display:block; }
+  #loginStage .gull path{ stroke:#ffffff; }
+  @keyframes lg-fly{ from{ transform:translateX(0) } to{ transform:translateX(-140vw) } }
+
+  #loginStage .daytoggle{ position:absolute; top:16px; left:16px; z-index:20; display:flex; gap:6px; }
+  #loginStage .daytoggle button{
+    padding:7px 14px; font-size:12px; font-weight:700; border-radius:20px;
+    border:1px solid rgba(255,255,255,.4); background:rgba(0,0,0,.25); color:#fff; cursor:pointer;
+  }
+  #loginStage .daytoggle button.on{ background:#fff; color:#0b1d33; }
+
+  #loginStage .card{
+    position:relative; z-index:10; width:min(380px, 88vw);
+    background: rgba(245,239,224,.96); border:1px solid rgba(181,113,63,.35);
+    border-radius:14px; padding:36px 30px 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.4) inset;
+    text-align:left;
+  }
+  #loginStage .lg-title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:25px;
+    text-align:center; color:#0b1d33; letter-spacing:-.2px; line-height:1.3;
+  }
+  #loginStage .lg-subtitle{ text-align:center; font-size:12.5px; color:#6b7280; margin:6px 0 26px; }
+  #loginStage .field{ margin-bottom:11px; }
+  #loginStage .field label{
+    display:block; font-size:10.5px; font-weight:700; letter-spacing:.06em;
+    color:#3d7a7a; text-transform:uppercase; margin-bottom:5px;
+  }
+  #loginStage input{
+    width:100%; padding:12px 13px; font-size:15px;
+    border:1.5px solid #d8cdb4; border-radius:8px; background:#fffdf8; color:#0b1d33;
+  }
+  #loginStage input:focus{ outline:none; border-color:#b5713f; }
+  #loginStage .go{
+    width:100%; margin-top:16px; padding:14px; border:none; border-radius:8px;
+    background: linear-gradient(180deg, #e2b463 0%, #b5713f 45%, #8a5426 100%);
+    box-shadow: 0 4px 0 #6b3f1c, 0 8px 16px rgba(0,0,0,.25),
+                inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 4px rgba(0,0,0,.25);
+    color:#fdf6e8; font-weight:700; font-size:15px; letter-spacing:.02em; cursor:pointer;
+  }
+  #loginStage .go:active{ transform: translateY(2px); box-shadow: 0 2px 0 #6b3f1c; }
+  #loginStage .go:disabled{ background:#94a3b8; box-shadow:none; }
+  #loginStage #loginMsg{ text-align:center; color:#b3452f; font-size:13px; min-height:20px; margin-top:12px; }
+  #loginStage .newacc{
+    display:block; margin:14px auto 0; background:none; border:none;
+    color:#3d7a7a; font-size:12.5px; text-decoration:underline; cursor:pointer;
+  }
+  #loginStage .hint-install{ font-size:11.5px; color:#8a8578; text-align:center; margin-top:16px; line-height:1.5; }
+
+  .link { background: none; border: none; color: var(--verdigris); text-decoration: underline;
           cursor: pointer; font-size: 13px; padding: 6px; width: auto; display: block; margin: 10px auto 0; }
-  .hint-install { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 18px; line-height: 1.5; }
 
   /* 탭 */
   .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-  .tabs button { flex: 1; padding: 12px; font-size: 14px; background: #e2e8f0; color: #64748b;
+  .tabs button { flex: 1; padding: 12px; font-size: 14px; background: rgba(11,29,51,.08); color: var(--ink);
                  border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
-  .tabs button.on { background: #0f172a; color: #fff; }
-  .tabs button.on.ov { background: #475569; }
+  .tabs button.on { background: var(--ink); color: var(--chart); }
+  .tabs button.on.ov { background: var(--brass); color: #fdf6e8; }
 
-  h2 { text-align: center; font-size: 19px; margin: 4px 0 8px; }
-  .userbar { text-align: right; font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+  h2 { text-align: center; font-size: 21px; margin: 4px 0 8px; color: var(--ink);
+       font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -.2px; }
+  .userbar { text-align: right; font-size: 12px; color: var(--fog); margin-bottom: 12px; }
   .userbar .link { display: inline; margin-left: 6px; }
 
   .card { border-radius: 10px; padding: 14px; margin-bottom: 12px; text-align: center; }
-  .card.total { background: #0f172a; color: #fff; }
-  .card.total .num { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
-  .card.total .fx { font-size: 12px; color: #94a3b8; display: block; margin-top: 3px; }
-  .card.profit { background: #f1f5f9; font-size: 14px; }
+  .card.total { background: linear-gradient(160deg, var(--ink) 0%, var(--ink-deep) 100%); color: var(--chart); }
+  .card.total .num { font-size: 26px; font-weight: 800; letter-spacing: -.5px; color: var(--brass-light); }
+  .card.total .fx { font-size: 12px; color: var(--fog); display: block; margin-top: 3px; }
+  .card.profit { background: var(--foam); font-size: 14px; color: var(--ink); }
   .card.profit b { font-size: 18px; }
   .warn { background: #fee2e2; color: #991b1b; font-size: 14px; font-weight: 700; }
-  .below { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 13px;
+  .below { background: rgba(181,113,63,.12); border: 1px solid rgba(181,113,63,.4); color: #6b3f1c; font-size: 13px;
            text-align: left; padding: 12px 14px; }
   .below div { margin: 2px 0; }
 
+  /* 최근 기록 — 항해일지 카드 */
+  .logbook { display: flex; flex-direction: column; gap: 8px; }
+  .logEntry { display: flex; gap: 12px; border: 1px solid rgba(11,29,51,.14); border-radius: 8px;
+              padding: 10px 12px; background: var(--paper); }
+  .logDate { flex: 0 0 auto; font-family: 'Fraunces', serif; font-weight: 600; font-size: 13px;
+             color: var(--chart); background: var(--ink); border-radius: 6px; padding: 6px 8px;
+             text-align: center; height: fit-content; white-space: nowrap; }
+  .logBody { flex: 1; min-width: 0; }
+  .logSummary { font-size: 13.5px; color: var(--ink); line-height: 1.5; }
+  .logMeta { font-size: 11.5px; color: var(--fog); margin-top: 3px; }
+
+  /* 최근 수익률 — 항해일지 카드 */
+  .retbook { display: flex; flex-direction: column; gap: 10px; }
+  .retCard { border: 1px solid rgba(11,29,51,.16); border-radius: 10px; overflow: hidden; background: var(--paper); }
+  .retHead { background: linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 100%);
+             color: var(--chart); padding: 9px 12px; display: flex; align-items: baseline; gap: 8px; }
+  .retName { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; }
+  .retCode { font-size: 11px; color: var(--brass-light); }
+  .retGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: rgba(11,29,51,.1); }
+  .retCell { background: var(--paper); padding: 8px 4px; text-align: center; }
+  .retK { display: block; font-size: 10px; color: var(--fog); margin-bottom: 3px; font-weight: 700; }
+  .retMdd { padding: 7px 12px; font-size: 12px; color: var(--ink); background: rgba(181,113,63,.06);
+            border-top: 1px solid rgba(11,29,51,.1); }
+  @media (max-width: 520px) {
+    .retGrid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* 바다 무드 — 나스닥 주간 수익률 연동 */
+  .moodstrip { position: relative; height: 52px; border-radius: 10px; overflow: hidden;
+               margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
+  .moodstrip .mwave { position: absolute; inset: 0; opacity: .55; background-repeat: repeat-x;
+                       background-size: 150px 52px; animation: moodDrift 9s linear infinite; }
+  @keyframes moodDrift { from{ background-position-x:0 } to{ background-position-x:-150px } }
+  .moodstrip .mlabel { position: relative; z-index: 2; font-size: 12.5px; font-weight: 700;
+                        color: #fff; letter-spacing: .01em; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+  .moodstrip.clear { background: linear-gradient(160deg, #4f9bd6 0%, #2f7fa8 100%); }
+  .moodstrip.clear .mwave { background-image: radial-gradient(ellipse 75px 15px at 50% 0, transparent 17px, rgba(255,255,255,.28) 18px); }
+  .moodstrip.calm { background: linear-gradient(160deg, #2f7fa8 0%, #1e5f85 100%); }
+  .moodstrip.calm .mwave { background-image: radial-gradient(ellipse 75px 19px at 50% 0, transparent 17px, rgba(255,255,255,.16) 18px); }
+  .moodstrip.storm { background: linear-gradient(160deg, #24384d 0%, #0c1622 100%); }
+  .moodstrip.storm .mwave { background-image: radial-gradient(ellipse 65px 24px at 50% 0, transparent 15px, rgba(255,255,255,.12) 16px);
+                             animation-duration: 4.5s; }
+
   .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .inputs label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+  .inputs label { display: block; font-size: 12px; font-weight: 700; color: var(--verdigris); margin-bottom: 4px; }
   .inputs input { width: 100%; padding: 11px; font-size: 16px; text-align: right;
-                  border: 1px solid #cbd5e1; border-radius: 8px; }
-  .note { font-size: 11px; color: #94a3b8; margin: -8px 0 14px; }
+                  border: 1px solid rgba(11,29,51,.2); border-radius: 8px; background: var(--paper); color: var(--ink); }
+  .inputs input:focus { outline: none; border-color: var(--brass); }
+  .note { font-size: 11px; color: var(--fog); margin: -8px 0 14px; }
 
   table { width: 100%; border-collapse: collapse; }
-  th, td { border: 1px solid #e2e8f0; padding: 9px 6px; text-align: center; font-size: 14px; }
-  th { background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 700; }
+  th, td { border: 1px solid rgba(11,29,51,.14); padding: 9px 6px; text-align: center; font-size: 14px; }
+  th { background: var(--chart); color: var(--ink); font-size: 12px; font-weight: 700; }
   td input { width: 68px; padding: 8px; font-size: 15px; text-align: right;
-             border: 1px solid #cbd5e1; border-radius: 6px; }
+             border: 1px solid rgba(11,29,51,.2); border-radius: 6px; background: var(--paper); color: var(--ink); }
   .nm { text-align: left; font-weight: 700; }
-  .cd { font-size: 11px; color: #94a3b8; font-weight: 400; }
+  .cd { font-size: 11px; color: var(--fog); font-weight: 400; }
   .buy { color: #dc2626; font-weight: 700; }
   .sell { color: #2563eb; font-weight: 700; }
-  .idle { color: #cbd5e1; }
-  tr.idle-row td { background: #fcfdfe; }
+  .idle { color: #b9c2ca; }
+  tr.idle-row td { background: rgba(11,29,51,.02); }
   .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;
-         background: #fee2e2; color: #991b1b; margin-top: 3px; }
+         background: rgba(181,113,63,.15); color: var(--brass); margin-top: 3px; }
 
   /* 실행 버튼 — 좌우 반반 */
   .btnrow { display: flex; gap: 8px; margin-top: 14px; }
   .btnrow button { flex: 1 1 50%; min-width: 0; padding: 16px 10px; font-size: 15px;
                    font-weight: 800; color: #fff; border: none; border-radius: 10px;
                    cursor: pointer; line-height: 1.3; }
-  .btnrow button.main { background: #0f172a; }
-  .btnrow button.save { background: #b45309; }
-  .btnrow button.save:hover { background: #92400e; }
-  .btnrow button:disabled { background: #94a3b8; }
+  .btnrow button.main { background: linear-gradient(160deg, var(--ink) 0%, var(--ink-deep) 100%); }
+  .btnrow button.save { background: linear-gradient(180deg, var(--brass-light) 0%, var(--brass) 45%, #8a5426 100%);
+                         box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 4px rgba(0,0,0,.2); }
+  .btnrow button.save:hover { filter: brightness(.96); }
+  .btnrow button:disabled { background: #a9b2bd; box-shadow: none; }
 
-  /* 아코디언 */
-  .acc { border: 1px solid #e2e8f0; border-radius: 10px; margin-top: 10px; overflow: hidden; }
-  .accH { padding: 15px 16px; background: #f8fafc; font-weight: 700; font-size: 15px; cursor: pointer;
-          display: flex; justify-content: space-between; align-items: center; }
-  .accH .ar { color: #94a3b8; font-size: 12px; transition: transform .2s; }
+  /* 아코디언 — 선실 문 컨셉 */
+  .acc { border: 1px solid var(--ink); border-radius: 10px; margin-top: 10px; overflow: hidden;
+         background: var(--paper); }
+  .accH { padding: 15px 18px; background: linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 100%);
+          color: var(--chart); font-weight: 600; font-size: 16px; cursor: pointer;
+          display: flex; justify-content: space-between; align-items: center;
+          font-family: 'Fraunces', serif; position: relative; }
+  .accH::after{ content:''; position:absolute; right:38px; top:50%; width:7px; height:7px;
+                border-radius:50%; background: var(--brass-light); transform:translateY(-50%);
+                box-shadow: 0 0 0 2px rgba(0,0,0,.3) inset; }
+  .accH .ar { color: var(--brass-light); font-size: 12px; transition: transform .2s; font-family: inherit; }
   .accH.open .ar { transform: rotate(180deg); }
-  .accB { display: none; padding: 16px; border-top: 1px solid #e2e8f0; }
-  .accB.open { display: block; }
-  .accB h4 { font-size: 14px; margin: 18px 0 6px; color: #0f172a; }
+  .accB { display: none; padding: 16px; border-top: 1px solid rgba(11,29,51,.15); }
+  .accB.open { display: block; animation: doorOpen .32s ease; transform-origin: top center; }
+  @keyframes doorOpen{ from{ opacity:0; transform: scaleY(.92) rotateX(-4deg); } to{ opacity:1; transform:none; } }
+  .accB h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink);
+             font-family: 'Fraunces', serif; font-weight: 600; }
   .accB h4:first-child { margin-top: 0; }
-  .accB p, .accB li { font-size: 14px; color: #475569; }
+  .accB p, .accB li { font-size: 17px; line-height: 1.65; color: #3d4a57;
+                       font-family: 'Cormorant Garamond', serif; }
   .accB ul, .accB ol { padding-left: 20px; margin: 6px 0; }
   .accB li { margin-bottom: 5px; }
-  .accB table { margin: 8px 0; }
-  .accB td, .accB th { font-size: 13px; padding: 7px 5px; }
-  .quiet { color: #94a3b8; font-size: 13px; }
-  .sub-acc { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 7px; }
-  .sub-accH { padding: 12px 14px; background: #fcfdfe; font-weight: 700; font-size: 14px;
-              cursor: pointer; display: flex; justify-content: space-between; }
-  .sub-accB { display: none; padding: 14px; border-top: 1px solid #e2e8f0; }
-  .sub-accB.open { display: block; }
-  .lead { font-style: italic; color: #64748b; font-size: 13px; margin-top: 0; }
+  .accB table { margin: 10px 0; border: 1px solid rgba(11,29,51,.18); border-radius: 6px;
+                overflow: hidden; border-collapse: separate; border-spacing: 0; }
+  .accB td, .accB th { font-size: 13px; padding: 8px 7px;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+                        border: 1px solid rgba(11,29,51,.1); }
+  .accB th { background: var(--ink); color: var(--chart); font-weight: 700; letter-spacing: .01em; }
+  .accB tr:nth-child(even) td { background: rgba(181,113,63,.05); }
+  .accB td b { color: var(--brass); }
+  .quiet { color: var(--fog); font-size: 13px; }
+  .sub-acc { border: 1px solid rgba(181,113,63,.4); border-radius: 8px; margin-bottom: 7px; overflow: hidden; }
+  .sub-accH { padding: 12px 14px; background: rgba(181,113,63,.1); font-weight: 600; font-size: 16px;
+              cursor: pointer; display: flex; justify-content: space-between; color: var(--ink);
+              font-family: 'Fraunces', serif; border-left: 3px solid var(--brass); }
+  .sub-accB { display: none; padding: 14px; border-top: 1px solid rgba(181,113,63,.25); }
+  .sub-accB.open { display: block; animation: doorOpen .28s ease; transform-origin: top center; }
+  .lead { font-style: italic; color: var(--verdigris); font-size: 18px; margin-top: 0;
+          font-family: 'Cormorant Garamond', serif; }
+  .accB p.quiet { font-size: 15px; }
 
-  .prog { text-align: center; font-weight: 700; font-size: 15px; margin: 12px 0; color: #0f172a; }
+  .prog { text-align: center; font-weight: 700; font-size: 15px; margin: 12px 0; color: var(--ink); }
   .up { color: #dc2626; font-weight: 700; }
   .dn { color: #2563eb; font-weight: 700; }
-  .na { color: #cbd5e1; }
+  .na { color: #b9c2ca; }
 
   /* 모바일: 표를 카드로 */
   @media (max-width: 700px) {
@@ -130,19 +315,110 @@
 </head>
 <body>
 
-<div id="login">
-  <div class="big">그대들은 어떻게 투자할 것인가</div>
-  <div class="sub">5분할 리밸런싱 포트폴리오</div>
-  <input type="text" id="lid" placeholder="아이디" autocomplete="username"
-         onkeydown="if(event.key==='Enter')doLogin()">
-  <input type="password" id="lpw" placeholder="비밀번호" autocomplete="current-password"
-         onkeydown="if(event.key==='Enter')doLogin()">
-  <button class="main" id="lbtn" onclick="doLogin()"
-          style="display:block;width:100%;padding:16px;font-size:16px;font-weight:800;color:#fff;background:#0f172a;border:none;border-radius:10px;cursor:pointer">로그인</button>
-  <button class="link" onclick="doSignUp()">처음 사용하기 (새 계정 만들기)</button>
-  <div id="loginMsg"></div>
-  <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+<div id="login"></div>
+
+<div id="loginStage">
+  <div class="sky">
+    <div class="stars" id="lgStars"></div>
+    <div class="moon"></div>
+    <div class="cloud" style="width:70px;height:22px;top:14%;left:14%"></div>
+    <div class="cloud" style="width:50px;height:16px;top:26%;left:42%"></div>
+  </div>
+
+  <div class="daytoggle">
+    <button id="lgBtnNight" class="on" onclick="lgSetMode(false)">🌙 밤</button>
+    <button id="lgBtnDay" onclick="lgSetMode(true)">☀️ 낮</button>
+  </div>
+
+  <div class="gull" style="top:16%; left:100vw; animation-duration:22s;">
+    <svg viewBox="0 0 22 12"><path d="M1 8 Q6 1 11 7 Q16 1 21 8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  </div>
+  <div class="gull" style="top:22%; left:100vw; animation-duration:28s; animation-delay:4s;">
+    <svg viewBox="0 0 22 12" style="width:18px;height:10px"><path d="M1 8 Q6 1 11 7 Q16 1 21 8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  </div>
+
+  <div class="dock">
+    <div class="post" style="left:10px"></div>
+    <div class="post" style="left:60px"></div>
+    <div class="post" style="left:110px"></div>
+  </div>
+
+  <div class="wake"></div>
+  <div class="shipWrap">
+    <svg viewBox="0 0 300 220">
+      <defs>
+        <linearGradient id="lgPlank" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#8a6238"/>
+          <stop offset="45%" stop-color="#6e4b28"/>
+          <stop offset="100%" stop-color="#4a3018"/>
+        </linearGradient>
+        <pattern id="lgGrain" width="42" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-2)">
+          <rect width="42" height="10" fill="transparent"/>
+          <path d="M0 5 Q10 2 21 5 T42 5" stroke="#3a2410" stroke-width="0.6" fill="none" opacity=".5"/>
+          <line x1="0" y1="9.5" x2="42" y2="9.5" stroke="#2c1a0c" stroke-width="1" opacity=".55"/>
+        </pattern>
+      </defs>
+      <line x1="95"  y1="42" x2="95"  y2="176" stroke="#3a2b1d" stroke-width="4"/>
+      <line x1="165" y1="14" x2="165" y2="180" stroke="#3a2b1d" stroke-width="5"/>
+      <line x1="228" y1="52" x2="228" y2="176" stroke="#3a2b1d" stroke-width="3.5"/>
+      <line x1="70" y1="58" x2="120" y2="58" stroke="#2c2013" stroke-width="3"/>
+      <line x1="128" y1="32" x2="202" y2="32" stroke="#2c2013" stroke-width="3.5"/>
+      <line x1="132" y1="70" x2="198" y2="70" stroke="#2c2013" stroke-width="3"/>
+      <line x1="205" y1="66" x2="252" y2="66" stroke="#2c2013" stroke-width="2.5"/>
+      <g class="sailcloth">
+        <path d="M72 60 L118 60 L112 108 Q95 116 78 108 Z" fill="#eef4f2"/>
+      </g>
+      <g class="sailcloth s2">
+        <path d="M130 34 L200 34 L192 92 Q165 102 138 92 Z" fill="#f2f6f4"/>
+      </g>
+      <g class="sailcloth">
+        <path d="M138 100 L192 100 L186 138 Q165 145 144 138 Z" fill="#e6eeec"/>
+      </g>
+      <g class="sailcloth s2">
+        <path d="M207 68 L250 68 L244 104 Q228 110 213 104 Z" fill="#eef4f2"/>
+      </g>
+      <path d="M95 42 L112 47 L95 52 Z" fill="#a63b2e"/>
+      <path d="M165 14 L184 20 L165 26 Z" fill="#a63b2e"/>
+      <path d="M228 52 L244 57 L228 62 Z" fill="#a63b2e"/>
+      <line x1="30" y1="150" x2="72" y2="140" stroke="#3a2b1d" stroke-width="4"/>
+      <path d="M18 154 Q40 138 90 140 L260 140 Q288 140 278 168
+               Q250 196 165 200 Q80 196 30 172 Z" fill="url(#lgPlank)"/>
+      <path d="M18 154 Q40 138 90 140 L260 140 Q288 140 278 168
+               Q250 196 165 200 Q80 196 30 172 Z" fill="url(#lgGrain)"/>
+      <path d="M40 148 Q165 136 260 148" stroke="#3a2718" stroke-width="3" fill="none" opacity=".7"/>
+      <path d="M225 122 Q255 118 268 140 L232 144 Z" fill="#5a3d22"/>
+      <path d="M225 122 Q255 118 268 140 L232 144 Z" fill="url(#lgGrain)" opacity=".6"/>
+      <path d="M22 156 Q45 142 92 144 L258 144" stroke="#c99a63" stroke-width="2.5" fill="none" opacity=".55"/>
+    </svg>
+  </div>
+
+  <div class="sea">
+    <div class="wave w1"></div>
+    <div class="wave w2"></div>
+  </div>
+
+  <div class="card">
+    <div class="lg-title">그대들은<br>어떻게 투자할 것인가</div>
+    <div class="lg-subtitle">항해를 시작하려면 신원을 밝혀주세요</div>
+
+    <div class="field">
+      <label>선원 아이디</label>
+      <input type="text" id="lid" placeholder="아이디" autocomplete="username"
+             onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="field">
+      <label>암구호</label>
+      <input type="password" id="lpw" placeholder="비밀번호" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <button class="go" id="lbtn" onclick="doLogin()">승선하기</button>
+    <button class="newacc" onclick="doSignUp()">처음 오셨나요? 새로 등록하기</button>
+    <div id="loginMsg"></div>
+    <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+  </div>
 </div>
+
 
 <div class="wrap" id="main" style="display:none">
   <div class="tabs">
@@ -152,6 +428,11 @@
 
   <h2 id="title">ISA 5분할 리밸런싱 투자 포트폴리오</h2>
   <div class="userbar"><span id="who"></span><button class="link" onclick="doLogout()">로그아웃</button></div>
+
+  <div id="moodStrip" class="moodstrip calm">
+    <div class="mwave"></div>
+    <span class="mlabel" id="moodLabel">오늘의 바다를 살피는 중...</span>
+  </div>
 
   <div id="warnBox" class="card warn" style="display:none"></div>
 
@@ -219,7 +500,7 @@
       <p class="quiet">시장 흐름 참고용 시세 변동률입니다. 내 매수 가격과는 무관합니다.
         MDD는 최근 1년 안에서 고점 대비 가장 크게 빠졌던 폭입니다.</p>
       <button class="sub2" id="retBtn" onclick="loadRet()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:#64748b;border:none;border-radius:8px;cursor:pointer">최근 수익률 조회</button>
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(160deg,#4a9494,var(--verdigris));border:none;border-radius:8px;cursor:pointer">최근 수익률 조회</button>
       <div class="prog" id="retProg" style="display:none"></div>
       <div id="retArea" style="margin-top:12px"></div>
     </div>
@@ -269,9 +550,11 @@
          습관이므로 늘 적용합니다.</p>
       <p>국내 상장 해외 ETF에는 순자산가치(NAV)와 거래가격이 벌어지는 괴리율이 있습니다.
          평소에는 작지만 변동성이 큰 날에는 눈에 띄게 벌어지기도 하며, 이 앱의 ETF 운용자산 규모
-         항목에서 확인할 수 있습니다. 괴리율이 평소보다 크게 벌어져 있으면 체결을 미뤄도 됩니다.
-         무엇을 얼마나 사고팔지는 카드를 연 날의 종가로 이미 확정돼 있으므로, 체결일이 하루 이틀
-         늦어져도 실행 내용 자체는 바뀌지 않습니다.</p>
+         항목에서 확인할 수 있습니다. 거래소 기준으로 이 5종목처럼 해외지수를 추종하는 ETF는
+         괴리율 2%부터 공시 대상이 되고, 5%를 넘으면 정상 관리범위를 벗어난 상태라 체결을 미루는
+         게 안전하며, 10%를 넘으면 투자유의종목으로 지정될 수 있는 수준이라 매매를 피하는 게
+         좋습니다. 무엇을 얼마나 사고팔지는 카드를 연 날의 종가로 이미 확정돼 있으므로, 체결일이
+         하루 이틀 늦어져도 실행 내용 자체는 바뀌지 않습니다.</p>
 
       <h4>하단 밴드를 두지 않는 이유</h4>
       <p>한 자산만 유독 부진해 보이는 상황은 사실 기존 규칙(부족분 비례 배분)이 이미 가장 강하게
@@ -546,6 +829,25 @@
 </div>
 
 <script>
+// ===== 로그인 화면: 낮/밤 =====
+function lgSetMode(day){
+  document.body.classList.toggle('day', day);
+  document.getElementById('lgBtnDay').classList.toggle('on', day);
+  document.getElementById('lgBtnNight').classList.toggle('on', !day);
+}
+(function () {
+  var h = new Date().getHours();
+  if (h >= 6 && h < 18) lgSetMode(true);
+  var starsEl = document.getElementById('lgStars');
+  for (var i = 0; i < 40; i++) {
+    var s = document.createElement('span');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 3) + 's';
+    starsEl.appendChild(s);
+  }
+})();
+
 // 같은 사이트의 /api/proxy 를 통해 통신한다. CORS가 적용되지 않는 구조.
 function api(params, onOk, onErr) {
   var q = Object.keys(params).map(function (k) {
@@ -631,16 +933,43 @@ function doSignUp() {
 
 function enter(id) {
   uid = id;
-  document.getElementById('login').style.display = 'none';
+  document.getElementById('loginStage').style.display = 'none';
   document.getElementById('main').style.display = 'block';
   document.getElementById('who').innerText = id + ' 님';
-  skin(); load();
+  skin(); load(); loadMood();
+}
+
+// 나스닥100(index 0) 최근 1주일 수익률로 바다 상태를 정한다. 세션당 한 번만 조회.
+var moodLoaded = false;
+function loadMood() {
+  if (moodLoaded) return;
+  moodLoaded = true;
+  api({ action: 'ret', market: 'domestic', index: 0 },
+    function (r) {
+      var w = r && r.values ? r.values['1주일'] : null;
+      var strip = document.getElementById('moodStrip');
+      var label = document.getElementById('moodLabel');
+      if (w === null || w === undefined) {
+        strip.className = 'moodstrip calm';
+        label.innerText = '나스닥 시세를 확인하지 못했습니다.';
+        return;
+      }
+      var mood = w >= 1 ? 'clear' : (w <= -1 ? 'storm' : 'calm');
+      var moodText = w >= 1 ? '맑은 바다' : (w <= -1 ? '거친 폭풍우' : '잔잔한 바다');
+      strip.className = 'moodstrip ' + mood;
+      label.innerText = '오늘의 바다: ' + moodText + ' · 나스닥 주간 ' + (w >= 0 ? '+' : '') + w.toFixed(2) + '%';
+    },
+    function () {
+      var strip = document.getElementById('moodStrip');
+      document.getElementById('moodLabel').innerText = '나스닥 시세를 확인하지 못했습니다.';
+      strip.className = 'moodstrip calm';
+    });
 }
 
 function doLogout() {
-  uid = null; loaded = null;
+  uid = null; loaded = null; moodLoaded = false;
   document.getElementById('main').style.display = 'none';
-  document.getElementById('login').style.display = 'block';
+  document.getElementById('loginStage').style.display = 'flex';
   document.getElementById('lpw').value = '';
   document.getElementById('retArea').innerHTML = '';
   document.body.classList.remove('ov');
@@ -651,7 +980,7 @@ function doLogout() {
 function skin() {
   var o = mkt === 'overseas';
   document.body.classList.toggle('ov', o);
-  document.getElementById('themeColor').setAttribute('content', o ? '#3f4650' : '#f4f6f8');
+  document.getElementById('themeColor').setAttribute('content', o ? '#071426' : '#f5efe0');
   document.getElementById('tD').className = o ? '' : 'on';
   document.getElementById('tO').className = o ? 'on ov' : '';
   document.getElementById('title').innerText = o
@@ -832,7 +1161,7 @@ function loadAum(el) {
       });
       h += '<p class="quiet" style="font-size:11px;margin-top:8px">' +
            '순자산이 50억원 아래로 오래 머물면 관리종목을 거쳐 상장폐지될 수 있습니다. ' +
-           '150억원 밑으로 내려오면 주의 표시가 붙습니다. 괴리율이 평소보다 크게 벌어져 있으면 체결을 미뤄도 됩니다.</p>';
+           '150억원 밑으로 내려오면 주의 표시가 붙습니다. 괴리율이 5%를 넘으면 체결을 미루는 게 안전합니다.</p>';
       document.getElementById('aumArea').innerHTML = h;
     },
     function (e) {
@@ -850,14 +1179,20 @@ function loadLogs(el) {
         document.getElementById('logArea').innerHTML = '<span class="quiet">아직 기록이 없습니다. 매매 완료·저장하기를 누르면 여기에 쌓입니다.</span>';
         return;
       }
-      var h = '';
+      var h = '<div class="logbook">';
       rows.forEach(function (r) {
-        var cash = r.cash ? ' · 현금 ' + money(r.cash) : '';
-        var dep = r.deposit ? ' · 입금 ' + money(r.deposit) : '';
-        h += '<div style="margin-bottom:6px">· <b>' + fmtDate(r.date) + '</b> ' + r.summary +
-             '<div class="quiet" style="font-size:11px;padding-left:10px">' +
-             (cash + dep).replace(/^ · /, '') + '</div></div>';
+        var cash = r.cash ? '현금 ' + money(r.cash) : '';
+        var dep = r.deposit ? '입금 ' + money(r.deposit) : '';
+        var meta = [cash, dep].filter(Boolean).join(' · ');
+        h += '<div class="logEntry">' +
+               '<div class="logDate">' + fmtDate(r.date) + '</div>' +
+               '<div class="logBody">' +
+                 '<div class="logSummary">' + r.summary + '</div>' +
+                 (meta ? '<div class="logMeta">' + meta + '</div>' : '') +
+               '</div>' +
+             '</div>';
       });
+      h += '</div>';
       document.getElementById('logArea').innerHTML = h;
     },
     function (e) {
@@ -899,16 +1234,21 @@ function cell(v) {
 
 function render() {
   var keys = ['1일', '1주일', '1개월', '6개월', '1년'];
-  var h = '<table class="rt"><thead><tr><th>종목명</th><th>1일</th><th>1주일</th><th>1개월</th>' +
-          '<th>6개월</th><th>1년</th><th>1년 MDD</th></tr></thead><tbody>';
+  var h = '<div class="retbook">';
   rows.forEach(function (r) {
-    h += '<tr><td class="nm">' + (r.short || r.name) +
-         '<div class="cd">' + (r.usTicker || r.code || '') + '</div></td>';
-    keys.forEach(function (k) { h += '<td data-l="' + k + '">' + cell(r.values ? r.values[k] : null) + '</td>'; });
-    h += '<td data-l="1년 MDD">' + (r.mdd === null || r.mdd === undefined
-         ? '<span class="na">-</span>' : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</td></tr>';
+    h += '<div class="retCard">' +
+           '<div class="retHead"><span class="retName">' + (r.short || r.name) + '</span>' +
+             '<span class="retCode">' + (r.usTicker || r.code || '') + '</span></div>' +
+           '<div class="retGrid">';
+    keys.forEach(function (k) {
+      h += '<div class="retCell"><span class="retK">' + k + '</span>' + cell(r.values ? r.values[k] : null) + '</div>';
+    });
+    h += '</div>' +
+         '<div class="retMdd">1년 MDD ' + (r.mdd === null || r.mdd === undefined
+              ? '<span class="na">-</span>' : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</div>' +
+         '</div>';
   });
-  h += '</tbody></table><p class="quiet" style="font-size:12px">종가 기준이며 시세 제공에 최대 20분 지연이 있을 수 있습니다.</p>';
+  h += '</div><p class="quiet" style="font-size:12px;margin-top:8px">종가 기준이며 시세 제공에 최대 20분 지연이 있을 수 있습니다.</p>';
   document.getElementById('retArea').innerHTML = h;
 }
 </script>
