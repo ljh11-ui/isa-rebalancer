@@ -21,8 +21,10 @@
          background: var(--chart); transition: background .25s; }
   body.ov { background: var(--ink-deep); }
 
-  .wrap { position: relative; background: var(--paper); border-radius: 12px; padding: 18px; max-width: 1060px;
+  .wrap { position: relative; overflow: hidden; background: var(--paper); border-radius: 12px; padding: 18px; max-width: 1060px;
           margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+  .wrap::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+                  background: linear-gradient(90deg, var(--brass-light), var(--brass)); }
 
   /* ===== 로그인: 항해 컨셉 ===== */
   #login{ display:none; }
@@ -151,7 +153,7 @@
           cursor: pointer; font-size: 13px; padding: 6px; width: auto; display: block; margin: 10px auto 0; }
 
   /* 탭 */
-  .tabs { display: flex; gap: 6px; margin-bottom: 14px; margin-top: 26px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
   .tabs button { flex: 1; padding: 12px; font-size: 14px; background: rgba(11,29,51,.08); color: var(--ink);
                  border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
   .tabs button.on { background: var(--ink); color: var(--chart); }
@@ -159,20 +161,26 @@
 
   h2 { text-align: center; font-size: 27px; margin: 4px 0 8px; color: var(--ink);
        font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -.2px; }
-  .userbar { position: absolute; top: 12px; right: 14px; z-index: 50; text-align: right; font-size: 12px;
-             color: #fff; background: rgba(11,29,51,.75); padding: 6px 10px; border-radius: 20px;
-             backdrop-filter: blur(3px); }
-  .userbar .link { display: inline; margin-left: 6px; color: var(--brass-light); }
+  .userbar { text-align: right; font-size: 11.5px; color: var(--fog); letter-spacing: .02em;
+             padding-bottom: 8px; margin-bottom: 12px; border-bottom: 1px dashed rgba(181,113,63,.4); }
+  .userbar #who::before { content: '⚓ '; color: var(--brass); }
+  .userbar .link { display: inline; margin-left: 8px; color: var(--brass); font-weight: 700;
+                    text-decoration: none; border-bottom: 1px solid var(--brass); padding-bottom: 1px; }
+  .userbar .link:hover { color: var(--ink); border-color: var(--ink); }
 
-  .card { border-radius: 10px; padding: 14px; margin-bottom: 12px; text-align: center; }
-  .card.total { background: linear-gradient(160deg, var(--ink) 0%, var(--ink-deep) 100%); color: var(--chart); }
-  .card.total .num { font-size: 26px; font-weight: 800; letter-spacing: -.5px; color: var(--brass-light); }
-  .card.total .fx { font-size: 12px; color: var(--fog); display: block; margin-top: 3px; }
-  .card.profit { background: var(--foam); font-size: 14px; color: var(--ink); }
-  .card.profit b { font-size: 18px; }
-  .warn { background: #fee2e2; color: #991b1b; font-size: 14px; font-weight: 700; }
+  .card { padding: 10px 4px; margin-bottom: 4px; text-align: center; }
+  .card.total { padding: 16px 4px 10px; }
+  .card.total .lbl { font-size: 11.5px; color: var(--fog); text-transform: uppercase; letter-spacing: .06em; }
+  .card.total .num { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 600;
+                      color: var(--ink); margin: 4px 0 2px; letter-spacing: -.3px; }
+  .card.total .fx { font-size: 12px; color: var(--fog); display: block; }
+  .card.profit { font-size: 13.5px; color: var(--ink); padding-bottom: 16px;
+                 border-bottom: 1px solid rgba(11,29,51,.15); margin-bottom: 14px; }
+  .card.profit b { font-size: 16px; }
+  .warn { background: #fee2e2; color: #991b1b; font-size: 14px; font-weight: 700;
+          border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
   .below { background: rgba(181,113,63,.12); border: 1px solid rgba(181,113,63,.4); color: #6b3f1c; font-size: 13px;
-           text-align: left; padding: 12px 14px; }
+           text-align: left; padding: 12px 14px; border-radius: 8px; }
   .below div { margin: 2px 0; }
 
   /* 최근 기록 — 항해일지 카드 */
@@ -202,22 +210,6 @@
     .retGrid { grid-template-columns: repeat(3, 1fr); }
   }
 
-  /* 바다 무드 — 나스닥 주간 수익률 연동 */
-  .moodstrip { position: relative; height: 52px; border-radius: 10px; overflow: hidden;
-               margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
-  .moodstrip .mwave { position: absolute; inset: 0; opacity: .55; background-repeat: repeat-x;
-                       background-size: 150px 52px; animation: moodDrift 9s linear infinite; }
-  @keyframes moodDrift { from{ background-position-x:0 } to{ background-position-x:-150px } }
-  .moodstrip .mlabel { position: relative; z-index: 2; font-size: 12.5px; font-weight: 700;
-                        color: #fff; letter-spacing: .01em; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
-  .moodstrip.clear { background: linear-gradient(160deg, #4f9bd6 0%, #2f7fa8 100%); }
-  .moodstrip.clear .mwave { background-image: radial-gradient(ellipse 75px 15px at 50% 0, transparent 17px, rgba(255,255,255,.28) 18px); }
-  .moodstrip.calm { background: linear-gradient(160deg, #2f7fa8 0%, #1e5f85 100%); }
-  .moodstrip.calm .mwave { background-image: radial-gradient(ellipse 75px 19px at 50% 0, transparent 17px, rgba(255,255,255,.16) 18px); }
-  .moodstrip.storm { background: linear-gradient(160deg, #24384d 0%, #0c1622 100%); }
-  .moodstrip.storm .mwave { background-image: radial-gradient(ellipse 65px 24px at 50% 0, transparent 15px, rgba(255,255,255,.12) 16px);
-                             animation-duration: 4.5s; }
-
   .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
   .inputs label { display: block; font-size: 12px; font-weight: 700; color: var(--slate); margin-bottom: 4px; }
   .inputs input { width: 100%; padding: 11px; font-size: 16px; text-align: right;
@@ -225,9 +217,11 @@
   .inputs input:focus { outline: none; border-color: var(--brass); }
   .note { font-size: 11px; color: var(--fog); margin: -8px 0 14px; }
 
-  table { width: 100%; border-collapse: collapse; }
-  th, td { border: 1px solid rgba(11,29,51,.14); padding: 9px 6px; text-align: center; font-size: 14px; }
-  th { background: var(--chart); color: var(--ink); font-size: 12px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+  th, td { border: none; border-bottom: 1px solid rgba(11,29,51,.1); padding: 10px 6px; text-align: center; font-size: 14px; }
+  th { background: none; color: var(--ink); font-size: 11px; font-weight: 700; text-transform: uppercase;
+       letter-spacing: .03em; border-bottom: 2px solid var(--ink); }
+  tr:nth-child(even) td { background: rgba(181,113,63,.05); }
   td input { width: 68px; padding: 8px; font-size: 15px; text-align: right;
              border: 1px solid rgba(11,29,51,.2); border-radius: 6px; background: var(--paper); color: var(--ink); }
   .nm { text-align: left; font-weight: 700; }
@@ -235,36 +229,32 @@
   .buy { color: #dc2626; font-weight: 700; }
   .sell { color: #2563eb; font-weight: 700; }
   .idle { color: #b9c2ca; }
-  tr.idle-row td { background: rgba(11,29,51,.02); }
+  tr.idle-row td { background: rgba(11,29,51,.02) !important; }
   .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;
          background: rgba(181,113,63,.15); color: var(--brass); margin-top: 3px; }
 
-  /* 실행 버튼 — 좌우 반반 */
+  /* 실행 버튼 — 좌우 반반, 알약형 */
   .btnrow { display: flex; gap: 8px; margin-top: 14px; }
-  .btnrow button { flex: 1 1 50%; min-width: 0; padding: 16px 10px; font-size: 15px;
-                   font-weight: 800; color: #fff; border: none; border-radius: 10px;
+  .btnrow button { flex: 1 1 50%; min-width: 0; padding: 15px 10px; font-size: 14.5px;
+                   font-weight: 700; border-radius: 24px;
                    cursor: pointer; line-height: 1.3; }
-  .btnrow button.main { background: linear-gradient(160deg, var(--ink) 0%, var(--ink-deep) 100%); }
-  .btnrow button.save { background: linear-gradient(180deg, var(--brass-light) 0%, var(--brass) 45%, #8a5426 100%);
-                         box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 4px rgba(0,0,0,.2); }
-  .btnrow button.save:hover { filter: brightness(.96); }
-  .btnrow button:disabled { background: #a9b2bd; box-shadow: none; }
+  .btnrow button.main { background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); }
+  .btnrow button.main:hover { background: rgba(11,29,51,.05); }
+  .btnrow button.save { background: var(--brass); color: #fdf6e8; border: 1.5px solid var(--brass); }
+  .btnrow button.save:hover { background: #a1653a; }
+  .btnrow button:disabled { background: #e5e0d3; color: #a9b2bd; border-color: #d8d2c2; }
 
-  /* 아코디언 — 선실 문 컨셉 */
-  .acc { border: 1px solid var(--ink); border-radius: 10px; margin-top: 10px; overflow: hidden;
-         background: var(--paper); }
-  .accH { padding: 15px 18px; background: linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 100%);
-          color: var(--chart); font-weight: 600; font-size: 16px; cursor: pointer;
-          display: flex; justify-content: space-between; align-items: center;
-          font-family: 'Fraunces', serif; position: relative; }
-  .accH::after{ content:''; position:absolute; right:38px; top:50%; width:7px; height:7px;
-                border-radius:50%; background: var(--brass-light); transform:translateY(-50%);
-                box-shadow: 0 0 0 2px rgba(0,0,0,.3) inset; }
-  .accH .ar { color: var(--brass-light); font-size: 12px; transition: transform .2s; font-family: inherit; }
-  .accH.open .ar { transform: rotate(180deg); }
-  .accB { display: none; padding: 16px; border-top: 1px solid rgba(11,29,51,.15); }
-  .accB.open { display: block; animation: doorOpen .32s ease; transform-origin: top center; }
-  @keyframes doorOpen{ from{ opacity:0; transform: scaleY(.92) rotateX(-4deg); } to{ opacity:1; transform:none; } }
+  /* 아코디언 — 해도 문서: 박스 없이 밑줄 구분선 리스트 */
+  .acc { border-bottom: 1px solid rgba(11,29,51,.15); }
+  .accH { padding: 15px 2px; background: none; color: var(--ink); font-weight: 600; font-size: 16px;
+          cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+          font-family: 'Fraunces', serif; transition: color .15s; }
+  .accH:hover { color: var(--brass); }
+  .accH .ar { color: var(--fog); font-size: 11px; transition: transform .2s; font-family: inherit; }
+  .accH.open .ar { transform: rotate(180deg); color: var(--brass); }
+  .accB { display: none; padding: 2px 2px 18px; }
+  .accB.open { display: block; animation: accFade .22s ease; }
+  @keyframes accFade{ from{ opacity:0; } to{ opacity:1; } }
   .accB h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink);
              font-family: 'Fraunces', serif; font-weight: 600; }
   .accB h4:first-child { margin-top: 0; }
@@ -281,12 +271,13 @@
   .accB tr:nth-child(even) td { background: rgba(181,113,63,.05); }
   .accB td b { color: var(--brass); }
   .quiet { color: var(--fog); font-size: 13px; }
-  .sub-acc { border: 1px solid rgba(181,113,63,.4); border-radius: 8px; margin-bottom: 7px; overflow: hidden; }
-  .sub-accH { padding: 12px 14px; background: rgba(181,113,63,.1); font-weight: 600; font-size: 16px;
+  .sub-acc { border-bottom: 1px solid rgba(181,113,63,.3); margin-bottom: 4px; }
+  .sub-accH { padding: 11px 4px; background: none; font-weight: 600; font-size: 15px;
               cursor: pointer; display: flex; justify-content: space-between; color: var(--ink);
-              font-family: 'Fraunces', serif; border-left: 3px solid var(--brass); }
-  .sub-accB { display: none; padding: 14px; border-top: 1px solid rgba(181,113,63,.25); }
-  .sub-accB.open { display: block; animation: doorOpen .28s ease; transform-origin: top center; }
+              font-family: 'Fraunces', serif; }
+  .sub-accH:hover { color: var(--brass); }
+  .sub-accB { display: none; padding: 4px 4px 14px; }
+  .sub-accB.open { display: block; animation: accFade .2s ease; }
   .lead { font-style: italic; color: var(--brass); font-size: 18px; margin-top: 0;
           font-family: 'Cormorant Garamond', serif; }
   .accB p.quiet { font-size: 15px; }
@@ -423,23 +414,19 @@
 
 
 <div class="wrap" id="main" style="display:none">
+  <div class="userbar"><span id="who"></span><button class="link" onclick="doLogout()">로그아웃</button></div>
+
   <div class="tabs">
     <button id="tD" class="on" onclick="switchMarket('domestic')">국내 ISA</button>
     <button id="tO" onclick="switchMarket('overseas')">미국 직투</button>
   </div>
 
   <h2 id="title">ISA 5분할 리밸런싱 투자 포트폴리오</h2>
-  <div class="userbar"><span id="who"></span><button class="link" onclick="doLogout()">로그아웃</button></div>
-
-  <div id="moodStrip" class="moodstrip calm">
-    <div class="mwave"></div>
-    <span class="mlabel" id="moodLabel">오늘의 바다를 살피는 중...</span>
-  </div>
 
   <div id="warnBox" class="card warn" style="display:none"></div>
 
   <div class="card total">
-    <div style="font-size:12px;color:#94a3b8">총 평가금액 (종목 + 현금)</div>
+    <div class="lbl">총 평가금액 (종목 + 현금)</div>
     <div class="num" id="totalTxt">-</div>
     <span class="fx" id="fxTxt"></span>
   </div>
@@ -471,7 +458,7 @@
     <tbody id="tbody"></tbody>
   </table>
 
-  <div class="card profit" id="sumBox" style="margin-top:14px"></div>
+  <div class="card profit" id="sumBox" style="margin-top:14px;border-bottom:none;padding-bottom:0"></div>
 
   <div class="btnrow">
     <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
@@ -480,20 +467,6 @@
 
   <!-- 하단 이탈 자산이 있을 때만 나타남 -->
   <div id="belowBanner" class="card below" style="display:none;margin-top:12px"></div>
-
-  <div class="acc">
-    <div class="accH" onclick="togLoad(this, loadAum)"><span>ETF 운용자산 규모</span><span class="ar">▼</span></div>
-    <div class="accB">
-      <div id="aumArea" class="quiet">펼치면 조회합니다.</div>
-    </div>
-  </div>
-
-  <div class="acc" data-logs>
-    <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar">▼</span></div>
-    <div class="accB">
-      <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
-    </div>
-  </div>
 
   <!-- ① 최근 수익률 -->
   <div class="acc">
@@ -505,6 +478,13 @@
               style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(160deg,#3d5f80,var(--slate));border:none;border-radius:8px;cursor:pointer">최근 수익률 조회</button>
       <div class="prog" id="retProg" style="display:none"></div>
       <div id="retArea" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <div class="acc" data-logs>
+    <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
     </div>
   </div>
 
@@ -584,6 +564,13 @@
       </table>
       <p class="quiet">어떤 규칙 변경이든 그로 인해 늘어나는 매매수수료와 세금을 먼저 계산하고,
          기대 이익이 그 비용을 넘는지부터 확인해야 합니다.</p>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="accH" onclick="togLoad(this, loadAum)"><span>ETF 운용자산 규모</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <div id="aumArea" class="quiet">펼치면 조회합니다.</div>
     </div>
   </div>
 
@@ -938,40 +925,11 @@ function enter(id) {
   document.getElementById('loginStage').style.display = 'none';
   document.getElementById('main').style.display = 'block';
   document.getElementById('who').innerText = id + ' 님';
-  skin(); load(); loadMood();
-}
-
-// 나스닥100(index 0) 최근 1주일 수익률로 바다 상태를 정한다. 세션당 한 번만 조회, 실패하면 한 번 재시도.
-var moodLoaded = false;
-function loadMood(isRetry) {
-  if (moodLoaded && !isRetry) return;
-  moodLoaded = true;
-  api({ action: 'ret', market: 'domestic', index: 0 },
-    function (r) {
-      var w = r && r.values ? r.values['1주일'] : null;
-      var strip = document.getElementById('moodStrip');
-      var label = document.getElementById('moodLabel');
-      if (w === null || w === undefined) {
-        if (!isRetry) { setTimeout(function () { loadMood(true); }, 1800); return; }
-        strip.className = 'moodstrip calm';
-        label.innerText = '나스닥 시세를 확인하지 못했습니다.';
-        return;
-      }
-      var mood = w >= 1 ? 'clear' : (w <= -1 ? 'storm' : 'calm');
-      var moodText = w >= 1 ? '맑은 바다' : (w <= -1 ? '거친 폭풍우' : '잔잔한 바다');
-      strip.className = 'moodstrip ' + mood;
-      label.innerText = '오늘의 바다: ' + moodText + ' · 나스닥 주간 ' + (w >= 0 ? '+' : '') + w.toFixed(2) + '%';
-    },
-    function () {
-      if (!isRetry) { setTimeout(function () { loadMood(true); }, 1800); return; }
-      var strip = document.getElementById('moodStrip');
-      document.getElementById('moodLabel').innerText = '나스닥 시세를 확인하지 못했습니다.';
-      strip.className = 'moodstrip calm';
-    });
+  skin(); load();
 }
 
 function doLogout() {
-  uid = null; loaded = null; moodLoaded = false;
+  uid = null; loaded = null;
   document.getElementById('main').style.display = 'none';
   document.getElementById('loginStage').style.display = 'flex';
   document.getElementById('lpw').value = '';
