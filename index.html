@@ -13,7 +13,7 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root{
     --ink:#0b1d33; --ink-deep:#071426; --chart:#f5efe0; --paper:#fffdf6;
-    --brass:#b5713f; --brass-light:#e2b463; --verdigris:#3d7a7a;
+    --brass:#b5713f; --brass-light:#e2b463; --slate:#33526f;
     --fog:#7c8a9a; --foam:#e3eeec;
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
@@ -147,7 +147,7 @@
   }
   #loginStage .hint-install{ font-size:11.5px; color:#8a8578; text-align:center; margin-top:16px; line-height:1.5; }
 
-  .link { background: none; border: none; color: var(--verdigris); text-decoration: underline;
+  .link { background: none; border: none; color: var(--slate); text-decoration: underline;
           cursor: pointer; font-size: 13px; padding: 6px; width: auto; display: block; margin: 10px auto 0; }
 
   /* 탭 */
@@ -157,10 +157,12 @@
   .tabs button.on { background: var(--ink); color: var(--chart); }
   .tabs button.on.ov { background: var(--brass); color: #fdf6e8; }
 
-  h2 { text-align: center; font-size: 21px; margin: 4px 0 8px; color: var(--ink);
+  h2 { text-align: center; font-size: 27px; margin: 4px 0 8px; color: var(--ink);
        font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -.2px; }
-  .userbar { text-align: right; font-size: 12px; color: var(--fog); margin-bottom: 12px; }
-  .userbar .link { display: inline; margin-left: 6px; }
+  .userbar { position: fixed; top: 12px; right: 14px; z-index: 50; text-align: right; font-size: 12px;
+             color: #fff; background: rgba(11,29,51,.75); padding: 6px 10px; border-radius: 20px;
+             backdrop-filter: blur(3px); }
+  .userbar .link { display: inline; margin-left: 6px; color: var(--brass-light); }
 
   .card { border-radius: 10px; padding: 14px; margin-bottom: 12px; text-align: center; }
   .card.total { background: linear-gradient(160deg, var(--ink) 0%, var(--ink-deep) 100%); color: var(--chart); }
@@ -217,7 +219,7 @@
                              animation-duration: 4.5s; }
 
   .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .inputs label { display: block; font-size: 12px; font-weight: 700; color: var(--verdigris); margin-bottom: 4px; }
+  .inputs label { display: block; font-size: 12px; font-weight: 700; color: var(--slate); margin-bottom: 4px; }
   .inputs input { width: 100%; padding: 11px; font-size: 16px; text-align: right;
                   border: 1px solid rgba(11,29,51,.2); border-radius: 8px; background: var(--paper); color: var(--ink); }
   .inputs input:focus { outline: none; border-color: var(--brass); }
@@ -285,7 +287,7 @@
               font-family: 'Fraunces', serif; border-left: 3px solid var(--brass); }
   .sub-accB { display: none; padding: 14px; border-top: 1px solid rgba(181,113,63,.25); }
   .sub-accB.open { display: block; animation: doorOpen .28s ease; transform-origin: top center; }
-  .lead { font-style: italic; color: var(--verdigris); font-size: 18px; margin-top: 0;
+  .lead { font-style: italic; color: var(--brass); font-size: 18px; margin-top: 0;
           font-family: 'Cormorant Garamond', serif; }
   .accB p.quiet { font-size: 15px; }
 
@@ -420,7 +422,7 @@
 </div>
 
 
-<div class="wrap" id="main" style="display:none">
+<div class="wrap" id="main" style="display:none; margin-top:34px">
   <div class="tabs">
     <button id="tD" class="on" onclick="switchMarket('domestic')">국내 ISA</button>
     <button id="tO" onclick="switchMarket('overseas')">미국 직투</button>
@@ -500,7 +502,7 @@
       <p class="quiet">시장 흐름 참고용 시세 변동률입니다. 내 매수 가격과는 무관합니다.
         MDD는 최근 1년 안에서 고점 대비 가장 크게 빠졌던 폭입니다.</p>
       <button class="sub2" id="retBtn" onclick="loadRet()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(160deg,#4a9494,var(--verdigris));border:none;border-radius:8px;cursor:pointer">최근 수익률 조회</button>
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(160deg,#3d5f80,var(--slate));border:none;border-radius:8px;cursor:pointer">최근 수익률 조회</button>
       <div class="prog" id="retProg" style="display:none"></div>
       <div id="retArea" style="margin-top:12px"></div>
     </div>
@@ -939,10 +941,10 @@ function enter(id) {
   skin(); load(); loadMood();
 }
 
-// 나스닥100(index 0) 최근 1주일 수익률로 바다 상태를 정한다. 세션당 한 번만 조회.
+// 나스닥100(index 0) 최근 1주일 수익률로 바다 상태를 정한다. 세션당 한 번만 조회, 실패하면 한 번 재시도.
 var moodLoaded = false;
-function loadMood() {
-  if (moodLoaded) return;
+function loadMood(isRetry) {
+  if (moodLoaded && !isRetry) return;
   moodLoaded = true;
   api({ action: 'ret', market: 'domestic', index: 0 },
     function (r) {
@@ -950,6 +952,7 @@ function loadMood() {
       var strip = document.getElementById('moodStrip');
       var label = document.getElementById('moodLabel');
       if (w === null || w === undefined) {
+        if (!isRetry) { setTimeout(function () { loadMood(true); }, 1800); return; }
         strip.className = 'moodstrip calm';
         label.innerText = '나스닥 시세를 확인하지 못했습니다.';
         return;
@@ -960,6 +963,7 @@ function loadMood() {
       label.innerText = '오늘의 바다: ' + moodText + ' · 나스닥 주간 ' + (w >= 0 ? '+' : '') + w.toFixed(2) + '%';
     },
     function () {
+      if (!isRetry) { setTimeout(function () { loadMood(true); }, 1800); return; }
       var strip = document.getElementById('moodStrip');
       document.getElementById('moodLabel').innerText = '나스닥 시세를 확인하지 못했습니다.';
       strip.className = 'moodstrip calm';
