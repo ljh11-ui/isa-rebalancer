@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="themeColor" content="#f4f6f8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="항해">
+<base target="_top">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+         margin: 0; padding: 14px; line-height: 1.6; color: #1e293b;
+         background: #f4f6f8; transition: background .25s; }
+  body.ov { background: #3f4650; }
+
+  .wrap { background: #fff; border-radius: 12px; padding: 18px; max-width: 1060px;
+          margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+
+  /* 로그인 */
+  #login { max-width: 400px; margin: 48px auto; background: #fff; padding: 34px 26px;
+           border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+  .big { text-align: center; font-size: 23px; font-weight: 800; letter-spacing: -.6px; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 24px; }
+  input[type=text], input[type=password] { width: 100%; padding: 13px; margin-bottom: 10px;
+    font-size: 16px; border: 1px solid #cbd5e1; border-radius: 8px; }
+  #loginMsg { text-align: center; color: #dc2626; font-size: 13px; min-height: 20px; margin-top: 8px; }
+  .link { background: none; border: none; color: #2563eb; text-decoration: underline;
+          cursor: pointer; font-size: 13px; padding: 6px; width: auto; display: block; margin: 10px auto 0; }
+  .hint-install { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 18px; line-height: 1.5; }
+
+  /* 탭 */
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tabs button { flex: 1; padding: 12px; font-size: 14px; background: #e2e8f0; color: #64748b;
+                 border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+  .tabs button.on { background: #0f172a; color: #fff; }
+  .tabs button.on.ov { background: #475569; }
+
+  h2 { text-align: center; font-size: 19px; margin: 4px 0 8px; }
+  .userbar { text-align: right; font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+  .userbar .link { display: inline; margin-left: 6px; }
+
+  .card { border-radius: 10px; padding: 14px; margin-bottom: 12px; text-align: center; }
+  .card.total { background: #0f172a; color: #fff; }
+  .card.total .num { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+  .card.total .fx { font-size: 12px; color: #94a3b8; display: block; margin-top: 3px; }
+  .card.profit { background: #f1f5f9; font-size: 14px; }
+  .card.profit b { font-size: 18px; }
+  .warn { background: #fee2e2; color: #991b1b; font-size: 14px; font-weight: 700; }
+  .below { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 13px;
+           text-align: left; padding: 12px 14px; }
+  .below div { margin: 2px 0; }
+
+  .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .inputs label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+  .inputs input { width: 100%; padding: 11px; font-size: 16px; text-align: right;
+                  border: 1px solid #cbd5e1; border-radius: 8px; }
+  .note { font-size: 11px; color: #94a3b8; margin: -8px 0 14px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #e2e8f0; padding: 9px 6px; text-align: center; font-size: 14px; }
+  th { background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 700; }
+  td input { width: 68px; padding: 8px; font-size: 15px; text-align: right;
+             border: 1px solid #cbd5e1; border-radius: 6px; }
+  .nm { text-align: left; font-weight: 700; }
+  .cd { font-size: 11px; color: #94a3b8; font-weight: 400; }
+  .buy { color: #dc2626; font-weight: 700; }
+  .sell { color: #2563eb; font-weight: 700; }
+  .idle { color: #cbd5e1; }
+  tr.idle-row td { background: #fcfdfe; }
+  .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;
+         background: #fee2e2; color: #991b1b; margin-top: 3px; }
+
+  button.main { display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
+                color: #fff; background: #0f172a; border: none; border-radius: 10px; cursor: pointer; }
+  button.main:disabled { background: #94a3b8; }
+  button.sub2 { display: block; width: 100%; padding: 13px; font-size: 14px; font-weight: 700;
+                color: #fff; background: #64748b; border: none; border-radius: 8px; cursor: pointer; }
+  .guide-before { font-size: 12px; color: #94a3b8; text-align: center; margin-bottom: 6px; }
+  .guide-after { font-size: 12px; color: #64748b; text-align: center; margin-top: 10px;
+                 background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; }
+
+  /* 아코디언 */
+  .acc { border: 1px solid #e2e8f0; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+  .accH { padding: 15px 16px; background: #f8fafc; font-weight: 700; font-size: 15px; cursor: pointer;
+          display: flex; justify-content: space-between; align-items: center; }
+  .accH .ar { color: #94a3b8; font-size: 12px; transition: transform .2s; }
+  .accH.open .ar { transform: rotate(180deg); }
+  .accB { display: none; padding: 16px; border-top: 1px solid #e2e8f0; }
+  .accB.open { display: block; }
+  .accB h4 { font-size: 14px; margin: 18px 0 6px; color: #0f172a; }
+  .accB h4:first-child { margin-top: 0; }
+  .accB p, .accB li { font-size: 14px; color: #475569; }
+  .accB ul, .accB ol { padding-left: 20px; margin: 6px 0; }
+  .accB li { margin-bottom: 5px; }
+  .accB table { margin: 8px 0; }
+  .accB td, .accB th { font-size: 13px; padding: 7px 5px; }
+  .quiet { color: #94a3b8; font-size: 13px; }
+  .sub-acc { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 7px; }
+  .sub-accH { padding: 12px 14px; background: #fcfdfe; font-weight: 700; font-size: 14px;
+              cursor: pointer; display: flex; justify-content: space-between; }
+  .sub-accB { display: none; padding: 14px; border-top: 1px solid #e2e8f0; }
+  .sub-accB.open { display: block; }
+  .lead { font-style: italic; color: #64748b; font-size: 13px; margin-top: 0; }
+
+  .prog { text-align: center; font-weight: 700; font-size: 15px; margin: 12px 0; color: #0f172a; }
+  .up { color: #dc2626; font-weight: 700; }
+  .dn { color: #2563eb; font-weight: 700; }
+  .na { color: #cbd5e1; }
+
+  /* 모바일: 표를 카드로 */
+  @media (max-width: 700px) {
+    body { padding: 8px; }
+    .wrap { padding: 14px 12px; }
+    .inputs { grid-template-columns: 1fr; }
+    table.rt thead { display: none; }
+    table.rt tr { display: block; border: 1px solid #e2e8f0; border-radius: 9px;
+                  margin-bottom: 9px; overflow: hidden; }
+    table.rt td { display: flex; justify-content: space-between; align-items: center;
+                  border: none; border-bottom: 1px solid #f1f5f9; text-align: right; padding: 9px 12px; }
+    table.rt td:last-child { border-bottom: none; }
+    table.rt td::before { content: attr(data-l); font-size: 12px; color: #94a3b8; font-weight: 700; }
+    table.rt td.nm { display: block; text-align: left; background: #f8fafc; }
+    table.rt td.nm::before { content: none; }
+    .accB table:not(.rt) { display: block; overflow-x: auto; white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="big">그대들은 어떻게 투자할 것인가</div>
+  <div class="sub">5분할 리밸런싱 포트폴리오</div>
+  <input type="text" id="lid" placeholder="아이디" autocomplete="username"
+         onkeydown="if(event.key==='Enter')doLogin()">
+  <input type="password" id="lpw" placeholder="비밀번호" autocomplete="current-password"
+         onkeydown="if(event.key==='Enter')doLogin()">
+  <button class="main" id="lbtn" onclick="doLogin()">로그인</button>
+  <button class="link" onclick="doSignUp()">처음 사용하기 (새 계정 만들기)</button>
+  <div id="loginMsg"></div>
+  <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+</div>
+
+<div class="wrap" id="main" style="display:none">
+  <div class="tabs">
+    <button id="tD" class="on" onclick="switchMarket('domestic')">국내 ISA</button>
+    <button id="tO" onclick="switchMarket('overseas')">미국 직투</button>
+  </div>
+
+  <h2 id="title">ISA 5분할 리밸런싱 투자 포트폴리오</h2>
+  <div class="userbar"><span id="who"></span><button class="link" onclick="doLogout()">로그아웃</button></div>
+
+  <div id="warnBox" class="card warn" style="display:none"></div>
+
+  <div class="card total">
+    <div style="font-size:12px;color:#94a3b8">총 평가금액 (종목 + 현금)</div>
+    <div class="num" id="totalTxt">-</div>
+    <span class="fx" id="fxTxt"></span>
+  </div>
+
+  <div class="card profit" id="profitBox"></div>
+
+  <div class="inputs">
+    <div>
+      <label>통장 현금자산</label>
+      <input type="text" id="cash" inputmode="numeric">
+    </div>
+    <div>
+      <label>이번 신규 입금액</label>
+      <input type="text" id="dep" inputmode="numeric">
+    </div>
+  </div>
+  <div class="note">
+    두 칸을 더한 금액이 이번 매수 재원입니다. 통장 현금자산 = 지난번 잔여 + 그사이 들어온 배당금.
+    이번 신규 입금액 = 계좌 밖에서 이번에 새로 넣은 돈(누적 원금 계산용, 저장하면 0으로 초기화).
+  </div>
+
+  <table class="rt">
+    <thead>
+      <tr>
+        <th>종목명</th><th>목표<br>(상단)</th><th id="thP">현재가</th>
+        <th>보유<br>(주)</th><th id="thA">평가금액</th><th>비중</th><th>해야 할 일</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="card profit" id="sumBox" style="margin-top:14px"></div>
+
+  <p class="guide-before">지금 입력한 보유수량과 현금 기준으로 사고팔 것을 계산합니다.</p>
+  <button class="main" id="calcBtn" onclick="calc()">계산하기</button>
+  <p class="guide-after">
+    계산대로 <b>증권사에서 매매를 마쳤다면</b>, 바뀐 보유수량과 남은 현금을 다시 입력하고
+    '계산하기'를 눌러 저장하세요.
+  </p>
+
+  <!-- 짧은 아코디언 3개 -->
+  <div class="acc">
+    <div class="accH" onclick="tog(this)"><span>하단 관찰</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <div id="belowInner" class="quiet">계산을 한 번 실행하면 표시됩니다.</div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="accH" onclick="togLoad(this, loadAum)"><span>자산 현황 (AUM)</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <div id="aumArea" class="quiet">펼치면 조회합니다.</div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
+    </div>
+  </div>
+
+  <!-- ① 최근 수익률 -->
+  <div class="acc">
+    <div class="accH" onclick="tog(this)"><span>종목별 최근 수익률</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <p class="quiet">시장 흐름 참고용 시세 변동률입니다. 내 매수 가격과는 무관합니다.
+        MDD는 최근 1년 안에서 고점 대비 가장 크게 빠졌던 폭입니다.</p>
+      <button class="sub2" id="retBtn" onclick="loadRet()">최근 수익률 조회</button>
+      <div class="prog" id="retProg" style="display:none"></div>
+      <div id="retArea" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- ② 운용 규칙 -->
+  <div class="acc">
+    <div class="accH" onclick="tog(this)"><span>운용 규칙</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <h4>실행 카드</h4>
+      <p><b>목표 비중</b> 다섯 자산 각 20%<br>
+         <b>상단 밴드</b> 위험자산 4종 25%(+5%p) · SOFR 23%(+3%p)<br>
+         <b>하단 밴드</b> 두지 않습니다. 목표 아래로 내려간 자산은 팔지도, 채우려 따로 사지도 않습니다<br>
+         <b>여는 시점</b> 새로 넣을 돈이 생겼을 때, 또는 시장이 크게 움직였을 때<br>
+         <b>시작 전 전제</b> 생활비 12개월분 비상금을 이 계좌 밖에 확보. 없으면 비상금이 먼저</p>
+
+      <h4>카드를 열면 하는 일</h4>
+      <ol>
+        <li>상단 초과분만 매도합니다. 상단선을 넘은 만큼만 팔고, 목표까지 내리지 않습니다.</li>
+        <li>넣을 돈(납입금 + 배당금 + 매도금)을 부족분 크기에 비례해 배분합니다.</li>
+      </ol>
+      <p class="quiet">예) 나스닥100이 3%p 부족하고 배당다우존스가 1%p 부족하면 합계 4%p → 75 : 25로 나눕니다.</p>
+      <p>빠진 자산일수록 부족분이 커지고, 부족분이 클수록 그쪽으로 돈이 더 갑니다. 폭락한 자산을
+         더 많이 사게 되는 구조라 따로 판단할 일이 없습니다.</p>
+      <p>폭락장에서는 SOFR이 23% 상단을 넘어 자동으로 팔리고, 그 돈은 가장 많이 빠진 주식으로 갑니다.
+         방어자산을 언제 쓸지 정하는 판단이 필요 없는 이유입니다.</p>
+
+      <h4>하지 않는 일</h4>
+      <ol>
+        <li>종목 고르기 — 5종 비율대로만 매수</li>
+        <li>하단 이탈 자산을 채우려 다른 자산 매도 — 신규 자금으로만 충당</li>
+        <li>뉴스를 근거로 한 규칙 변경</li>
+        <li>목표 비중·밴드 폭 조정 — 연례 점검 때만</li>
+      </ol>
+      <p class="quiet">하락장은 직선으로 내려가지 않으므로, 반등을 걸러내려는 규칙은 저점까지 함께 걸러냅니다.</p>
+
+      <h4>점검 시점</h4>
+      <p>정해진 날짜에 기계적으로 도는 규칙이 아닙니다. 카드를 여는 경우는 둘입니다.
+         새로 넣을 돈이 생겼을 때, 그리고 시장이 크게 움직여 비중이 흐트러졌을 만할 때입니다.</p>
+      <p>판정은 카드를 연 날의 종가로 합니다. 장중 호가로 보면 같은 날에도 결론이 달라지므로
+         종가 하나로 고정하고, 휴장일이면 직전 거래일 종가를 씁니다.</p>
+      <p>급등락을 보고 카드를 여는 것과, 급등락을 보고 규칙을 바꾸는 것은 다릅니다.
+         앞은 점검이고 뒤는 금지된 행위입니다.</p>
+
+      <h4>집행 실무</h4>
+      <p>장 시작 직후와 마감 직전은 피해서 체결합니다. 어느 시점에 매매하든 손해 볼 일이 없는
+         습관이므로 늘 적용합니다.</p>
+      <p>국내 상장 해외 ETF에는 순자산가치(NAV)와 거래가격이 벌어지는 괴리율이 있습니다.
+         평소에는 작지만 변동성이 큰 날에는 눈에 띄게 벌어지기도 하며, 증권사 앱의 ETF 화면에서
+         확인할 수 있습니다. 괴리율이 평소보다 크게 벌어져 있으면 체결을 미뤄도 됩니다.
+         무엇을 얼마나 사고팔지는 카드를 연 날의 종가로 이미 확정돼 있으므로, 체결일이 하루 이틀
+         늦어져도 실행 내용 자체는 바뀌지 않습니다.</p>
+
+      <h4>하단 밴드를 두지 않는 이유</h4>
+      <p>한 자산만 유독 부진해 보이는 상황은 사실 기존 규칙(부족분 비례 배분)이 이미 가장 강하게
+         반응하는 상황입니다. 목표 미달 자산이 하나뿐이면 그달 신규 자금 전액이 그쪽으로 들어가기
+         때문입니다. 여기에 "하단에서 다른 자산을 팔아 채운다"는 규칙을 더하면, 실제로 발동하기까지
+         그 자산이 −29%p 넘게 빠져야 하고, 발동해도 옮기는 돈은 포트폴리오의 1% 남짓,
+         기대수익 차이로는 연 0.045%p 수준입니다.</p>
+      <p>효과가 이렇게 작은데, 대가로 "다른 자산을 팔아 채우지 않는다"는 원칙 하나를 깨야 합니다.
+         이 원칙이 살아있는 이유는 폭락장 한복판에서 이성적 판단 없이 잘못된 행동으로 이어질 수
+         있기 때문인데, 그 규칙을 무시하는 예외 행동 하나가 포트폴리오 전체를 무너뜨릴 수 있습니다.</p>
+      <p>그러니 이 아이디어가 다시 떠오르면 다시 비교할 필요 없이 "이미 계산해봤고 안 맞았다"로
+         넘기면 됩니다. 정말 걱정되는 상황(소득이 끊긴 채 하락장이 겹치는 경우)을 막는 장치는
+         이 계좌 안의 규칙이 아니라 계좌 밖 비상금 12개월분입니다.</p>
+
+      <h4>매년 점검표</h4>
+      <table>
+        <tr><th>항목</th><th>확인</th></tr>
+        <tr><td>비상금</td><td>생활비 12개월분이 계좌 밖에 있는지</td></tr>
+        <tr><td>목표·밴드</td><td>5종 비중(각 20%)과 밴드 폭이 여전히 적절한지</td></tr>
+        <tr><td>순자산</td><td>S&amp;P500 모멘텀·배당퀄리티의 순자산이 줄고 있는지</td></tr>
+        <tr><td>비용</td><td>총보수와 실질 비용의 변화</td></tr>
+        <tr><td>신규자금 비율</td><td>월 신규자금이 총액에서 차지하는 비율 (인지 목적)</td></tr>
+        <tr><td>하단 관찰</td><td>15% 아래에 6개월 이상 머문 자산이 있는지 (인지 목적)</td></tr>
+        <tr><td>ETF 상품 위험</td><td>추적오차 · 시장 매력도 · 청산 위험 · 알고리즘 유효성</td></tr>
+      </table>
+      <p class="quiet">어떤 규칙 변경이든 그로 인해 늘어나는 매매수수료와 세금을 먼저 계산하고,
+         기대 이익이 그 비용을 넘는지부터 확인해야 합니다.</p>
+    </div>
+  </div>
+
+  <!-- ③ 종목 상세 -->
+  <div class="acc">
+    <div class="accH" onclick="tog(this)"><span>종목 상세 설명</span><span class="ar">▼</span></div>
+    <div class="accB">
+      <p class="lead">우리가 만드는 건 침몰하지 않는 배가 아닙니다. 부서졌을 때 고칠 자재를 싣고 가는
+        배입니다. 남보다 덜 잃는 게 목표이지 잃지 않는 게 목표가 아닙니다.</p>
+
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>개요 — 함께 다니는 다섯</span><span class="ar">▼</span></div>
+        <div class="sub-accB">
+          <h4>시작 전에 반드시 아셔야 할 세 가지</h4>
+          <p><b>1. 비상금이 먼저입니다.</b> 생활비 12개월분을 이 계좌 밖에 확보하는 게 첫 번째
+            조건입니다. 큰 위기는 실직 위험과 함께 오는데, 계좌 밖에 쓸 돈이 없으면 하필 가장 싼
+            시점에 이 계좌를 헐게 됩니다.</p>
+          <p><b>2. 고배당 포트폴리오가 아닙니다.</b> 실제 배당은 전체 대비 연 약 1.22%(세전),
+            1억 원이면 연 122만 원입니다. 성장 자산 40%가 배당을 거의 주지 않고 SOFR은 이자를
+            기준가에 쌓기 때문입니다.</p>
+          <p><b>3. 주식이 80%입니다.</b> 다섯 중 넷이 주식이고 방어를 맡는 건 SOFR 20% 하나뿐입니다.
+            채권은 들어 있지 않습니다. 대신 그 20%가 폭락장에서 자동으로 팔려 싸진 주식을 사는
+            재원이 됩니다.</p>
+          <table>
+            <tr><th>배에서</th><th>실제로는</th><th>해당 자산</th></tr>
+            <tr><td>돛</td><td>성장주 ETF</td><td>나스닥100, S&amp;P500 모멘텀</td></tr>
+            <tr><td>보급선</td><td>배당주 ETF</td><td>배당다우존스, 배당퀄리티</td></tr>
+            <tr><td>밀봉된 물자</td><td>현금성 자산</td><td>SOFR</td></tr>
+          </table>
+          <p><b>돛 두 장</b>이 배를 앞으로 밀어냅니다. 순풍이 불면 빠르게 나아가고, 강풍이 불면 가장
+            크게 찢기는 것도 이 둘입니다. <b>보급선 두 척</b>이 항해 중 물자를 실어 옵니다.
+            앞의 배는 지금 당장 많이 싣고, 뒤의 배는 실을 능력 자체가 빠르게 커집니다.
+            <b>밀봉된 물자</b>는 평소엔 무게지만, 폭풍이 오면 이것만 상하지 않고 남아 부서진 곳을
+            고칠 유일한 재원이 됩니다.</p>
+          <p class="quiet">다섯 자산 모두 환헤지를 하지 않는 환노출형입니다. 위기에 원/달러가 오르면
+            원화 계좌의 낙폭을 완화해주지만, 원화가 강해지면 반대로 수익을 깎습니다.</p>
+        </div>
+      </div>
+
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>1. TIGER 미국나스닥100</span><span class="ar">▼</span></div>
+        <div class="sub-accB">
+          <p class="lead">주돛. 바람을 가장 많이 받아 배를 앞으로 밉니다.</p>
+          <p class="quiet">비중 20% · 상단 25% · 분기 분배 · 133690 · 참고 티커 QQQ</p>
+          <p>애플과 엔비디아, 마이크로소프트를 포함해 나스닥에 상장된 대표 기업 100개를 담습니다.
+            순풍이 불 때 가장 먼저, 가장 크게 반응하는 자산입니다. 이 돛이 나아가야 나머지가
+            의미를 갖습니다.</p>
+          <h4>어떤 성과를 냈나</h4>
+          <p>최근 10년 총수익 기준 연평균 약 21% 성장했고, 같은 기간 S&amp;P500은 약 13.5%였습니다.
+            2007년 말부터 2026년 3월까지로 넓혀 봐도 나스닥100은 연 15.4%, S&amp;P500은 연
+            10.6%로 격차가 유지됐습니다.</p>
+          <h4>강풍에 가장 먼저 찢어집니다</h4>
+          <p>2008년 금융위기에 달러 기준 약 −53%, 2020년 팬데믹에 약 −28%, 2022년 금리 인상기에
+            약 −35%까지 빠졌습니다. 세 번 모두 회복했습니다. 손실이 확정된 건 폭풍 자체가 아니라
+            폭풍 한복판에서 배를 버린 경우였습니다.</p>
+          <h4>이 자산 혼자서는</h4>
+          <ul>
+            <li>강풍에 가장 크게 찢깁니다 — 이 변동을 못 견디면 바닥에서 팔게 됩니다.</li>
+            <li>기술주에 고정돼 있습니다 — 편입 기준이 거래소와 시총이라 자리를 옮길 수 없습니다.</li>
+            <li>배당이 거의 없습니다(약 0.63%) — 현금흐름에는 기여하지 않습니다.</li>
+          </ul>
+          <p class="quiet">낙폭 완충은 SOFR이, 섹터 이동은 S&amp;P500 모멘텀이, 현금흐름은 보급선
+            두 척이 맡습니다.</p>
+        </div>
+      </div>
+
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>2. KIWOOM 미국S&amp;P500모멘텀</span><span class="ar">▼</span></div>
+        <div class="sub-accB">
+          <p class="lead">바람 방향을 따라 각도를 바꾸는 보조돛.</p>
+          <p class="quiet">비중 20% · 상단 25% · 분기 분배 · 0137V0 · 참고 티커 SPMO</p>
+          <p>S&amp;P500의 500개 종목 중 최근 1년(직전 1개월 제외) 성과가 좋았던 약 100개를 골라
+            담고, 1년에 두 번 종목을 교체합니다. 단순히 많이 오른 종목이 아니라 변동성 대비 성과로
+            고르기 때문에, 급등락이 심한 종목은 비중이 줄거나 빠집니다.</p>
+          <h4>안전한 물 안에서 방향을 바꿉니다</h4>
+          <p>S&amp;P500에 들어가려면 직전 분기 흑자에 최근 4개 분기 합산으로도 흑자여야 합니다.
+            이미 돈을 벌고 있다는 걸 증명한 500개 안에서 지금 가장 돈이 몰리는 곳으로 옮겨 담는
+            전략입니다. 나스닥100은 "나스닥 상장 + 시총 상위"가 기준이라 흑자 여부가 조건이
+            아니고, 그래서 자리를 옮길 수 없습니다.</p>
+          <p>2022년이 이 구조 차이를 보여줍니다. 나스닥100이 −32.6%였을 때 SPMO는 −10.45%에
+            그쳤습니다. 유독 잘 판단해서가 아니라 방어 섹터로 옮겨갈 수 있었기 때문입니다.</p>
+          <h4>매달 규칙의 구멍을 메웁니다</h4>
+          <p>이 포트폴리오의 규칙은 상단을 넘은 자산을 팝니다. 한 자산이 몇 년씩 계속 오르는
+            장에서는 승자를 계속 덜어내게 된다는 약점이 있습니다. 이 자산은 상품 내부에서 알아서
+            잘 나가는 종목을 다시 채워 넣어 그 구멍을 메웁니다. 밖에서는 규칙이 승자를 덜어내고,
+            안에서는 지수가 승자를 다시 담습니다.</p>
+          <h4>이 자산 혼자서는</h4>
+          <ul>
+            <li>바람이 바뀐 직후에 느립니다 — 반등 초기 성과는 기대치를 낮추셔야 합니다.</li>
+            <li>이력이 짧고 규모가 작습니다 — 국내 상품은 2025년 12월 상장, 순자산 약 939억 원.</li>
+            <li>배당은 약 0.65%이며 종목 교체에 따라 크게 흔들립니다. 배당 계획에서는 0으로
+              놓고 보수적으로 잡으시는 편이 안전합니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>3. TIGER 미국배당다우존스</span><span class="ar">▼</span></div>
+        <div class="sub-accB">
+          <p class="lead">나란히 따라오는 보급선. 바람이 없는 날에도 식량을 실어 나릅니다.</p>
+          <p class="quiet">비중 20% · 상단 25% · 월배당 · 458730 · 참고 티커 SCHD</p>
+          <p>Dow Jones U.S. Dividend 100 지수를 따라, 재무구조가 튼튼하고 배당을 꾸준히 주는 미국
+            기업 100개를 담습니다. 항구에 닿지 않아도 배 안의 식량이 떨어지지 않게 하는 역할입니다.</p>
+          <h4>이 배의 현금 공급원</h4>
+          <p>돛 두 장은 배당이 사실상 없습니다. 반면 이 자산의 분배수익률은 연 약 3.44%로,
+            포트폴리오에서 가장 큰 현금흐름을 만듭니다. 미국 SCHD는 지난 10년 배당 재투자 기준
+            연 약 12.5% 성장했습니다. 배당을 받으면서 자산도 함께 커진 셈입니다.</p>
+          <h4>배당 자체가 매년 늘어납니다</h4>
+          <p>지수 규칙이 매년 배당을 늘릴 여력이 있는 기업만 남기고 나머지를 걸러냅니다. 그래서
+            주당 분배금은 상장 이후 우상향해 왔습니다. 처음 넣은 돈 대비 받는 배당률이 시간이
+            갈수록 올라간다는 뜻입니다.</p>
+          <p>이 배당은 그냥 쓰는 돈이 아니라 규칙을 타고 가장 많이 빠진 자산으로 흘러갑니다.
+            계좌가 파랗게 물든 달에도 배당은 찍힙니다. 이 작은 신호가 버티는 힘이 됩니다.</p>
+          <h4>이 자산 혼자서는</h4>
+          <ul>
+            <li>배를 앞으로 밀지는 못합니다 — 순풍이 부는 해에는 한 자릿수에 머무는 경우가 많습니다.</li>
+            <li>섹터가 한쪽으로 쏠립니다 — 에너지·필수소비재·헬스케어가 많고 기술주 비중이 낮습니다.</li>
+            <li>큰 파도는 보급선도 덮칩니다 — 2020년에 −33%까지 빠졌습니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>4. ACE 미국배당퀄리티</span><span class="ar">▼</span></div>
+        <div class="sub-accB">
+          <p class="lead">두 번째 보급선. 이익이 자라는 곳에서만 물자를 싣습니다.</p>
+          <p class="quiet">비중 20% · 상단 25% · 월배당 · 0046Y0 · 참고 티커 DGRW</p>
+          <p>최근 1년간 배당을 지급했고 이익성장률과 3년 평균 ROE, ROA가 우수한 약 300개를
+            담습니다. 핵심은 선정 기준의 순서입니다. "배당을 많이 주는가"가 아니라 "돈을 잘 벌고
+            있고 이익이 늘고 있는가"를 먼저 보고, 배당은 그 결과로 따라옵니다.</p>
+          <h4>배당다우존스와 뭐가 다른가</h4>
+          <table>
+            <tr><th></th><th>배당다우존스</th><th>배당퀄리티</th></tr>
+            <tr><td>선정 기준</td><td>재무 건전성, 배당 지속성</td><td>이익성장률, ROE, ROA</td></tr>
+            <tr><td>종목 수</td><td>100개</td><td>약 300개</td></tr>
+            <tr><td>분배수익률</td><td>약 3.44%</td><td>약 1.4%</td></tr>
+            <tr><td>성격</td><td>지금 많이 주는 곳</td><td>이익이 자라는 곳</td></tr>
+          </table>
+          <p>배당퀄리티 상위 종목에는 마이크로소프트와 애플, 엔비디아 같은 기술주가 엑슨모빌,
+            필립모리스 같은 전통 배당주와 나란히 들어 있습니다. 배당수익률 기준으로 거르면 지금
+            배당을 적게 주는 기술주는 탈락하기 때문에, 배당다우존스에는 이 기술주들이 거의 없습니다.</p>
+          <p>정리하면 지금 당장의 현금은 배당다우존스가 만들고, 이익 성장에 따른 배당 증가와 주가
+            상승은 배당퀄리티가 담당합니다. 같은 20% 슬롯 두 개인데 서로 다른 곳을 보고 있습니다.</p>
+          <h4>위기 때의 성적</h4>
+          <p>2022년 총수익 기준 −6.34%였습니다. 기술주를 담고 있는데도 이렇게 버틴 건 이익을
+            내지 못하는 기업은 애초에 들어오지 않기 때문입니다. 2020년 3월에는 약 −32% 하락해
+            급락장에서는 배당주도 예외가 아니었습니다.</p>
+          <h4>이 자산 혼자서는</h4>
+          <ul>
+            <li>지금 받는 배당이 적습니다(약 1.4%) — 현금이 목적이라면 비중을 늘리는 건 역효과입니다.</li>
+            <li>배당주치고 변동성이 있습니다 — 기술주를 담고 있어서입니다.</li>
+            <li>국내 상품 이력이 짧고 규모가 작습니다 — 2025년 5월 상장, 순자산 약 551억 원.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>5. TIGER 미국달러SOFR금리액티브</span><span class="ar">▼</span></div>
+        <div class="sub-accB">
+          <p class="lead">밀봉된 비상 물자. 절대 상하지 않고, 폭풍이 오면 이걸로 배를 고칩니다.</p>
+          <p class="quiet">비중 20% · 상단 23%(다른 넷보다 좁음) · 이자 재투자형(TR) · 456610 · 참고 티커 SGOV</p>
+          <p>미국 초단기 자금시장 금리(SOFR)에 연동돼 매일 이자를 쌓고, 가격은 거의 흔들리지
+            않습니다. 이 배에서 유일한 방어자산입니다.</p>
+          <h4>왜 20%나 담나</h4>
+          <p>2022년에는 주식이 떨어졌고, 흔히 방어자산으로 쓰는 중장기 국채마저 함께 떨어졌습니다.
+            미국 10년물 국채 ETF는 그해 −15.5%, 고점 대비로는 −23.93%까지 빠졌고, 그때 플러스를
+            지킨 건 현금성 자산뿐이었습니다. 이게 이 포트폴리오에 채권이 없는 이유입니다.
+            채권은 금리가 내려가는 위기에서만 방어가 되고, 금리가 올라가는 위기에서는 주식과 함께
+            무너집니다. SOFR은 어느 쪽이든 상하지 않습니다.</p>
+          <h4>상단이 23%인 이유</h4>
+          <ol>
+            <li>주식 넷이 크게 빠집니다</li>
+            <li>SOFR은 안 빠지므로 가만히 있어도 비중이 저절로 올라갑니다</li>
+            <li>23%를 넘는 순간 넘은 만큼 자동으로 팔립니다</li>
+            <li>그 돈은 부족분에 비례해 배분되므로 가장 많이 빠진 주식으로 갑니다</li>
+          </ol>
+          <p>즉 방어자산을 언제 쓸지 판단할 필요가 없고, 밴드가 대신 정해줍니다. 폭락이 깊어질수록
+            이 장치는 더 강하게 작동합니다.</p>
+          <h4>TR이 무슨 뜻인가</h4>
+          <p>이자를 밖으로 빼지 않고 상품 가격 안에 그대로 쌓습니다. 그래서 겉보기 분배수익률은
+            약 0.07%로 거의 0에 가깝습니다. 배당을 안 준다는 뜻이 아니라 이자가 전부 가격에
+            흡수되고 있다는 뜻입니다. 분배가 없으니 팔 때 한 번에 정산되어 세금 면에서도
+            유리합니다.</p>
+          <h4>이 자산 혼자서는</h4>
+          <ul>
+            <li>평상시엔 무게만 차지합니다 — 버는 자산이 아니라 기다리는 자산입니다.</li>
+            <li>저금리에는 수익이 0에 수렴합니다.</li>
+            <li>환율 위험은 그대로입니다 — 원화 강세기에는 원화 기준 손실이 납니다.</li>
+            <li>합성 상품입니다 — 스왑 구조라 거래상대방 위험이 이론적으로 존재합니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>부록 — 배당과 비용, 그리고 환율</span><span class="ar">▼</span></div>
+        <div class="sub-accB">
+          <h4>실제로 통장에 들어오는 배당</h4>
+          <table>
+            <tr><th>자산</th><th>분배수익률</th><th>기여도</th></tr>
+            <tr><td>배당다우존스</td><td>3.44%</td><td>0.688%p</td></tr>
+            <tr><td>배당퀄리티</td><td>1.40%</td><td>0.280%p</td></tr>
+            <tr><td>나스닥100</td><td>0.63%</td><td>0.126%p</td></tr>
+            <tr><td>S&amp;P500 모멘텀</td><td>0.65%</td><td>0.130%p</td></tr>
+            <tr><td><b>합계</b></td><td></td><td><b>약 1.22%</b></td></tr>
+          </table>
+          <p>전체 평가금액 대비 연 1.22%(세전), 1억 원이면 연 약 122만 원입니다. S&amp;P500 모멘텀
+            몫은 종목 교체에 따라 흔들리므로 이를 빼고 약 1.09%를 하한으로 잡아두시는 편이
+            안전합니다. 이 배당은 쓰라고 있는 돈이 아니라 규칙을 타고 가장 부족한 자산으로
+            흘러가는 자동 매수 재원입니다.</p>
+
+          <h4>보수와 실질 비용</h4>
+          <table>
+            <tr><th>자산</th><th>총보수</th><th>실질 비용</th><th>순자산</th></tr>
+            <tr><td>나스닥100</td><td>0.0068%</td><td>0.1356%</td><td>11조 4,540억</td></tr>
+            <tr><td>S&amp;P500 모멘텀</td><td>0.1200%</td><td>0.6406%</td><td>939억</td></tr>
+            <tr><td>배당다우존스</td><td>0.0100%</td><td>0.1041%</td><td>4조 1,759억</td></tr>
+            <tr><td>배당퀄리티</td><td>0.1500%</td><td>0.4109%</td><td>551억</td></tr>
+            <tr><td>SOFR</td><td>0.0500%</td><td>0.0700%</td><td>5,792억</td></tr>
+          </table>
+          <p>각 20%로 가중평균하면 총보수 기준 연 0.067%지만 실질 비용 기준으로는 연 약 0.272%로
+            네 배가 넘습니다. 1억 원이면 6만 7천 원과 27만 2천 원의 차이입니다. 총보수만 보고
+            상품을 비교하면 안 되는 이유입니다.</p>
+
+          <h4>규모가 작은 상품</h4>
+          <p>ETF는 순자산이 일정 규모(통상 50억 원) 아래로 떨어진 상태가 이어지면 관리종목을 거쳐
+            상장폐지 절차를 밟습니다. 투자금이 사라지지는 않고 순자산가치대로 돌려받지만, 원치 않는
+            시점에 강제로 정리된다는 게 문제입니다. 당장 위험한 수준은 아니지만, S&amp;P500
+            모멘텀과 배당퀄리티는 상장 1년 안팎의 신생 상품이고 둘을 합치면 비중이 40%입니다.
+            순자산 추이는 연 1회 점검 항목입니다.</p>
+
+          <h4>환노출이라는 선택</h4>
+          <p>위기가 오면 투자자들은 달러를 삽니다. 원/달러가 오르고, 그러면 달러 자산의 하락분을
+            원화 계좌에서 일부 상쇄합니다. 2008~2009년에는 900원대에서 1,570원대로, 2022년에는
+            1,188원에서 1,440원대까지 올라 원화 낙폭을 크게 완화했습니다.</p>
+          <p>다만 양날의 검입니다. 원화가 강해지면 환노출은 수익을 깎아먹습니다. 지금은 원/달러가
+            역사적으로 높은 구간이라, 여기서 새로 들어가는 경우 환율이 정상화되면 그만큼 손실이
+            발생합니다. 이 부담을 덜어주는 게 매달 나눠 넣는 규칙입니다. 매수 시점이 수십 번으로
+            흩어지면서 평균 환율도 여러 시점에 걸쳐 잡힙니다.</p>
+          <p class="quiet">이 문서의 모든 수익률은 세전이며 거래비용을 뺀 값이 아닙니다.
+            2026년 8월 기준이며 금리·환율·분배율은 시점에 따라 달라집니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ▼▼▼ Apps Script 정식 배포(/exec) 주소를 여기에 붙여넣으세요 ▼▼▼
+var API = 'https://script.google.com/macros/s/AKfycbzvjLfSACG7pVq2RthvNRfA-icTcmTCzuzM8UqUbyuwxwatxAXq9Jg5OK0YOOEjqNY/exec';
+// ▲▲▲
+
+// GET 하나로 통신. 성공하면 onOk(데이터), 실패하면 onErr(에러)
+function api(params, onOk, onErr) {
+  if (API.indexOf('PASTE_') === 0) {
+    (onErr || function(){})({ message: 'index.html 맨 위 API 주소를 아직 넣지 않았습니다.' });
+    return;
+  }
+  var q = Object.keys(params).map(function (k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+  fetch(API + '?' + q)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.error) { (onErr || function(){})({ message: d.error }); return; }
+      onOk(d);
+    })
+    .catch(function (e) { (onErr || function(){})(e); });
+}
+
+var uid = null, mkt = 'domestic', loaded = null, N = 5;
+
+function krw() { return mkt === 'domestic'; }
+function money(v) {
+  return krw() ? Math.round(v).toLocaleString('ko-KR') + '원'
+               : '$' + Number(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function signed(v) { return (v > 0 ? '+' : '') + money(v); }
+function price(v) { return krw() ? Math.round(v).toLocaleString('ko-KR') : '$' + Number(v).toFixed(2); }
+function num(el) { return parseFloat(String(el.value).replace(/[^0-9.\-]/g, '')) || 0; }
+function pct(v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; }
+
+// 원화 입력칸 실시간 콤마 포맷 (달러 모드는 소수점 쓰므로 건드리지 않음)
+function fmtCashInput(el) {
+  if (!krw()) return;
+  var digits = el.value.replace(/[^0-9]/g, '');
+  el.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
+}
+document.getElementById('cash').addEventListener('input', function () { fmtCashInput(this); });
+document.getElementById('dep').addEventListener('input', function () { fmtCashInput(this); });
+
+// ===== 로그인 =====
+function msg(t) { document.getElementById('loginMsg').innerText = t || ''; }
+
+function doLogin() {
+  var id = document.getElementById('lid').value.trim(), pw = document.getElementById('lpw').value;
+  if (!id || !pw) { msg('아이디와 비밀번호를 입력해주세요.'); return; }
+  document.getElementById('lbtn').disabled = true; msg('확인 중...');
+  api({ action: 'login', user: id, pw: pw },
+    function (r) {
+      document.getElementById('lbtn').disabled = false;
+      if (!r.ok) { msg(r.msg); return; }
+      enter(r.userId);
+    },
+    function (e) {
+      document.getElementById('lbtn').disabled = false;
+      msg('연결하지 못했습니다: ' + (e ? e.message : '알 수 없음'));
+    });
+}
+
+function doSignUp() {
+  var id = document.getElementById('lid').value.trim(), pw = document.getElementById('lpw').value;
+  if (!id || !pw) { msg('만들 아이디와 비밀번호를 입력한 뒤 눌러주세요.'); return; }
+  if (!confirm("'" + id + "' 아이디로 새 계정을 만들까요?")) return;
+  msg('생성 중...');
+  api({ action: 'signup', user: id, pw: pw },
+    function (r) { if (!r.ok) { msg(r.msg); return; } enter(r.userId); },
+    function (e) { msg('연결하지 못했습니다: ' + (e ? e.message : '알 수 없음')); });
+}
+
+function enter(id) {
+  uid = id;
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  document.getElementById('who').innerText = id + ' 님';
+  skin(); load();
+}
+
+function doLogout() {
+  uid = null; loaded = null;
+  document.getElementById('main').style.display = 'none';
+  document.getElementById('login').style.display = 'block';
+  document.getElementById('lpw').value = '';
+  document.getElementById('retArea').innerHTML = '';
+  document.body.classList.remove('ov');
+  msg('');
+}
+
+// ===== 시장 =====
+function skin() {
+  var o = mkt === 'overseas';
+  document.body.classList.toggle('ov', o);
+  document.getElementById('themeColor').setAttribute('content', o ? '#3f4650' : '#f4f6f8');
+  document.getElementById('tD').className = o ? '' : 'on';
+  document.getElementById('tO').className = o ? 'on ov' : '';
+  document.getElementById('title').innerText = o
+    ? '미국 직투 5분할 리밸런싱 투자 포트폴리오'
+    : 'ISA 5분할 리밸런싱 투자 포트폴리오';
+  document.getElementById('thP').innerHTML = o ? '현재가<br>($)' : '현재가<br>(원)';
+  document.getElementById('thA').innerHTML = o ? '평가금액<br>($)' : '평가금액<br>(원)';
+}
+
+function switchMarket(m) {
+  if (m === mkt) return;
+  var btns = document.querySelectorAll('.tabs button');
+  for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+  function go() {
+    mkt = m; skin();
+    document.getElementById('retArea').innerHTML = '';
+    document.getElementById('retProg').style.display = 'none';
+    document.getElementById('retBtn').innerText = '최근 수익률 조회';
+    load();
+    for (var i = 0; i < btns.length; i++) btns[i].disabled = false;
+  }
+  if (loaded) {
+    var v = grab();
+    api({ action: 'save', user: uid, market: mkt, cash: v.cash, dep: v.dep,
+           shares: v.shares.join(',') }, go, go);
+  } else go();
+}
+
+// ===== 데이터 =====
+function load() {
+  document.getElementById('totalTxt').innerText = '불러오는 중...';
+  api({ action: 'load', user: uid, market: mkt }, show, fail);
+}
+
+function grab() {
+  var s = [];
+  for (var i = 0; i < N; i++) {
+    var el = document.getElementById('sh' + i);
+    s.push(el ? num(el) : 0);
+  }
+  return { cash: num(document.getElementById('cash')), dep: num(document.getElementById('dep')), shares: s };
+}
+
+function calc() {
+  var b = document.getElementById('calcBtn');
+  b.disabled = true; b.innerText = '계산 중...';
+  var v = grab();
+  api({ action: 'save', user: uid, market: mkt, cash: v.cash, dep: v.dep,
+         shares: v.shares.join(',') }, show, fail);
+}
+
+function fail(e) {
+  alert('처리 중 오류가 발생했습니다: ' + (e ? e.message : '알 수 없는 오류'));
+  var b = document.getElementById('calcBtn');
+  b.disabled = false; b.innerText = '계산하기';
+}
+
+function months(d) {
+  var m = Math.floor(d / 30), r = d % 30;
+  return m > 0 ? (m + '개월 ' + r + '일째') : (d + '일째');
+}
+
+function show(d) {
+  loaded = d;
+
+  var w = document.getElementById('warnBox');
+  if (d.priceWarning) { w.innerText = d.priceWarning; w.style.display = 'block'; }
+  else w.style.display = 'none';
+
+  document.getElementById('totalTxt').innerText = money(d.newTotal);
+  document.getElementById('fxTxt').innerText = (!krw() && d.fx > 0)
+    ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '';
+
+  document.getElementById('cash').value = krw()
+    ? Math.round(d.cashAsset).toLocaleString('ko-KR') : Number(d.cashAsset).toFixed(2);
+  document.getElementById('dep').value = krw()
+    ? Math.round(d.newDeposit).toLocaleString('ko-KR') : Number(d.newDeposit).toFixed(2);
+
+  // 수익률
+  var p = document.getElementById('profitBox');
+  if (d.rate === null) {
+    p.innerHTML = '<span class="quiet">누적 입금액이 없어 수익률을 계산할 수 없습니다. ' +
+                  '신규 입금액을 입력하고 계산하면 이때부터 기록이 시작됩니다.</span>';
+  } else {
+    var cls = d.rate >= 0 ? 'up' : 'dn';
+    p.innerHTML = '누적 원금 ' + money(d.cumDeposit) + ' · 평가손익 <b class="' + cls + '">' +
+      signed(d.netValue) + '</b> (<b class="' + cls + '">' + pct(d.rate) + '</b>)' +
+      (d.peakRate !== null ? '<br><span class="quiet">역대 최고 수익률 ' + pct(d.peakRate) + '</span>' : '');
+  }
+
+  // 하단 관찰
+  var bi = document.getElementById('belowInner');
+  if (d.below && d.below.length) {
+    var h = '<p class="quiet" style="margin-top:0">목표보다 낮은 상태가 이어지는 자산입니다. 조치는 없고 인지 목적입니다.</p>';
+    d.below.forEach(function (x) { h += '<div>· ' + x.name + ' — ' + months(x.days) + '</div>'; });
+    bi.innerHTML = h;
+  } else bi.innerHTML = '<span class="quiet">현재 하단 이탈 자산이 없습니다.</span>';
+
+  // 표
+  var tb = document.getElementById('tbody');
+  tb.innerHTML = '';
+  d.assets.forEach(function (a, i) {
+    var cls = a.adjShares > 0 ? 'buy' : (a.adjShares < 0 ? 'sell' : 'idle');
+    var act = a.adjShares > 0 ? '매수 ' + a.adjShares + '주'
+            : (a.adjShares < 0 ? '매도 ' + (-a.adjShares) + '주' : '그대로 두기');
+    var sub = (a.adjShares === 0 && Math.abs(a.adjAmt) > 0.001)
+      ? '<div class="quiet" style="font-size:11px">1주 값보다 적어 매매 없음</div>' : '';
+    var tag = a.isOver ? '<br><span class="tag">상단 초과</span>' : '';
+    tb.innerHTML +=
+      '<tr class="' + (a.adjShares === 0 ? 'idle-row' : '') + '">' +
+      '<td class="nm">' + a.name + '<div class="cd">' + a.code + '</div></td>' +
+      '<td data-l="목표(상단)">' + a.target + '% <span class="quiet">(' + a.upper + '%)</span></td>' +
+      '<td data-l="현재가">' + price(a.price) + '</td>' +
+      '<td data-l="보유수량"><input type="text" id="sh' + i + '" inputmode="numeric" value="' + a.shares + '"></td>' +
+      '<td data-l="평가금액">' + money(a.currentAmt) + '</td>' +
+      '<td data-l="비중">' + a.pct.toFixed(2) + '%' + tag + '</td>' +
+      '<td data-l="해야 할 일"><span class="' + cls + '">' + act + '</span>' +
+        '<div class="quiet" style="font-size:11px">' + signed(a.adjAmt) + '</div>' + sub + '</td></tr>';
+  });
+
+  // 합계
+  var s = '예상 매수 <span class="up">' + money(d.spent) + '</span> · 예상 매도 <span class="dn">' +
+          money(d.gained) + '</span><br>';
+  if (d.leftover < -0.001) {
+    s += '<b class="up">현금이 부족합니다 (' + money(d.leftover) + '). 매수를 줄이거나 현금을 더 넣어주세요.</b>';
+  } else {
+    s += '예상 잔여현금 <b>' + money(d.leftover) + '</b>' +
+         '<div class="quiet" style="font-size:12px">실제 체결가와 수수료에 따라 달라집니다.</div>';
+  }
+  document.getElementById('sumBox').innerHTML = s;
+
+  var b = document.getElementById('calcBtn');
+  b.disabled = false; b.innerText = '계산하기';
+}
+
+// ===== 아코디언 =====
+function tog(el) { el.classList.toggle('open'); el.nextElementSibling.classList.toggle('open'); }
+function tog2(el) { el.nextElementSibling.classList.toggle('open'); }
+
+// 펼칠 때 한 번만 조회 (닫았다 열어도 재조회 안 함 — el.dataset.loaded로 표시)
+function togLoad(el, fn) {
+  tog(el);
+  if (el.classList.contains('open') && !el.dataset.loaded) { el.dataset.loaded = '1'; fn(); }
+}
+
+function loadAum() {
+  document.getElementById('aumArea').innerHTML = '조회 중...';
+  api({ action: 'aum', market: mkt },
+    function (rows) {
+      var h = '';
+      rows.forEach(function (r) {
+        h += '<div>· ' + r.name + ' — ' +
+          (r.aum < 0 ? '<span class="na">조회 안 됨</span>' : (Math.round(r.aum / 1e8) + '억원')) + '</div>';
+      });
+      h += '<p class="quiet" style="font-size:11px;margin-top:8px">50억원 아래로 오래 머물면 상장폐지 위험이 있습니다. ' +
+           '조회 안 되는 종목은 증권사 앱에서 직접 확인해주세요.</p>';
+      document.getElementById('aumArea').innerHTML = h;
+    },
+    function () {
+      document.getElementById('aumArea').innerHTML = '<span class="na">조회하지 못했습니다. 다시 펼쳐보세요.</span>';
+    });
+}
+
+function loadLogs() {
+  document.getElementById('logArea').innerHTML = '불러오는 중...';
+  api({ action: 'logs', user: uid, market: mkt },
+    function (rows) {
+      if (!rows || !rows.length) {
+        document.getElementById('logArea').innerHTML = '<span class="quiet">아직 기록이 없습니다. 계산을 실행하면 여기에 쌓입니다.</span>';
+        return;
+      }
+      var h = '';
+      rows.forEach(function (r) { h += '<div>· ' + String(r.date).slice(0, 10) + ' — ' + r.summary + '</div>'; });
+      document.getElementById('logArea').innerHTML = h;
+    },
+    function () {
+      document.getElementById('logArea').innerHTML = '<span class="na">불러오지 못했습니다. 다시 펼쳐보세요.</span>';
+    });
+}
+
+// ===== 최근 수익률 (1종목씩, 카운터 N/5) =====
+var rows = [], idx = 0;
+
+function loadRet() {
+  var b = document.getElementById('retBtn');
+  b.disabled = true; b.innerText = '조회 중...';
+  rows = []; idx = 0;
+  document.getElementById('retArea').innerHTML = '';
+  var p = document.getElementById('retProg');
+  p.style.display = 'block'; p.innerText = '시세 확인 중 · 1 / ' + N;
+  next();
+}
+
+function next() {
+  if (idx >= N) {
+    document.getElementById('retProg').style.display = 'none';
+    var b = document.getElementById('retBtn');
+    b.disabled = false; b.innerText = '최근 수익률 다시 조회';
+    render(); return;
+  }
+  document.getElementById('retProg').innerText = '시세 확인 중 · ' + (idx + 1) + ' / ' + N;
+  api({ action: 'ret', market: mkt, index: idx },
+    function (r) { rows.push(r); idx++; next(); },
+    function () { rows.push({ name: '-', code: '', values: {}, mdd: null }); idx++; next(); });
+}
+
+function cell(v) {
+  if (v === null || v === undefined) return '<span class="na">-</span>';
+  return '<span class="' + (v >= 0 ? 'up' : 'dn') + '">' + pct(v) + '</span>';
+}
+
+function render() {
+  var keys = ['1일', '1주일', '1개월', '6개월', '1년'];
+  var h = '<table class="rt"><thead><tr><th>종목명</th><th>1일</th><th>1주일</th><th>1개월</th>' +
+          '<th>6개월</th><th>1년</th><th>1년 MDD</th></tr></thead><tbody>';
+  rows.forEach(function (r) {
+    h += '<tr><td class="nm">' + r.name + '<div class="cd">' + (r.code || '') + '</div></td>';
+    keys.forEach(function (k) { h += '<td data-l="' + k + '">' + cell(r.values ? r.values[k] : null) + '</td>'; });
+    h += '<td data-l="1년 MDD">' + (r.mdd === null || r.mdd === undefined
+         ? '<span class="na">-</span>' : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</td></tr>';
+  });
+  h += '</tbody></table><p class="quiet" style="font-size:12px">종가 기준이며 시세 제공에 최대 20분 지연이 있을 수 있습니다.</p>';
+  document.getElementById('retArea').innerHTML = h;
+}
+</script>
+</body>
+</html>
