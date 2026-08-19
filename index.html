@@ -421,8 +421,6 @@
     <button id="tO" onclick="switchMarket('overseas')">미국 직투</button>
   </div>
 
-  <h2 id="title">ISA 5분할 리밸런싱 투자 포트폴리오</h2>
-
   <div id="warnBox" class="card warn" style="display:none"></div>
 
   <div class="card total">
@@ -435,17 +433,13 @@
 
   <div class="inputs">
     <div>
-      <label>통장 현금자산</label>
+      <label>계좌내 현금 (매수 후 남은 돈+배당)</label>
       <input type="text" id="cash" inputmode="numeric">
     </div>
     <div>
-      <label>이번 신규 입금액</label>
+      <label>신규 입금액</label>
       <input type="text" id="dep" inputmode="numeric">
     </div>
-  </div>
-  <div class="note">
-    두 칸을 더한 금액이 이번 매수 재원입니다. 통장 현금자산 = 지난번 잔여 + 그사이 들어온 배당금.
-    이번 신규 입금액 = 계좌 밖에서 이번에 새로 넣은 돈(누적 원금 계산용, 저장하면 0으로 초기화).
   </div>
 
   <table class="rt">
@@ -460,6 +454,9 @@
 
   <div class="card profit" id="sumBox" style="margin-top:14px;border-bottom:none;padding-bottom:0"></div>
 
+  <div class="btnrow" style="margin-top:14px">
+    <button class="main" id="quoteBtn" onclick="refreshQuote()" style="flex:1 1 100%">시세 조회</button>
+  </div>
   <div class="btnrow">
     <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
     <button class="save" id="saveBtn" onclick="saveIt()">② 매매 완료 · 저장하기</button>
@@ -484,6 +481,8 @@
   <div class="acc" data-logs>
     <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar">▼</span></div>
     <div class="accB">
+      <button class="sub2" onclick="reloadLogs()"
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(160deg,#3d5f80,var(--slate));border:none;border-radius:8px;cursor:pointer;margin-bottom:12px">다시 불러오기</button>
       <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
     </div>
   </div>
@@ -945,9 +944,6 @@ function skin() {
   document.getElementById('themeColor').setAttribute('content', o ? '#071426' : '#f5efe0');
   document.getElementById('tD').className = o ? '' : 'on';
   document.getElementById('tO').className = o ? 'on ov' : '';
-  document.getElementById('title').innerText = o
-    ? '미국 직투 5분할 리밸런싱 투자 포트폴리오'
-    : 'ISA 5분할 리밸런싱 투자 포트폴리오';
   document.getElementById('thP').innerHTML = o ? '현재가<br>($)' : '현재가<br>(원)';
   document.getElementById('thA').innerHTML = o ? '평가금액<br>($)' : '평가금액<br>(원)';
 }
@@ -984,8 +980,57 @@ function grab() {
 
 function busy(on, id, txt) {
   var b = document.getElementById(id);
+  var idle = { calcBtn: '① 계산하기', saveBtn: '② 매매 완료 · 저장하기', quoteBtn: '시세 조회' };
   b.disabled = on;
-  b.innerText = on ? txt : (id === 'calcBtn' ? '① 계산하기' : '② 매매 완료 · 저장하기');
+  b.innerText = on ? txt : idle[id];
+}
+
+// ① 시세만 새로고침 — 보유수량·해야 할 일은 건드리지 않음
+function refreshQuote() {
+  busy(true, 'quoteBtn', '조회 중...');
+  var v = grab();
+  api({ action: 'calc', user: uid, market: mkt, cash: v.cash, dep: v.dep,
+        shares: v.shares.join(',') }, showQuote, failQuote);
+}
+
+function showQuote(d) {
+  var w = document.getElementById('warnBox');
+  if (d.priceWarning) { w.innerText = d.priceWarning; w.style.display = 'block'; }
+  else w.style.display = 'none';
+
+  document.getElementById('totalTxt').innerText = money(d.newTotal);
+  document.getElementById('fxTxt').innerText = (!krw() && d.fx > 0)
+    ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '';
+
+  var p = document.getElementById('profitBox');
+  if (d.rate === null) {
+    p.innerHTML = '<span class="quiet">누적 입금액이 없어 수익률을 계산할 수 없습니다. ' +
+                  '신규 입금액을 입력하고 계산하면 이때부터 기록이 시작됩니다.</span>';
+  } else {
+    var cls = d.rate >= 0 ? 'up' : 'dn';
+    p.innerHTML = '누적 원금 ' + money(d.cumDeposit) + ' · 평가손익 <b class="' + cls + '">' +
+      signed(d.netValue) + '</b> (<b class="' + cls + '">' + pct(d.rate) + '</b>)' +
+      (d.peakRate !== null ? '<br><span class="quiet">역대 최고 수익률 ' + pct(d.peakRate) + '</span>' : '');
+  }
+
+  d.assets.forEach(function (a, i) {
+    var prEl = document.getElementById('pr' + i);
+    var amtEl = document.getElementById('amt' + i);
+    var pcEl = document.getElementById('pc' + i);
+    if (prEl) prEl.innerText = price(a.price);
+    if (amtEl) amtEl.innerText = money(a.currentAmt);
+    if (pcEl) {
+      var tag = a.isOver ? '<br><span class="tag">상단 초과</span>' : '';
+      pcEl.innerHTML = a.pct.toFixed(2) + '%' + tag;
+    }
+  });
+
+  busy(false, 'quoteBtn');
+}
+
+function failQuote(e) {
+  alert('시세를 불러오지 못했습니다: ' + (e ? e.message : '알 수 없는 오류'));
+  busy(false, 'quoteBtn');
 }
 
 // ① 계산만 — 시트에 아무것도 쓰지 않음
@@ -1068,14 +1113,15 @@ function show(d) {
     var sub = (a.adjShares === 0 && Math.abs(a.adjAmt) > 0.001)
       ? '<div class="quiet" style="font-size:11px">1주 값보다 적어 매매 없음</div>' : '';
     var tag = a.isOver ? '<br><span class="tag">상단 초과</span>' : '';
+    var cd = krw() ? [a.usTicker, a.code].filter(Boolean).join(' · ') : (a.usTicker || a.code);
     tb.innerHTML +=
       '<tr class="' + (a.adjShares === 0 ? 'idle-row' : '') + '">' +
-      '<td class="nm">' + a.name + '<div class="cd">' + (a.usTicker || a.code) + '</div></td>' +
+      '<td class="nm">' + a.name + '<div class="cd">' + cd + '</div></td>' +
       '<td data-l="목표(상단)">' + a.target + '% <span class="quiet">(' + a.upper + '%)</span></td>' +
-      '<td data-l="현재가">' + price(a.price) + '</td>' +
+      '<td data-l="현재가" id="pr' + i + '">' + price(a.price) + '</td>' +
       '<td data-l="보유수량"><input type="text" id="sh' + i + '" inputmode="numeric" value="' + a.shares + '"></td>' +
-      '<td data-l="평가금액">' + money(a.currentAmt) + '</td>' +
-      '<td data-l="비중">' + a.pct.toFixed(2) + '%' + tag + '</td>' +
+      '<td data-l="평가금액" id="amt' + i + '">' + money(a.currentAmt) + '</td>' +
+      '<td data-l="비중" id="pc' + i + '">' + a.pct.toFixed(2) + '%' + tag + '</td>' +
       '<td data-l="해야 할 일"><span class="' + cls + '">' + act + '</span>' +
         '<div class="quiet" style="font-size:11px">' + signed(a.adjAmt) + '</div>' + sub + '</td></tr>';
   });
@@ -1130,6 +1176,11 @@ function loadAum(el) {
       document.getElementById('aumArea').innerHTML =
         '<span class="na">불러오지 못했습니다 (' + (e ? e.message : '알 수 없음') + '). 다시 펼쳐보세요.</span>';
     });
+}
+
+function reloadLogs() {
+  var el = document.querySelector('.acc[data-logs] .accH');
+  if (el) loadLogs(el);
 }
 
 function loadLogs(el) {
