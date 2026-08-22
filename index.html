@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="항해">
 <base target="_top">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root{
@@ -21,182 +21,251 @@
          background: var(--chart); transition: background .25s; }
   body.ov { background: var(--ink-deep); }
 
-  .wrap { position: relative; overflow: hidden; background: var(--paper); border-radius: 12px; padding: 18px; max-width: 1060px;
-          margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
-  .wrap::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
-                  background: linear-gradient(90deg, var(--brass-light), var(--brass)); }
+  .wrap { position: relative; background: var(--chart); border-radius: 34px; padding: 14px; max-width: 1100px;
+          margin: 0 auto; box-shadow: 0 2px 14px rgba(11,29,51,.16);
+          display: flex; flex-direction: column; gap: 12px;
+          font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; }
+  body.ov .wrap { background: #14304f; }
 
-  /* ===== 로그인: 항해 컨셉 ===== */
+  /* ===== 로그인: 영상 배경 + 완전 유리 카드 ===== */
   #login{ display:none; }
   #loginStage{
     position:fixed; inset:0; width:100%; height:100%;
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden; z-index:1000;
+    overflow:hidden; z-index:1000; background:#0b1d33;
   }
-  #loginStage .sky{
-    position:absolute; inset:0;
-    background: linear-gradient(180deg, #0b1d33 0%, #14304f 38%, #1c4363 58%, #2a5d78 100%);
+  #loginStage .bgVideo{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:60% 50%; z-index:0;
   }
-  body.day #loginStage .sky{
-    background: linear-gradient(180deg, #4f9bd6 0%, #7ec2e6 45%, #a9d9e8 70%, #cfe9e6 100%);
+  #loginStage .scrim-top{
+    position:absolute; left:0; right:0; top:0; height:42%; z-index:1; pointer-events:none;
+    background: linear-gradient(180deg, rgba(11,29,51,.34) 0%, rgba(11,29,51,.16) 46%, rgba(11,29,51,0) 100%);
   }
-  #loginStage .stars{ position:absolute; inset:0 0 55% 0; opacity:.55; }
-  #loginStage .stars span{
-    position:absolute; width:2px; height:2px; background:#fff; border-radius:50%;
-    animation: lg-twinkle 3.5s ease-in-out infinite;
-  }
-  @keyframes lg-twinkle{ 0%,100%{opacity:.15} 50%{opacity:.9} }
-  body.day #loginStage .stars{ display:none; }
-
-  #loginStage .moon{
-    position:absolute; top:8%; right:12%;
-    width:60px; height:60px; border-radius:50%;
-    background:#f4d35e;
-  }
-  body.day #loginStage .moon{ background:#ffd94a; }
-
-  #loginStage .cloud{ position:absolute; opacity:0; background:#fff; border-radius:40px; }
-  body.day #loginStage .cloud{ opacity:.85; }
-
-  #loginStage .sea{
-    position:absolute; left:0; right:0; bottom:0; height:46%;
-    background: linear-gradient(180deg, #12405a 0%, #0c2e44 60%, #081f31 100%);
-    overflow:hidden;
-  }
-  body.day #loginStage .sea{
-    background: linear-gradient(180deg, #2f7fa8 0%, #1e5f85 60%, #144a6b 100%);
-  }
-  #loginStage .wave{
-    position:absolute; left:-10%; width:120%; height:70px;
-    background-repeat: repeat-x; background-size: 220px 70px; opacity:.5;
-  }
-  #loginStage .wave.w1{ top:0; background-image: radial-gradient(ellipse 110px 26px at 50% 0, transparent 24px, #143d55 25px); animation: lg-drift 9s linear infinite; }
-  #loginStage .wave.w2{ top:26px; background-image: radial-gradient(ellipse 110px 22px at 50% 0, transparent 24px, #0f3247 25px); animation: lg-drift 13s linear infinite reverse; opacity:.4; }
-  @keyframes lg-drift{ from{ background-position-x:0 } to{ background-position-x:-220px } }
-
-  #loginStage .dock{
-    position:absolute; left:0; bottom:44%; width:34%; height:10%;
-    background: linear-gradient(180deg,#3a2b1d,#241a11); border-top:3px solid #52402c; z-index:3;
-  }
-  #loginStage .dock .post{ position:absolute; bottom:-26px; width:10px; height:26px; background:#241a11; }
-
-  #loginStage .shipWrap{
-    position:absolute; bottom:39%; left:6%; width:300px; height:220px;
-    transform-origin: 50% 100%;
-    animation: lg-sail 9s ease-in-out infinite, lg-bob 3.4s ease-in-out infinite;
-    z-index:4;
-  }
-  @keyframes lg-sail{ 0%{left:6%} 45%{left:6%} 100%{left:112%} }
-  @keyframes lg-bob{ 0%,100%{ transform: translateY(0) rotate(-1.2deg); } 50%{ transform: translateY(-7px) rotate(1.2deg); } }
-  #loginStage .shipWrap svg{ width:100%; height:100%; overflow:visible; }
-  #loginStage .sailcloth{ animation: lg-flutter 2.6s ease-in-out infinite; transform-origin: 50% 0%; }
-  #loginStage .sailcloth.s2{ animation-delay:.4s; }
-  @keyframes lg-flutter{ 0%,100%{ transform: skewX(-2.5deg) scaleX(1); } 50%{ transform: skewX(2.5deg) scaleX(.985); } }
-
-  #loginStage .wake{
-    position:absolute; bottom:38%; left:2%; width:270px; height:16px;
-    background: linear-gradient(90deg, rgba(232,241,242,.35), transparent);
-    border-radius:50%; animation: lg-sail 9s ease-in-out infinite; filter: blur(1px); z-index:3;
+  #loginStage .scrim-bottom{
+    position:absolute; left:0; right:0; bottom:0; height:58%; z-index:1; pointer-events:none;
+    background: linear-gradient(0deg, rgba(11,29,51,.58) 0%, rgba(11,29,51,.18) 55%, rgba(11,29,51,0) 100%);
   }
 
-  #loginStage .gull{ position:absolute; opacity:.9; animation: lg-fly linear infinite; z-index:5; }
-  #loginStage .gull svg{ width:26px; height:14px; display:block; }
-  #loginStage .gull path{ stroke:#ffffff; }
-  @keyframes lg-fly{ from{ transform:translateX(0) } to{ transform:translateX(-140vw) } }
-
-  #loginStage .daytoggle{ position:absolute; top:16px; left:16px; z-index:20; display:flex; gap:6px; }
+  #loginStage .lg-content{
+    position:relative; z-index:2; height:100%; box-sizing:border-box;
+    display:flex; flex-direction:column; padding:20px 22px 28px;
+  }
+  #loginStage .lg-topbar{ display:flex; justify-content:flex-end; }
+  #loginStage .daytoggle{ display:flex; gap:2px; padding:2px; border-radius:999px;
+    border:1px solid rgba(253,246,232,.3); background:rgba(11,29,51,.22); backdrop-filter:blur(8px); }
   #loginStage .daytoggle button{
-    padding:7px 14px; font-size:12px; font-weight:700; border-radius:20px;
-    border:1px solid rgba(255,255,255,.4); background:rgba(0,0,0,.25); color:#fff; cursor:pointer;
+    padding:6px 13px; font-size:11px; font-weight:700; border-radius:999px; letter-spacing:.06em;
+    border:none; background:transparent; color:rgba(253,246,232,.92); cursor:pointer;
   }
-  #loginStage .daytoggle button.on{ background:#fff; color:#0b1d33; }
+  #loginStage .daytoggle button.on{ background:rgba(253,246,232,.85); color:#0b1d33; }
+
+  #loginStage .lg-hero{ margin-top:56px; max-width:420px; }
+  #loginStage .lg-title{
+    font-family:'Fraunces','Gowun Batang',serif; font-style:italic; font-weight:300;
+    font-size:33px; line-height:1.24; color:#fdf6e8; letter-spacing:-.6px;
+    text-shadow: 0 2px 20px rgba(11,29,51,.8), 0 0 44px rgba(11,29,51,.5);
+  }
+  body.day #loginStage .lg-title{
+    text-shadow: 0 1px 0 rgba(0,0,0,.9), 0 -1px 0 rgba(0,0,0,.9), 1px 0 0 rgba(0,0,0,.9),
+                 -1px 0 0 rgba(0,0,0,.9), 0 4px 18px rgba(0,0,0,.75), 0 0 40px rgba(0,0,0,.5);
+  }
+
+  #loginStage .lg-spacer{ flex:1; min-height:24px; }
 
   #loginStage .card{
-    position:relative; z-index:10; width:min(380px, 88vw);
-    background: rgba(245,239,224,.96); border:1px solid rgba(181,113,63,.35);
-    border-radius:14px; padding:36px 30px 28px;
-    box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.4) inset;
-    text-align:left;
+    position:relative; z-index:2; width:min(300px, 86vw); align-self:center;
+    border:1px solid rgba(226,180,99,.46); border-radius:20px;
+    background: rgba(11,29,51,.42); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 14px 40px rgba(11,29,51,.4);
+    padding:24px 24px 20px; text-align:left;
   }
-  #loginStage .lg-title{
-    font-family:'Fraunces', serif; font-weight:600; font-size:25px;
-    text-align:center; color:#0b1d33; letter-spacing:-.2px; line-height:1.3;
-  }
-  #loginStage .lg-subtitle{ text-align:center; font-size:12.5px; color:#6b7280; margin:6px 0 26px; }
-  #loginStage .field{ margin-bottom:11px; }
+  #loginStage .field{ padding-bottom:8px; border-bottom:1.5px solid rgba(226,180,99,.62); }
+  #loginStage .field + .field{ margin-top:16px; }
   #loginStage .field label{
-    display:block; font-size:10.5px; font-weight:700; letter-spacing:.06em;
-    color:#3d7a7a; text-transform:uppercase; margin-bottom:5px;
+    display:block; font-size:10px; font-weight:600; letter-spacing:.16em;
+    color:rgba(226,180,99,.9); text-transform:uppercase; margin-bottom:4px;
   }
   #loginStage input{
-    width:100%; padding:12px 13px; font-size:15px;
-    border:1.5px solid #d8cdb4; border-radius:8px; background:#fffdf8; color:#0b1d33;
+    width:100%; padding:2px 0; font-size:15px;
+    border:none; background:transparent; color:#fdf6e8;
   }
-  #loginStage input:focus{ outline:none; border-color:#b5713f; }
+  #loginStage input::placeholder{ color:rgba(253,246,232,.45); }
+  #loginStage input:focus{ outline:none; }
   #loginStage .go{
-    width:100%; margin-top:16px; padding:14px; border:none; border-radius:8px;
-    background: linear-gradient(180deg, #e2b463 0%, #b5713f 45%, #8a5426 100%);
-    box-shadow: 0 4px 0 #6b3f1c, 0 8px 16px rgba(0,0,0,.25),
-                inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 4px rgba(0,0,0,.25);
-    color:#fdf6e8; font-weight:700; font-size:15px; letter-spacing:.02em; cursor:pointer;
+    width:100%; margin-top:20px; padding:14px; border:none; border-radius:999px;
+    background:#e2b463; box-shadow: 0 8px 24px rgba(226,180,99,.3);
+    color:#0b1d33; font-weight:700; font-size:14px; letter-spacing:.06em; cursor:pointer;
   }
-  #loginStage .go:active{ transform: translateY(2px); box-shadow: 0 2px 0 #6b3f1c; }
-  #loginStage .go:disabled{ background:#94a3b8; box-shadow:none; }
-  #loginStage #loginMsg{ text-align:center; color:#b3452f; font-size:13px; min-height:20px; margin-top:12px; }
+  #loginStage .go:active{ transform: translateY(1px); }
+  #loginStage .go:disabled{ background:rgba(148,163,184,.6); box-shadow:none; }
+  #loginStage #loginMsg{ text-align:center; color:#ffb4a0; font-size:12.5px; min-height:18px; margin-top:10px; }
   #loginStage .newacc{
-    display:block; margin:14px auto 0; background:none; border:none;
-    color:#3d7a7a; font-size:12.5px; text-decoration:underline; cursor:pointer;
+    display:block; width:fit-content; margin:14px auto 0; background:none; border:none;
+    border-bottom:1px solid rgba(226,180,99,.5); padding-bottom:1px;
+    color:rgba(253,246,232,.85); font-size:12px; cursor:pointer;
   }
-  #loginStage .hint-install{ font-size:11.5px; color:#8a8578; text-align:center; margin-top:16px; line-height:1.5; }
+  #loginStage .wifi-note{ font-size:10.5px; color:rgba(226,180,99,.85); text-align:center; margin-top:12px; line-height:1.5; }
+  #loginStage .hint-install{ font-size:10.5px; color:rgba(253,246,232,.5); text-align:center; margin-top:12px; line-height:1.5; }
+
+  @media (min-width: 760px){
+    #loginStage .lg-content{ padding:32px 52px 44px; }
+    #loginStage .lg-hero{ margin-top:150px; max-width:520px; }
+    #loginStage .lg-title{ font-size:50px; letter-spacing:-1.4px; }
+    #loginStage .card{ align-self:flex-end; width:300px; }
+  }
 
   .link { background: none; border: none; color: var(--slate); text-decoration: underline;
           cursor: pointer; font-size: 13px; padding: 6px; width: auto; display: block; margin: 10px auto 0; }
 
+  /* ===== 메인 — 둥근 카드 · Noto Sans KR ===== */
+  .headerRow { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px 0; gap: 10px; flex-wrap: wrap; }
+  .headerRow .brand { display: flex; align-items: center; gap: 8px; }
+  .headerRow .brand .ico { width: 28px; height: 28px; border-radius: 999px; background: rgba(181,113,63,.16);
+                            display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--brass); flex-shrink: 0; }
+  .headerRow .brand span.nm { font-weight: 700; font-size: 12.5px; color: var(--ink); }
+  .userbar { display: flex; align-items: center; gap: 14px; }
+  .userbar #who { font-size: 12px; color: rgba(11,29,51,.6); }
+  .userbar .link { display: inline; margin: 0; width: auto; text-decoration: none; font-size: 11.5px; font-weight: 500;
+                    color: rgba(11,29,51,.6); background: rgba(11,29,51,.06); border-radius: 999px; padding: 7px 14px; }
+  .userbar .link:hover { color: var(--ink); background: rgba(11,29,51,.1); }
+  body.ov .headerRow .brand .ico, body.ov .headerRow .brand span.nm { color: var(--brass-light); }
+  body.ov .userbar #who { color: rgba(245,239,224,.65); }
+  body.ov .userbar .link { color: rgba(245,239,224,.75); background: rgba(245,239,224,.1); }
+
   /* 탭 */
-  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-  .tabs button { flex: 1; padding: 12px; font-size: 14px; background: rgba(11,29,51,.08); color: var(--ink);
-                 border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
-  .tabs button.on { background: var(--ink); color: var(--chart); }
+  .tabs { display: flex; background: rgba(11,29,51,.07); border-radius: 999px; padding: 4px; gap: 4px; }
+  .tabs button { flex: 1; padding: 10px 0; font-size: 12.5px; background: none; color: rgba(11,29,51,.55);
+                 border: none; border-radius: 999px; font-weight: 500; cursor: pointer; }
+  .tabs button.on { background: var(--ink); color: var(--chart); font-weight: 700; }
   .tabs button.on.ov { background: var(--brass); color: #fdf6e8; }
+  body.ov .tabs { background: rgba(245,239,224,.08); }
+  body.ov .tabs button { color: rgba(245,239,224,.6); }
 
-  h2 { text-align: center; font-size: 27px; margin: 4px 0 8px; color: var(--ink);
-       font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -.2px; }
-  .userbar { text-align: right; font-size: 11.5px; color: var(--fog); letter-spacing: .02em;
-             padding-bottom: 8px; margin-bottom: 12px; border-bottom: 1px dashed rgba(181,113,63,.4); }
-  .userbar #who::before { content: '⚓ '; color: var(--brass); }
-  .userbar .link { display: inline; margin-left: 8px; color: var(--brass); font-weight: 700;
-                    text-decoration: none; border-bottom: 1px solid var(--brass); padding-bottom: 1px; }
-  .userbar .link:hover { color: var(--ink); border-color: var(--ink); }
+  .card { background: var(--paper); border-radius: 26px; padding: 22px; }
+  .card.total { display: flex; flex-direction: column; }
+  .card.total .lbl { font-size: 11.5px; color: rgba(11,29,51,.62); font-weight: 500; }
+  .card.total .num { font-family: 'Fraunces', 'Gowun Batang', serif; font-size: 40px; font-weight: 400;
+                      color: var(--ink); margin: 10px 0 0; letter-spacing: -1.2px; line-height: 1.08; }
+  .card.total .num .unit { font-family: 'Noto Sans KR', sans-serif; font-size: 17px; font-weight: 400; }
+  .card.total .fx { font-size: 12px; color: rgba(11,29,51,.55); display: block; margin-top: 4px; }
+  .card.profit { padding: 0; font-size: 11.5px; color: rgba(11,29,51,.6); }
+  .card.profit .pf-badges { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
+  .card.profit .pf-pill { font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 7px 13px;
+                           font-variant-numeric: tabular-nums lining-nums; }
+  .card.profit .pf-pill.up { color: #b3452f; background: rgba(179,69,47,.1); }
+  .card.profit .pf-pill.dn { color: #2f6fa8; background: rgba(47,111,168,.1); }
+  .card.profit .pf-peak { font-size: 11px; color: rgba(11,29,51,.55); }
+  .card.profit .pf-cum { display: block; font-size: 11.5px; color: rgba(11,29,51,.6); margin-top: 14px; }
+  .warn { background: #fee2e2; color: #991b1b; font-size: 13.5px; font-weight: 700;
+          border-radius: 18px; padding: 14px 16px; }
+  .below { background: rgba(181,113,63,.1); font-size: 13.5px; color: rgba(11,29,51,.78);
+           text-align: left; padding: 16px 18px; border-radius: 22px; display: flex; gap: 14px; align-items: baseline; }
+  .below b { color: var(--brass); font-size: 11px; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; flex-shrink: 0; }
+  .below-body { font-family: 'Cormorant Garamond', 'Gowun Batang', serif; font-size: 17px; line-height: 1.55; }
+  .below-body div { margin-top: 2px; }
 
-  .card { padding: 10px 4px; margin-bottom: 4px; text-align: center; }
-  .card.total { padding: 16px 4px 10px; }
-  .card.total .lbl { font-size: 11.5px; color: var(--fog); text-transform: uppercase; letter-spacing: .06em; }
-  .card.total .num { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 600;
-                      color: var(--ink); margin: 4px 0 2px; letter-spacing: -.3px; }
-  .card.total .fx { font-size: 12px; color: var(--fog); display: block; }
-  .card.profit { font-size: 13.5px; color: var(--ink); padding-bottom: 16px;
-                 border-bottom: 1px solid rgba(11,29,51,.15); margin-bottom: 14px; }
-  .card.profit b { font-size: 16px; }
-  .warn { background: #fee2e2; color: #991b1b; font-size: 14px; font-weight: 700;
-          border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
-  .below { background: rgba(181,113,63,.12); border: 1px solid rgba(181,113,63,.4); color: #6b3f1c; font-size: 13px;
-           text-align: left; padding: 12px 14px; border-radius: 8px; }
-  .below div { margin: 2px 0; }
+  /* 비중 밴드 */
+  .bandsCard { display: flex; flex-direction: column; gap: 15px; }
+  .bandsHead { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+  .bandsHead .ttl { font-weight: 700; font-size: 12px; color: var(--ink); }
+  .bandsLegend { display: flex; gap: 10px; font-size: 9.5px; color: rgba(11,29,51,.6); align-items: center; flex-wrap: wrap; }
+  .bandsLegend span { display: flex; align-items: center; gap: 3px; }
+  .bandsLegend i.tgt { width: 2px; height: 9px; background: rgba(11,29,51,.55); display: inline-block; }
+  .bandsLegend i.upr { width: 2px; height: 9px; background: var(--brass); display: inline-block; }
+  .bandsLegend i.ovr { width: 9px; height: 9px; border-radius: 2px; background: rgba(181,113,63,.55); display: inline-block; }
+  .bandRow { display: flex; flex-direction: column; gap: 6px; }
+  .bandRow .bandTop { display: flex; justify-content: space-between; align-items: baseline; }
+  .bandRow .bandTicker { font-weight: 500; font-size: 11.5px; color: var(--ink); }
+  .bandRow .bandPct { font-weight: 500; font-size: 11.5px; font-variant-numeric: tabular-nums lining-nums; }
+  .bandTrack { position: relative; height: 10px; background: rgba(11,29,51,.07); border-radius: 999px; }
+  .bandFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; transition: width .5s ease; }
+  .bandMark { position: absolute; top: -2px; bottom: -2px; width: 2px; border-radius: 999px; }
+  @media (min-width: 820px) {
+    .bandRow { display: grid; grid-template-columns: 150px 1fr 62px; align-items: center; gap: 14px; }
+    .bandRow .bandTop { display: contents; }
+    .bandRow .bandPct { text-align: right; }
+  }
 
-  /* 최근 기록 — 항해일지 카드 */
+  .cashRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cashBox { background: var(--paper); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .cashBox label { font-size: 10.5px; font-weight: 500; color: rgba(11,29,51,.62); }
+  .cashBox input { width: 100%; padding: 0; margin-top: 2px; font-size: 16px; font-weight: 500; text-align: right;
+                   border: none; background: none; color: var(--ink); font-family: 'Noto Sans KR', sans-serif; }
+  .cashBox input:focus { outline: none; }
+
+  /* 해야 할 일 목록 / 자산 표 */
+  .tasksCard { display: flex; flex-direction: column; gap: 10px; }
+  .tasksHead { display: flex; justify-content: space-between; align-items: baseline; }
+  .tasksCard .ttl { font-weight: 700; font-size: 11px; color: var(--ink); }
+  .editLink { font-size: 10.5px; font-weight: 500; color: var(--brass); cursor: pointer; }
+  .assetHead { display: none; font: 500 10.5px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.6); padding: 0 14px 4px; }
+  .assetHead span:not(:first-child) { text-align: right; }
+  .assetRow { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "nm act" "qty qty";
+              gap: 4px 12px; align-items: center;
+              background: rgba(11,29,51,.04); border-radius: 18px; padding: 12px 14px; border-left: 3px solid transparent; }
+  .assetRow.buy { border-left-color: var(--brass); }
+  .assetRow.sell { border-left-color: var(--ink); }
+  .assetRow .cell.nm { grid-area: nm; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .assetRow .cell.nm .nmMain { font-weight: 500; font-size: 12.5px; color: var(--ink); }
+  .assetRow .cell.nm .nmSub { font-size: 10.5px; color: rgba(11,29,51,.6); }
+  .assetRow .cell.act { grid-area: act; display: flex; flex-direction: column; gap: 2px; text-align: right; flex-shrink: 0; }
+  .assetRow .cell.act .actLabel { font-weight: 700; font-size: 12.5px; font-variant-numeric: tabular-nums lining-nums; }
+  .assetRow .cell.act .actAmt { font-size: 10.5px; font-variant-numeric: tabular-nums lining-nums; }
+  .assetRow.buy .actLabel, .assetRow.buy .actAmt { color: var(--brass); }
+  .assetRow.sell .actLabel, .assetRow.sell .actAmt { color: var(--ink); }
+  .assetRow.idle .actLabel, .assetRow.idle .actAmt { color: #b9c2ca; }
+  .cell.tgt, .cell.price, .cell.val, .cell.pct { display: none; }
+  .qtyWrap { grid-area: qty; display: none; justify-content: space-between; align-items: center; }
+  #tbody.editing .qtyWrap { display: flex; }
+  .qtyWrap label { font-size: 10.5px; font-weight: 500; color: rgba(11,29,51,.55); }
+  .qtyWrap input { width: 84px; padding: 7px 9px; font-size: 14px; text-align: right; font-family: 'Noto Sans KR', sans-serif;
+                   border: 1px solid rgba(11,29,51,.2); border-radius: 8px; background: var(--paper); color: var(--ink);
+                   font-variant-numeric: tabular-nums lining-nums; }
+  .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;
+         background: rgba(181,113,63,.15); color: var(--brass); margin-top: 3px; }
+  .oneLineNote { font-size: 11px; color: rgba(11,29,51,.5); margin-top: 2px; }
+  .tasksFoot { display: flex; justify-content: space-between; padding-top: 4px; font-size: 11.5px; color: rgba(11,29,51,.55); }
+  .tasksFoot b { color: var(--ink); }
+
+  @media (min-width: 820px) {
+    .editLink { display: none; }
+    .assetHead { display: grid; grid-template-columns: 2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr; }
+    .assetRow { grid-template-columns: 2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;
+                grid-template-areas: "nm tgt price qty val pct act"; padding: 13px 14px 13px 11px; }
+    .cell.tgt, .cell.price, .cell.val, .cell.pct { display: block; text-align: right; font-size: 12px; color: var(--ink); }
+    .cell.tgt { color: rgba(11,29,51,.65); }
+    .qtyWrap { display: flex !important; justify-content: center; }
+    .qtyWrap label { display: none; }
+    .qtyWrap input { width: 100%; max-width: 72px; }
+    .cell.pct { font-weight: 500; font-variant-numeric: tabular-nums lining-nums; }
+  }
+
+  /* 실행 버튼 — 알약형 */
+  .quoterow { display: flex; justify-content: flex-end; }
+  .quoterow button { height: 32px; padding: 0 15px; border-radius: 999px; border: none; cursor: pointer;
+                      background: rgba(11,29,51,.06); color: rgba(11,29,51,.7); font-size: 11px; font-weight: 500; }
+  .btnrow { display: flex; gap: 9px; }
+  .btnrow button { flex: 1 1 50%; min-width: 0; height: 48px; padding: 0 10px; font-size: 13px;
+                   font-weight: 500; border-radius: 999px; border: none;
+                   cursor: pointer; line-height: 1.3; }
+  .btnrow button.main { background: rgba(11,29,51,.07); color: var(--ink); }
+  .btnrow button.main:hover { background: rgba(11,29,51,.11); }
+  .btnrow button.save { background: var(--brass); color: #fdf6e8; font-weight: 700; }
+  .btnrow button.save:hover { background: #a1653a; }
+  .btnrow button:disabled, .quoterow button:disabled { background: rgba(11,29,51,.05); color: #a9b2bd; }
+
+  /* 최근 기록 · 최근 수익률 카드 (아코디언 안) */
   .logbook { display: flex; flex-direction: column; gap: 8px; }
-  .logEntry { display: flex; gap: 12px; border: 1px solid rgba(11,29,51,.14); border-radius: 8px;
-              padding: 10px 12px; background: var(--paper); }
+  .logEntry { display: flex; gap: 12px; border-radius: 16px; padding: 12px 14px; background: rgba(11,29,51,.04); }
   .logDate { flex: 0 0 auto; font-family: 'Fraunces', serif; font-weight: 600; font-size: 13px;
-             color: var(--chart); background: var(--ink); border-radius: 6px; padding: 6px 8px;
+             color: var(--chart); background: var(--ink); border-radius: 8px; padding: 6px 8px;
              text-align: center; height: fit-content; white-space: nowrap; }
   .logBody { flex: 1; min-width: 0; }
   .logSummary { font-size: 13.5px; color: var(--ink); line-height: 1.5; }
-  .logMeta { font-size: 11.5px; color: var(--fog); margin-top: 3px; }
+  .logMeta { font-size: 11.5px; color: rgba(11,29,51,.55); margin-top: 3px; }
 
-  /* 최근 수익률 — 항해일지 카드 */
   .retbook { display: flex; flex-direction: column; gap: 10px; }
-  .retCard { border: 1px solid rgba(11,29,51,.16); border-radius: 10px; overflow: hidden; background: var(--paper); }
+  .retCard { border-radius: 16px; overflow: hidden; background: rgba(11,29,51,.04); }
   .retHead { background: linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 100%);
              color: var(--chart); padding: 9px 12px; display: flex; align-items: baseline; gap: 8px; }
   .retName { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; }
@@ -204,55 +273,22 @@
   .retGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: rgba(11,29,51,.1); }
   .retCell { background: var(--paper); padding: 8px 4px; text-align: center; }
   .retK { display: block; font-size: 10px; color: var(--fog); margin-bottom: 3px; font-weight: 700; }
-  .retMdd { padding: 7px 12px; font-size: 12px; color: var(--ink); background: rgba(181,113,63,.06);
-            border-top: 1px solid rgba(11,29,51,.1); }
+  .retMdd { padding: 7px 12px; font-size: 12px; color: var(--ink); background: rgba(181,113,63,.06); }
   @media (max-width: 520px) {
     .retGrid { grid-template-columns: repeat(3, 1fr); }
   }
 
-  .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .inputs label { display: block; font-size: 12px; font-weight: 700; color: var(--slate); margin-bottom: 4px; }
-  .inputs input { width: 100%; padding: 11px; font-size: 16px; text-align: right;
-                  border: 1px solid rgba(11,29,51,.2); border-radius: 8px; background: var(--paper); color: var(--ink); }
-  .inputs input:focus { outline: none; border-color: var(--brass); }
-  .note { font-size: 11px; color: var(--fog); margin: -8px 0 14px; }
-
-  table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
-  th, td { border: none; border-bottom: 1px solid rgba(11,29,51,.1); padding: 10px 6px; text-align: center; font-size: 14px; }
-  th { background: none; color: var(--ink); font-size: 11px; font-weight: 700; text-transform: uppercase;
-       letter-spacing: .03em; border-bottom: 2px solid var(--ink); }
-  tr:nth-child(even) td { background: rgba(181,113,63,.05); }
-  td input { width: 68px; padding: 8px; font-size: 15px; text-align: right;
-             border: 1px solid rgba(11,29,51,.2); border-radius: 6px; background: var(--paper); color: var(--ink); }
-  .nm { text-align: left; font-weight: 700; }
-  .cd { font-size: 11px; color: var(--fog); font-weight: 400; }
-  .buy { color: #dc2626; font-weight: 700; }
-  .sell { color: #2563eb; font-weight: 700; }
-  .idle { color: #b9c2ca; }
-  tr.idle-row td { background: rgba(11,29,51,.02) !important; }
-  .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;
-         background: rgba(181,113,63,.15); color: var(--brass); margin-top: 3px; }
-
-  /* 실행 버튼 — 좌우 반반, 알약형 */
-  .btnrow { display: flex; gap: 8px; margin-top: 14px; }
-  .btnrow button { flex: 1 1 50%; min-width: 0; padding: 15px 10px; font-size: 14.5px;
-                   font-weight: 700; border-radius: 24px;
-                   cursor: pointer; line-height: 1.3; }
-  .btnrow button.main { background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); }
-  .btnrow button.main:hover { background: rgba(11,29,51,.05); }
-  .btnrow button.save { background: var(--brass); color: #fdf6e8; border: 1.5px solid var(--brass); }
-  .btnrow button.save:hover { background: #a1653a; }
-  .btnrow button:disabled { background: #e5e0d3; color: #a9b2bd; border-color: #d8d2c2; }
-
-  /* 아코디언 — 해도 문서: 박스 없이 밑줄 구분선 리스트 */
-  .acc { border-bottom: 1px solid rgba(11,29,51,.15); }
-  .accH { padding: 15px 2px; background: none; color: var(--ink); font-weight: 600; font-size: 16px;
+  /* 아코디언 — 둥근 흰 카드 리스트 */
+  .accWrap { background: var(--paper); border-radius: 26px; padding: 6px 20px; display: flex; flex-direction: column; }
+  .acc { border-top: 1px solid rgba(11,29,51,.08); }
+  .acc:first-child { border-top: none; }
+  .accH { padding: 16px 0; background: none; color: var(--ink); font-weight: 500; font-size: 13.5px;
           cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-          font-family: 'Fraunces', serif; transition: color .15s; }
+          font-family: 'Noto Sans KR', sans-serif; transition: color .15s; }
   .accH:hover { color: var(--brass); }
-  .accH .ar { color: var(--fog); font-size: 11px; transition: transform .2s; font-family: inherit; }
-  .accH.open .ar { transform: rotate(180deg); color: var(--brass); }
-  .accB { display: none; padding: 2px 2px 18px; }
+  .accH .ar { color: rgba(11,29,51,.4); font-size: 13px; transition: transform .2s; font-family: inherit; }
+  .accH.open .ar { transform: rotate(135deg); color: var(--brass); }
+  .accB { display: none; padding: 2px 2px 20px; }
   .accB.open { display: block; animation: accFade .22s ease; }
   @keyframes accFade{ from{ opacity:0; } to{ opacity:1; } }
   .accB h4 { font-size: 16px; margin: 18px 0 6px; color: var(--ink);
@@ -262,16 +298,16 @@
                        font-family: 'Cormorant Garamond', serif; }
   .accB ul, .accB ol { padding-left: 20px; margin: 6px 0; }
   .accB li { margin-bottom: 5px; }
-  .accB table { margin: 10px 0; border: 1px solid rgba(11,29,51,.18); border-radius: 6px;
-                overflow: hidden; border-collapse: separate; border-spacing: 0; }
+  .accB table { margin: 10px 0; border-radius: 10px; overflow: hidden; border-collapse: separate; border-spacing: 0;
+                background: rgba(11,29,51,.03); }
   .accB td, .accB th { font-size: 13px; padding: 8px 7px;
-                        font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
-                        border: 1px solid rgba(11,29,51,.1); }
+                        font-family: 'Noto Sans KR', -apple-system, sans-serif;
+                        border: 1px solid rgba(11,29,51,.08); }
   .accB th { background: var(--ink); color: var(--chart); font-weight: 700; letter-spacing: .01em; }
   .accB tr:nth-child(even) td { background: rgba(181,113,63,.05); }
   .accB td b { color: var(--brass); }
   .quiet { color: var(--fog); font-size: 13px; }
-  .sub-acc { border-bottom: 1px solid rgba(181,113,63,.3); margin-bottom: 4px; }
+  .sub-acc { border-bottom: 1px solid rgba(181,113,63,.2); margin-bottom: 4px; }
   .sub-accH { padding: 11px 4px; background: none; font-weight: 600; font-size: 15px;
               cursor: pointer; display: flex; justify-content: space-between; color: var(--ink);
               font-family: 'Fraunces', serif; }
@@ -283,26 +319,22 @@
   .accB p.quiet { font-size: 15px; }
 
   .prog { text-align: center; font-weight: 700; font-size: 15px; margin: 12px 0; color: var(--ink); }
-  .up { color: #dc2626; font-weight: 700; }
-  .dn { color: #2563eb; font-weight: 700; }
+  .up { color: #b3452f; font-weight: 700; }
+  .dn { color: #2f6fa8; font-weight: 700; }
   .na { color: #b9c2ca; }
 
-  /* 모바일: 표를 카드로 */
-  @media (max-width: 700px) {
-    body { padding: 8px; }
-    .wrap { padding: 14px 12px; }
-    .inputs { grid-template-columns: 1fr; }
-    .btnrow button { font-size: 14px; padding: 15px 8px; }
-    table.rt thead { display: none; }
-    table.rt tr { display: block; border: 1px solid #e2e8f0; border-radius: 9px;
-                  margin-bottom: 9px; overflow: hidden; }
-    table.rt td { display: flex; justify-content: space-between; align-items: center;
-                  border: none; border-bottom: 1px solid #f1f5f9; text-align: right; padding: 9px 12px; }
-    table.rt td:last-child { border-bottom: none; }
-    table.rt td::before { content: attr(data-l); font-size: 12px; color: #94a3b8; font-weight: 700; }
-    table.rt td.nm { display: block; text-align: left; background: #f8fafc; }
-    table.rt td.nm::before { content: none; }
-    .accB table:not(.rt) { display: block; overflow-x: auto; white-space: nowrap; }
+  /* 총액 카드 + 비중 밴드 카드 — 모바일은 세로로, 데스크톱은 2단 그리드로 */
+  .totalGrid { display: flex; flex-direction: column; gap: 12px; }
+
+  @media (min-width: 820px) {
+    .wrap { padding: 20px; border-radius: 30px; }
+    .totalGrid { display: grid; grid-template-columns: 1.02fr 1fr; gap: 14px; }
+    .card.total { padding: 34px 32px; }
+    .card.total .num { font-size: 58px; letter-spacing: -2px; }
+    .bandsCard { padding: 30px 32px; }
+    .cashRow { grid-template-columns: 1fr 1fr; max-width: 480px; background: var(--paper);
+               border-radius: 26px; padding: 22px 26px; }
+    .cashRow .cashBox { background: rgba(11,29,51,.05); border-radius: 16px; padding: 12px 16px; }
   }
 </style>
 </head>
@@ -311,151 +343,107 @@
 <div id="login"></div>
 
 <div id="loginStage">
-  <div class="sky">
-    <div class="stars" id="lgStars"></div>
-    <div class="moon"></div>
-    <div class="cloud" style="width:70px;height:22px;top:14%;left:14%"></div>
-    <div class="cloud" style="width:50px;height:16px;top:26%;left:42%"></div>
-  </div>
+  <video class="bgVideo" id="lgVideo" autoplay muted loop playsinline></video>
+  <div class="scrim-top"></div>
+  <div class="scrim-bottom"></div>
 
-  <div class="daytoggle">
-    <button id="lgBtnNight" class="on" onclick="lgSetMode(false)">🌙 밤</button>
-    <button id="lgBtnDay" onclick="lgSetMode(true)">☀️ 낮</button>
-  </div>
-
-  <div class="gull" style="top:16%; left:100vw; animation-duration:22s;">
-    <svg viewBox="0 0 22 12"><path d="M1 8 Q6 1 11 7 Q16 1 21 8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-  </div>
-  <div class="gull" style="top:22%; left:100vw; animation-duration:28s; animation-delay:4s;">
-    <svg viewBox="0 0 22 12" style="width:18px;height:10px"><path d="M1 8 Q6 1 11 7 Q16 1 21 8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-  </div>
-
-  <div class="dock">
-    <div class="post" style="left:10px"></div>
-    <div class="post" style="left:60px"></div>
-    <div class="post" style="left:110px"></div>
-  </div>
-
-  <div class="wake"></div>
-  <div class="shipWrap">
-    <svg viewBox="0 0 300 220">
-      <defs>
-        <linearGradient id="lgPlank" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#8a6238"/>
-          <stop offset="45%" stop-color="#6e4b28"/>
-          <stop offset="100%" stop-color="#4a3018"/>
-        </linearGradient>
-        <pattern id="lgGrain" width="42" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-2)">
-          <rect width="42" height="10" fill="transparent"/>
-          <path d="M0 5 Q10 2 21 5 T42 5" stroke="#3a2410" stroke-width="0.6" fill="none" opacity=".5"/>
-          <line x1="0" y1="9.5" x2="42" y2="9.5" stroke="#2c1a0c" stroke-width="1" opacity=".55"/>
-        </pattern>
-      </defs>
-      <line x1="95"  y1="42" x2="95"  y2="176" stroke="#3a2b1d" stroke-width="4"/>
-      <line x1="165" y1="14" x2="165" y2="180" stroke="#3a2b1d" stroke-width="5"/>
-      <line x1="228" y1="52" x2="228" y2="176" stroke="#3a2b1d" stroke-width="3.5"/>
-      <line x1="70" y1="58" x2="120" y2="58" stroke="#2c2013" stroke-width="3"/>
-      <line x1="128" y1="32" x2="202" y2="32" stroke="#2c2013" stroke-width="3.5"/>
-      <line x1="132" y1="70" x2="198" y2="70" stroke="#2c2013" stroke-width="3"/>
-      <line x1="205" y1="66" x2="252" y2="66" stroke="#2c2013" stroke-width="2.5"/>
-      <g class="sailcloth">
-        <path d="M72 60 L118 60 L112 108 Q95 116 78 108 Z" fill="#eef4f2"/>
-      </g>
-      <g class="sailcloth s2">
-        <path d="M130 34 L200 34 L192 92 Q165 102 138 92 Z" fill="#f2f6f4"/>
-      </g>
-      <g class="sailcloth">
-        <path d="M138 100 L192 100 L186 138 Q165 145 144 138 Z" fill="#e6eeec"/>
-      </g>
-      <g class="sailcloth s2">
-        <path d="M207 68 L250 68 L244 104 Q228 110 213 104 Z" fill="#eef4f2"/>
-      </g>
-      <path d="M95 42 L112 47 L95 52 Z" fill="#a63b2e"/>
-      <path d="M165 14 L184 20 L165 26 Z" fill="#a63b2e"/>
-      <path d="M228 52 L244 57 L228 62 Z" fill="#a63b2e"/>
-      <line x1="30" y1="150" x2="72" y2="140" stroke="#3a2b1d" stroke-width="4"/>
-      <path d="M18 154 Q40 138 90 140 L260 140 Q288 140 278 168
-               Q250 196 165 200 Q80 196 30 172 Z" fill="url(#lgPlank)"/>
-      <path d="M18 154 Q40 138 90 140 L260 140 Q288 140 278 168
-               Q250 196 165 200 Q80 196 30 172 Z" fill="url(#lgGrain)"/>
-      <path d="M40 148 Q165 136 260 148" stroke="#3a2718" stroke-width="3" fill="none" opacity=".7"/>
-      <path d="M225 122 Q255 118 268 140 L232 144 Z" fill="#5a3d22"/>
-      <path d="M225 122 Q255 118 268 140 L232 144 Z" fill="url(#lgGrain)" opacity=".6"/>
-      <path d="M22 156 Q45 142 92 144 L258 144" stroke="#c99a63" stroke-width="2.5" fill="none" opacity=".55"/>
-    </svg>
-  </div>
-
-  <div class="sea">
-    <div class="wave w1"></div>
-    <div class="wave w2"></div>
-  </div>
-
-  <div class="card">
-    <div class="lg-title">그대들은<br>어떻게 투자할 것인가</div>
-    <div class="lg-subtitle">항해를 시작하려면 신원을 밝혀주세요</div>
-
-    <div class="field">
-      <label>선원 아이디</label>
-      <input type="text" id="lid" placeholder="아이디" autocomplete="username"
-             onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <div class="field">
-      <label>암구호</label>
-      <input type="password" id="lpw" placeholder="비밀번호" autocomplete="current-password"
-             onkeydown="if(event.key==='Enter')doLogin()">
+  <div class="lg-content">
+    <div class="lg-topbar">
+      <div class="daytoggle">
+        <button id="lgBtnNight" class="on" onclick="lgSetMode(false)">☾ 밤</button>
+        <button id="lgBtnDay" onclick="lgSetMode(true)">☀ 낮</button>
+      </div>
     </div>
 
-    <button class="go" id="lbtn" onclick="doLogin()">승선하기</button>
-    <button class="newacc" onclick="doSignUp()">처음 오셨나요? 새로 등록하기</button>
-    <div id="loginMsg"></div>
-    <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+    <div class="lg-hero">
+      <div class="lg-title">그대들은<br>어떻게 투자할 것인가</div>
+    </div>
+
+    <div class="lg-spacer"></div>
+
+    <div class="card">
+      <div class="field">
+        <label>선원 아이디</label>
+        <input type="text" id="lid" placeholder="선원 아이디를 입력하세요" autocomplete="username"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="field">
+        <label>암구호</label>
+        <input type="password" id="lpw" placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+
+      <button class="go" id="lbtn" onclick="doLogin()">승선하기</button>
+      <button class="newacc" onclick="doSignUp()">처음 오셨나요? 새로 등록하기</button>
+      <div id="loginMsg"></div>
+      <div class="wifi-note">영상 재생에 데이터가 소요되니 Wi-Fi 사용을 권장합니다.</div>
+      <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+    </div>
   </div>
 </div>
 
 
 <div class="wrap" id="main" style="display:none">
-  <div class="userbar"><span id="who"></span><button class="link" onclick="doLogout()">로그아웃</button></div>
-
-  <div class="tabs">
-    <button id="tD" class="on" onclick="switchMarket('domestic')">국내 ISA</button>
-    <button id="tO" onclick="switchMarket('overseas')">미국 직투</button>
+  <div class="headerRow">
+    <div class="brand">
+      <span class="ico">⚓</span>
+      <span class="nm">5분할 리밸런싱</span>
+    </div>
+    <div class="tabs">
+      <button id="tD" class="on" onclick="switchMarket('domestic')">국내 ISA</button>
+      <button id="tO" onclick="switchMarket('overseas')">미국 직투</button>
+    </div>
+    <div class="userbar"><span id="who"></span><button class="link" onclick="doLogout()">로그아웃</button></div>
   </div>
 
   <div id="warnBox" class="card warn" style="display:none"></div>
 
-  <div class="card total">
-    <div class="lbl">총 평가금액 (종목 + 현금)</div>
-    <div class="num" id="totalTxt">-</div>
-    <span class="fx" id="fxTxt"></span>
+  <div class="totalGrid">
+    <div class="card total">
+      <div class="lbl">총 평가금액 · 종목 + 현금</div>
+      <div class="num" id="totalTxt">-</div>
+      <span class="fx" id="fxTxt"></span>
+      <div class="card profit" id="profitBox"></div>
+    </div>
+
+    <div class="card bandsCard">
+      <div class="bandsHead">
+        <span class="ttl">비중 밴드</span>
+        <div class="bandsLegend">
+          <span><i class="tgt"></i>목표</span>
+          <span><i class="upr"></i>상단 밴드</span>
+          <span><i class="ovr"></i>초과분</span>
+        </div>
+      </div>
+      <div id="bandsArea"></div>
+    </div>
   </div>
 
-  <div class="card profit" id="profitBox"></div>
-
-  <div class="inputs">
-    <div>
-      <label>계좌내 현금 (매수 후 남은 돈+배당)</label>
+  <div class="cashRow">
+    <div class="cashBox">
+      <label>계좌내 현금 · 잔액 + 배당</label>
       <input type="text" id="cash" inputmode="numeric">
     </div>
-    <div>
+    <div class="cashBox">
       <label>신규 입금액</label>
       <input type="text" id="dep" inputmode="numeric">
     </div>
   </div>
 
-  <table class="rt">
-    <thead>
-      <tr>
-        <th>종목명</th><th>목표<br>(상단)</th><th id="thP">현재가</th>
-        <th>보유<br>(주)</th><th id="thA">평가금액</th><th>비중</th><th>해야 할 일</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+  <div class="card tasksCard">
+    <div class="tasksHead">
+      <span class="ttl">해야 할 일</span>
+      <span class="editLink" id="editToggle" onclick="toggleEdit()">수정</span>
+    </div>
+    <div class="assetHead" id="assetHead">
+      <span>종목명</span><span>목표(상단)</span><span id="thP">현재가</span><span>보유</span><span id="thA">평가금액</span><span>비중</span><span>해야 할 일</span>
+    </div>
+    <div id="tbody"></div>
+    <div class="tasksFoot" id="sumBox"></div>
+  </div>
 
-  <div class="card profit" id="sumBox" style="margin-top:14px;border-bottom:none;padding-bottom:0"></div>
-
-  <div class="btnrow" style="margin-top:14px">
-    <button class="main" id="quoteBtn" onclick="refreshQuote()" style="flex:1 1 100%">시세 조회</button>
+  <div class="quoterow">
+    <button id="quoteBtn" onclick="refreshQuote()">시세 조회</button>
   </div>
   <div class="btnrow">
     <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
@@ -463,8 +451,9 @@
   </div>
 
   <!-- 하단 이탈 자산이 있을 때만 나타남 -->
-  <div id="belowBanner" class="card below" style="display:none;margin-top:12px"></div>
+  <div id="belowBanner" class="card below" style="display:none"></div>
 
+  <div class="accWrap">
   <!-- ① 최근 수익률 -->
   <div class="acc">
     <div class="accH" onclick="tog(this)"><span>종목별 최근 수익률</span><span class="ar">▼</span></div>
@@ -814,27 +803,35 @@
       </div>
     </div>
   </div>
+  </div>
 </div>
 
 <script>
-// ===== 로그인 화면: 낮/밤 =====
+// ===== 로그인 화면: 낮/밤 (배경 영상 전환) =====
 function lgSetMode(day){
   document.body.classList.toggle('day', day);
   document.getElementById('lgBtnDay').classList.toggle('on', day);
   document.getElementById('lgBtnNight').classList.toggle('on', !day);
+  var vid = document.getElementById('lgVideo');
+  var src = day ? 'assets/day.mp4' : 'assets/night.mp4';
+  if (vid.dataset.src !== src) {
+    vid.dataset.src = src;
+    vid.src = src;
+    vid.load();
+    vid.play().catch(function () {}); // 자동재생 정책으로 막혀도 무시 (muted라 대부분 허용됨)
+  }
 }
 (function () {
   var h = new Date().getHours();
-  if (h >= 6 && h < 18) lgSetMode(true);
-  var starsEl = document.getElementById('lgStars');
-  for (var i = 0; i < 40; i++) {
-    var s = document.createElement('span');
-    s.style.left = Math.random() * 100 + '%';
-    s.style.top = Math.random() * 100 + '%';
-    s.style.animationDelay = (Math.random() * 3) + 's';
-    starsEl.appendChild(s);
-  }
+  lgSetMode(h >= 6 && h < 18);
 })();
+
+// 배경 영상은 최초 1회만 내려받고 이후에는 캐시에서 즉시 재생되도록 서비스 워커에 맡긴다
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  });
+}
 
 // 같은 사이트의 /api/proxy 를 통해 통신한다. CORS가 적용되지 않는 구조.
 function api(params, onOk, onErr) {
@@ -998,20 +995,14 @@ function showQuote(d) {
   if (d.priceWarning) { w.innerText = d.priceWarning; w.style.display = 'block'; }
   else w.style.display = 'none';
 
-  document.getElementById('totalTxt').innerText = money(d.newTotal);
+  document.getElementById('totalTxt').innerHTML = krw()
+    ? Math.round(d.newTotal).toLocaleString('ko-KR') + '<span class="unit"> 원</span>'
+    : money(d.newTotal);
   document.getElementById('fxTxt').innerText = (!krw() && d.fx > 0)
     ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '';
 
-  var p = document.getElementById('profitBox');
-  if (d.rate === null) {
-    p.innerHTML = '<span class="quiet">누적 입금액이 없어 수익률을 계산할 수 없습니다. ' +
-                  '신규 입금액을 입력하고 계산하면 이때부터 기록이 시작됩니다.</span>';
-  } else {
-    var cls = d.rate >= 0 ? 'up' : 'dn';
-    p.innerHTML = '누적 원금 ' + money(d.cumDeposit) + ' · 평가손익 <b class="' + cls + '">' +
-      signed(d.netValue) + '</b> (<b class="' + cls + '">' + pct(d.rate) + '</b>)' +
-      (d.peakRate !== null ? '<br><span class="quiet">역대 최고 수익률 ' + pct(d.peakRate) + '</span>' : '');
-  }
+  renderProfit(d);
+  renderBands(d.assets);
 
   d.assets.forEach(function (a, i) {
     var prEl = document.getElementById('pr' + i);
@@ -1066,6 +1057,55 @@ function months(d) {
   return m > 0 ? (m + '개월 ' + r + '일째') : (d + '일째');
 }
 
+// 자산별 비중 밴드 바 — 목표/상단 마커와 현재 비중 채움을 그린다
+function renderBands(assets) {
+  var maxScale = 32; // 밴드(23~25%)보다 넉넉히 위까지 그려서 초과분도 보이게
+  var h = '';
+  assets.forEach(function (a) {
+    var fillPct = Math.max(0, Math.min(a.pct, maxScale)) / maxScale * 100;
+    var targetPct = Math.min(a.target, maxScale) / maxScale * 100;
+    var upperPct = Math.min(a.upper, maxScale) / maxScale * 100;
+    var fillColor = a.isOver ? 'var(--brass)' : 'rgba(11,29,51,.3)';
+    var pctColor = a.isOver ? 'var(--brass)' : 'rgba(11,29,51,.65)';
+    h += '<div class="bandRow">' +
+           '<div class="bandTop">' +
+             '<span class="bandTicker">' + (a.short || a.name) + '</span>' +
+             '<span class="bandPct" style="color:' + pctColor + '">' + a.pct.toFixed(2) + '%</span>' +
+           '</div>' +
+           '<div class="bandTrack">' +
+             '<div class="bandFill" style="width:' + fillPct.toFixed(1) + '%;background:' + fillColor + '"></div>' +
+             '<div class="bandMark" style="left:' + targetPct.toFixed(1) + '%;background:rgba(11,29,51,.55)"></div>' +
+             '<div class="bandMark" style="left:' + upperPct.toFixed(1) + '%;background:var(--brass)"></div>' +
+           '</div>' +
+         '</div>';
+  });
+  document.getElementById('bandsArea').innerHTML = h;
+}
+
+function renderProfit(d) {
+  var p = document.getElementById('profitBox');
+  if (d.rate === null) {
+    p.innerHTML = '<span class="quiet">누적 입금액이 없어 수익률을 계산할 수 없습니다. ' +
+                  '신규 입금액을 입력하고 계산하면 이때부터 기록이 시작됩니다.</span>';
+    return;
+  }
+  var cls = d.rate >= 0 ? 'up' : 'dn';
+  p.innerHTML =
+    '<div class="pf-badges">' +
+      '<span class="pf-pill ' + cls + '">평가손익 ' + signed(d.netValue) + '</span>' +
+      '<span class="pf-pill ' + cls + '">' + pct(d.rate) + '</span>' +
+      (d.peakRate !== null ? '<span class="pf-peak">역대 최고 ' + pct(d.peakRate) + '</span>' : '') +
+    '</div>' +
+    '<span class="pf-cum">누적 원금 ' + money(d.cumDeposit) + '</span>';
+}
+
+// 보유수량 수정 모드 — 모바일 "해야 할 일" 카드에서 입력칸을 보이거나 숨긴다 (데스크톱은 항상 보임)
+function toggleEdit() {
+  var tb = document.getElementById('tbody');
+  var editing = tb.classList.toggle('editing');
+  document.getElementById('editToggle').innerText = editing ? '완료' : '수정';
+}
+
 function show(d) {
   loaded = d;
 
@@ -1073,7 +1113,9 @@ function show(d) {
   if (d.priceWarning) { w.innerText = d.priceWarning; w.style.display = 'block'; }
   else w.style.display = 'none';
 
-  document.getElementById('totalTxt').innerText = money(d.newTotal);
+  document.getElementById('totalTxt').innerHTML = krw()
+    ? Math.round(d.newTotal).toLocaleString('ko-KR') + '<span class="unit"> 원</span>'
+    : money(d.newTotal);
   document.getElementById('fxTxt').innerText = (!krw() && d.fx > 0)
     ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '';
 
@@ -1082,29 +1124,22 @@ function show(d) {
   document.getElementById('dep').value = krw()
     ? Math.round(d.newDeposit).toLocaleString('ko-KR') : Number(d.newDeposit).toFixed(2);
 
-  // 수익률
-  var p = document.getElementById('profitBox');
-  if (d.rate === null) {
-    p.innerHTML = '<span class="quiet">누적 입금액이 없어 수익률을 계산할 수 없습니다. ' +
-                  '신규 입금액을 입력하고 계산하면 이때부터 기록이 시작됩니다.</span>';
-  } else {
-    var cls = d.rate >= 0 ? 'up' : 'dn';
-    p.innerHTML = '누적 원금 ' + money(d.cumDeposit) + ' · 평가손익 <b class="' + cls + '">' +
-      signed(d.netValue) + '</b> (<b class="' + cls + '">' + pct(d.rate) + '</b>)' +
-      (d.peakRate !== null ? '<br><span class="quiet">역대 최고 수익률 ' + pct(d.peakRate) + '</span>' : '');
-  }
+  renderProfit(d);
+  renderBands(d.assets);
 
   // 하단 관찰 — 실제로 이탈 자산이 있을 때만 배너로 등장
   var bb = document.getElementById('belowBanner');
   if (d.below && d.below.length) {
-    var h = '<b>하단 관찰</b> · 목표보다 낮은 상태가 이어지는 자산입니다. 조치는 없고 인지 목적입니다.';
-    d.below.forEach(function (x) { h += '<div>· ' + x.name + ' — ' + months(x.days) + '</div>'; });
-    bb.innerHTML = h;
-    bb.style.display = 'block';
+    var bh = '<b>하단 관찰</b><div class="below-body">목표보다 낮은 상태가 이어지는 자산입니다. 조치는 없고 인지 목적입니다.';
+    d.below.forEach(function (x) { bh += '<div>· ' + x.name + ' — ' + months(x.days) + '</div>'; });
+    bh += '</div>';
+    bb.innerHTML = bh;
+    bb.style.display = 'flex';
   } else bb.style.display = 'none';
 
-  // 표 — 굵게 국내 ETF 정식 종목명, 아래 작게 미국 직투 티커
+  // 해야 할 일 — 종목명 아래 미국 직투 티커·국내코드, 보유수량 입력, 매수(브라스)/매도(잉크) 표시
   var tb = document.getElementById('tbody');
+  var editingBefore = tb.classList.contains('editing');
   tb.innerHTML = '';
   d.assets.forEach(function (a, i) {
     var cls = a.adjShares > 0 ? 'buy' : (a.adjShares < 0 ? 'sell' : 'idle');
@@ -1115,25 +1150,26 @@ function show(d) {
     var tag = a.isOver ? '<br><span class="tag">상단 초과</span>' : '';
     var cd = krw() ? [a.usTicker, a.code].filter(Boolean).join(' · ') : (a.usTicker || a.code);
     tb.innerHTML +=
-      '<tr class="' + (a.adjShares === 0 ? 'idle-row' : '') + '">' +
-      '<td class="nm">' + a.name + '<div class="cd">' + cd + '</div></td>' +
-      '<td data-l="목표(상단)">' + a.target + '% <span class="quiet">(' + a.upper + '%)</span></td>' +
-      '<td data-l="현재가" id="pr' + i + '">' + price(a.price) + '</td>' +
-      '<td data-l="보유수량"><input type="text" id="sh' + i + '" inputmode="numeric" value="' + a.shares + '"></td>' +
-      '<td data-l="평가금액" id="amt' + i + '">' + money(a.currentAmt) + '</td>' +
-      '<td data-l="비중" id="pc' + i + '">' + a.pct.toFixed(2) + '%' + tag + '</td>' +
-      '<td data-l="해야 할 일"><span class="' + cls + '">' + act + '</span>' +
-        '<div class="quiet" style="font-size:11px">' + signed(a.adjAmt) + '</div>' + sub + '</td></tr>';
+      '<div class="assetRow ' + cls + '">' +
+        '<div class="cell nm"><span class="nmMain">' + a.name + '</span><span class="nmSub">' + cd + ' · ' + a.shares + '주</span></div>' +
+        '<div class="cell tgt">' + a.target + '% <span class="quiet">(' + a.upper + '%)</span></div>' +
+        '<div class="cell price" id="pr' + i + '">' + price(a.price) + '</div>' +
+        '<div class="qtyWrap"><label>보유수량</label><input type="text" id="sh' + i + '" inputmode="numeric" value="' + a.shares + '"></div>' +
+        '<div class="cell val" id="amt' + i + '">' + money(a.currentAmt) + '</div>' +
+        '<div class="cell pct" id="pc' + i + '">' + a.pct.toFixed(2) + '%' + tag + '</div>' +
+        '<div class="cell act"><span class="actLabel">' + act + '</span>' +
+          '<span class="actAmt">' + signed(a.adjAmt) + '</span>' + sub + '</div>' +
+      '</div>';
   });
+  if (editingBefore) tb.classList.add('editing');
 
   // 합계
-  var s = '예상 매수 <span class="up">' + money(d.spent) + '</span> · 예상 매도 <span class="dn">' +
-          money(d.gained) + '</span><br>';
+  var s;
   if (d.leftover < -0.001) {
-    s += '<b class="up">현금이 부족합니다 (' + money(d.leftover) + '). 매수를 줄이거나 현금을 더 넣어주세요.</b>';
+    s = '<span class="up" style="font-weight:700">현금이 부족합니다 (' + money(d.leftover) + '). 매수를 줄이거나 현금을 더 넣어주세요.</span>';
   } else {
-    s += '예상 잔여현금 <b>' + money(d.leftover) + '</b>' +
-         '<div class="quiet" style="font-size:12px">실제 체결가와 수수료에 따라 달라집니다.</div>';
+    s = '<span>예상 매수 ' + money(d.spent) + ' · 예상 매도 ' + money(d.gained) + '</span>' +
+        '<span>예상 잔여현금 <b>' + money(d.leftover) + '</b></span>';
   }
   document.getElementById('sumBox').innerHTML = s;
 
