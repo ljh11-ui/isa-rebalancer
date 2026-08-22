@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="항해">
 <base target="_top">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root{
@@ -26,128 +26,92 @@
   .wrap::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
                   background: linear-gradient(90deg, var(--brass-light), var(--brass)); }
 
-  /* ===== 로그인: 항해 컨셉 ===== */
+  /* ===== 로그인: 영상 배경 + 완전 유리 카드 ===== */
   #login{ display:none; }
   #loginStage{
     position:fixed; inset:0; width:100%; height:100%;
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden; z-index:1000;
+    overflow:hidden; z-index:1000; background:#0b1d33;
   }
-  #loginStage .sky{
-    position:absolute; inset:0;
-    background: linear-gradient(180deg, #0b1d33 0%, #14304f 38%, #1c4363 58%, #2a5d78 100%);
+  #loginStage .bgVideo{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:60% 50%; z-index:0;
   }
-  body.day #loginStage .sky{
-    background: linear-gradient(180deg, #4f9bd6 0%, #7ec2e6 45%, #a9d9e8 70%, #cfe9e6 100%);
+  #loginStage .scrim-top{
+    position:absolute; left:0; right:0; top:0; height:42%; z-index:1; pointer-events:none;
+    background: linear-gradient(180deg, rgba(11,29,51,.34) 0%, rgba(11,29,51,.16) 46%, rgba(11,29,51,0) 100%);
   }
-  #loginStage .stars{ position:absolute; inset:0 0 55% 0; opacity:.55; }
-  #loginStage .stars span{
-    position:absolute; width:2px; height:2px; background:#fff; border-radius:50%;
-    animation: lg-twinkle 3.5s ease-in-out infinite;
-  }
-  @keyframes lg-twinkle{ 0%,100%{opacity:.15} 50%{opacity:.9} }
-  body.day #loginStage .stars{ display:none; }
-
-  #loginStage .moon{
-    position:absolute; top:8%; right:12%;
-    width:60px; height:60px; border-radius:50%;
-    background:#f4d35e;
-  }
-  body.day #loginStage .moon{ background:#ffd94a; }
-
-  #loginStage .cloud{ position:absolute; opacity:0; background:#fff; border-radius:40px; }
-  body.day #loginStage .cloud{ opacity:.85; }
-
-  #loginStage .sea{
-    position:absolute; left:0; right:0; bottom:0; height:46%;
-    background: linear-gradient(180deg, #12405a 0%, #0c2e44 60%, #081f31 100%);
-    overflow:hidden;
-  }
-  body.day #loginStage .sea{
-    background: linear-gradient(180deg, #2f7fa8 0%, #1e5f85 60%, #144a6b 100%);
-  }
-  #loginStage .wave{
-    position:absolute; left:-10%; width:120%; height:70px;
-    background-repeat: repeat-x; background-size: 220px 70px; opacity:.5;
-  }
-  #loginStage .wave.w1{ top:0; background-image: radial-gradient(ellipse 110px 26px at 50% 0, transparent 24px, #143d55 25px); animation: lg-drift 9s linear infinite; }
-  #loginStage .wave.w2{ top:26px; background-image: radial-gradient(ellipse 110px 22px at 50% 0, transparent 24px, #0f3247 25px); animation: lg-drift 13s linear infinite reverse; opacity:.4; }
-  @keyframes lg-drift{ from{ background-position-x:0 } to{ background-position-x:-220px } }
-
-  #loginStage .dock{
-    position:absolute; left:0; bottom:44%; width:34%; height:10%;
-    background: linear-gradient(180deg,#3a2b1d,#241a11); border-top:3px solid #52402c; z-index:3;
-  }
-  #loginStage .dock .post{ position:absolute; bottom:-26px; width:10px; height:26px; background:#241a11; }
-
-  #loginStage .shipWrap{
-    position:absolute; bottom:39%; left:6%; width:300px; height:220px;
-    transform-origin: 50% 100%;
-    animation: lg-sail 9s ease-in-out infinite, lg-bob 3.4s ease-in-out infinite;
-    z-index:4;
-  }
-  @keyframes lg-sail{ 0%{left:6%} 45%{left:6%} 100%{left:112%} }
-  @keyframes lg-bob{ 0%,100%{ transform: translateY(0) rotate(-1.2deg); } 50%{ transform: translateY(-7px) rotate(1.2deg); } }
-  #loginStage .shipWrap svg{ width:100%; height:100%; overflow:visible; }
-  #loginStage .sailcloth{ animation: lg-flutter 2.6s ease-in-out infinite; transform-origin: 50% 0%; }
-  #loginStage .sailcloth.s2{ animation-delay:.4s; }
-  @keyframes lg-flutter{ 0%,100%{ transform: skewX(-2.5deg) scaleX(1); } 50%{ transform: skewX(2.5deg) scaleX(.985); } }
-
-  #loginStage .wake{
-    position:absolute; bottom:38%; left:2%; width:270px; height:16px;
-    background: linear-gradient(90deg, rgba(232,241,242,.35), transparent);
-    border-radius:50%; animation: lg-sail 9s ease-in-out infinite; filter: blur(1px); z-index:3;
+  #loginStage .scrim-bottom{
+    position:absolute; left:0; right:0; bottom:0; height:58%; z-index:1; pointer-events:none;
+    background: linear-gradient(0deg, rgba(11,29,51,.58) 0%, rgba(11,29,51,.18) 55%, rgba(11,29,51,0) 100%);
   }
 
-  #loginStage .gull{ position:absolute; opacity:.9; animation: lg-fly linear infinite; z-index:5; }
-  #loginStage .gull svg{ width:26px; height:14px; display:block; }
-  #loginStage .gull path{ stroke:#ffffff; }
-  @keyframes lg-fly{ from{ transform:translateX(0) } to{ transform:translateX(-140vw) } }
-
-  #loginStage .daytoggle{ position:absolute; top:16px; left:16px; z-index:20; display:flex; gap:6px; }
+  #loginStage .lg-content{
+    position:relative; z-index:2; height:100%; box-sizing:border-box;
+    display:flex; flex-direction:column; padding:20px 22px 28px;
+  }
+  #loginStage .lg-topbar{ display:flex; justify-content:flex-end; }
+  #loginStage .daytoggle{ display:flex; gap:2px; padding:2px; border-radius:999px;
+    border:1px solid rgba(253,246,232,.3); background:rgba(11,29,51,.22); backdrop-filter:blur(8px); }
   #loginStage .daytoggle button{
-    padding:7px 14px; font-size:12px; font-weight:700; border-radius:20px;
-    border:1px solid rgba(255,255,255,.4); background:rgba(0,0,0,.25); color:#fff; cursor:pointer;
+    padding:6px 13px; font-size:11px; font-weight:700; border-radius:999px; letter-spacing:.06em;
+    border:none; background:transparent; color:rgba(253,246,232,.92); cursor:pointer;
   }
-  #loginStage .daytoggle button.on{ background:#fff; color:#0b1d33; }
+  #loginStage .daytoggle button.on{ background:rgba(253,246,232,.85); color:#0b1d33; }
+
+  #loginStage .lg-hero{ margin-top:56px; max-width:420px; }
+  #loginStage .lg-title{
+    font-family:'Fraunces','Gowun Batang',serif; font-style:italic; font-weight:300;
+    font-size:33px; line-height:1.24; color:#fdf6e8; letter-spacing:-.6px;
+    text-shadow: 0 2px 20px rgba(11,29,51,.8), 0 0 44px rgba(11,29,51,.5);
+  }
+  body.day #loginStage .lg-title{
+    text-shadow: 0 1px 0 rgba(0,0,0,.9), 0 -1px 0 rgba(0,0,0,.9), 1px 0 0 rgba(0,0,0,.9),
+                 -1px 0 0 rgba(0,0,0,.9), 0 4px 18px rgba(0,0,0,.75), 0 0 40px rgba(0,0,0,.5);
+  }
+
+  #loginStage .lg-spacer{ flex:1; min-height:24px; }
 
   #loginStage .card{
-    position:relative; z-index:10; width:min(380px, 88vw);
-    background: rgba(245,239,224,.96); border:1px solid rgba(181,113,63,.35);
-    border-radius:14px; padding:36px 30px 28px;
-    box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.4) inset;
-    text-align:left;
+    position:relative; z-index:2; width:min(300px, 86vw); align-self:center;
+    border:1px solid rgba(226,180,99,.46); border-radius:20px;
+    background: rgba(11,29,51,.42); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 14px 40px rgba(11,29,51,.4);
+    padding:24px 24px 20px; text-align:left;
   }
-  #loginStage .lg-title{
-    font-family:'Fraunces', serif; font-weight:600; font-size:25px;
-    text-align:center; color:#0b1d33; letter-spacing:-.2px; line-height:1.3;
-  }
-  #loginStage .lg-subtitle{ text-align:center; font-size:12.5px; color:#6b7280; margin:6px 0 26px; }
-  #loginStage .field{ margin-bottom:11px; }
+  #loginStage .field{ padding-bottom:8px; border-bottom:1.5px solid rgba(226,180,99,.62); }
+  #loginStage .field + .field{ margin-top:16px; }
   #loginStage .field label{
-    display:block; font-size:10.5px; font-weight:700; letter-spacing:.06em;
-    color:#3d7a7a; text-transform:uppercase; margin-bottom:5px;
+    display:block; font-size:10px; font-weight:600; letter-spacing:.16em;
+    color:rgba(226,180,99,.9); text-transform:uppercase; margin-bottom:4px;
   }
   #loginStage input{
-    width:100%; padding:12px 13px; font-size:15px;
-    border:1.5px solid #d8cdb4; border-radius:8px; background:#fffdf8; color:#0b1d33;
+    width:100%; padding:2px 0; font-size:15px;
+    border:none; background:transparent; color:#fdf6e8;
   }
-  #loginStage input:focus{ outline:none; border-color:#b5713f; }
+  #loginStage input::placeholder{ color:rgba(253,246,232,.45); }
+  #loginStage input:focus{ outline:none; }
   #loginStage .go{
-    width:100%; margin-top:16px; padding:14px; border:none; border-radius:8px;
-    background: linear-gradient(180deg, #e2b463 0%, #b5713f 45%, #8a5426 100%);
-    box-shadow: 0 4px 0 #6b3f1c, 0 8px 16px rgba(0,0,0,.25),
-                inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 4px rgba(0,0,0,.25);
-    color:#fdf6e8; font-weight:700; font-size:15px; letter-spacing:.02em; cursor:pointer;
+    width:100%; margin-top:20px; padding:14px; border:none; border-radius:999px;
+    background:#e2b463; box-shadow: 0 8px 24px rgba(226,180,99,.3);
+    color:#0b1d33; font-weight:700; font-size:14px; letter-spacing:.06em; cursor:pointer;
   }
-  #loginStage .go:active{ transform: translateY(2px); box-shadow: 0 2px 0 #6b3f1c; }
-  #loginStage .go:disabled{ background:#94a3b8; box-shadow:none; }
-  #loginStage #loginMsg{ text-align:center; color:#b3452f; font-size:13px; min-height:20px; margin-top:12px; }
+  #loginStage .go:active{ transform: translateY(1px); }
+  #loginStage .go:disabled{ background:rgba(148,163,184,.6); box-shadow:none; }
+  #loginStage #loginMsg{ text-align:center; color:#ffb4a0; font-size:12.5px; min-height:18px; margin-top:10px; }
   #loginStage .newacc{
-    display:block; margin:14px auto 0; background:none; border:none;
-    color:#3d7a7a; font-size:12.5px; text-decoration:underline; cursor:pointer;
+    display:block; width:fit-content; margin:14px auto 0; background:none; border:none;
+    border-bottom:1px solid rgba(226,180,99,.5); padding-bottom:1px;
+    color:rgba(253,246,232,.85); font-size:12px; cursor:pointer;
   }
-  #loginStage .hint-install{ font-size:11.5px; color:#8a8578; text-align:center; margin-top:16px; line-height:1.5; }
+  #loginStage .wifi-note{ font-size:10.5px; color:rgba(226,180,99,.85); text-align:center; margin-top:12px; line-height:1.5; }
+  #loginStage .hint-install{ font-size:10.5px; color:rgba(253,246,232,.5); text-align:center; margin-top:12px; line-height:1.5; }
+
+  @media (min-width: 760px){
+    #loginStage .lg-content{ padding:32px 52px 44px; }
+    #loginStage .lg-hero{ margin-top:150px; max-width:520px; }
+    #loginStage .lg-title{ font-size:50px; letter-spacing:-1.4px; }
+    #loginStage .card{ align-self:flex-end; width:300px; }
+  }
 
   .link { background: none; border: none; color: var(--slate); text-decoration: underline;
           cursor: pointer; font-size: 13px; padding: 6px; width: auto; display: block; margin: 10px auto 0; }
@@ -311,104 +275,42 @@
 <div id="login"></div>
 
 <div id="loginStage">
-  <div class="sky">
-    <div class="stars" id="lgStars"></div>
-    <div class="moon"></div>
-    <div class="cloud" style="width:70px;height:22px;top:14%;left:14%"></div>
-    <div class="cloud" style="width:50px;height:16px;top:26%;left:42%"></div>
-  </div>
+  <video class="bgVideo" id="lgVideo" autoplay muted loop playsinline></video>
+  <div class="scrim-top"></div>
+  <div class="scrim-bottom"></div>
 
-  <div class="daytoggle">
-    <button id="lgBtnNight" class="on" onclick="lgSetMode(false)">🌙 밤</button>
-    <button id="lgBtnDay" onclick="lgSetMode(true)">☀️ 낮</button>
-  </div>
-
-  <div class="gull" style="top:16%; left:100vw; animation-duration:22s;">
-    <svg viewBox="0 0 22 12"><path d="M1 8 Q6 1 11 7 Q16 1 21 8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-  </div>
-  <div class="gull" style="top:22%; left:100vw; animation-duration:28s; animation-delay:4s;">
-    <svg viewBox="0 0 22 12" style="width:18px;height:10px"><path d="M1 8 Q6 1 11 7 Q16 1 21 8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-  </div>
-
-  <div class="dock">
-    <div class="post" style="left:10px"></div>
-    <div class="post" style="left:60px"></div>
-    <div class="post" style="left:110px"></div>
-  </div>
-
-  <div class="wake"></div>
-  <div class="shipWrap">
-    <svg viewBox="0 0 300 220">
-      <defs>
-        <linearGradient id="lgPlank" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#8a6238"/>
-          <stop offset="45%" stop-color="#6e4b28"/>
-          <stop offset="100%" stop-color="#4a3018"/>
-        </linearGradient>
-        <pattern id="lgGrain" width="42" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-2)">
-          <rect width="42" height="10" fill="transparent"/>
-          <path d="M0 5 Q10 2 21 5 T42 5" stroke="#3a2410" stroke-width="0.6" fill="none" opacity=".5"/>
-          <line x1="0" y1="9.5" x2="42" y2="9.5" stroke="#2c1a0c" stroke-width="1" opacity=".55"/>
-        </pattern>
-      </defs>
-      <line x1="95"  y1="42" x2="95"  y2="176" stroke="#3a2b1d" stroke-width="4"/>
-      <line x1="165" y1="14" x2="165" y2="180" stroke="#3a2b1d" stroke-width="5"/>
-      <line x1="228" y1="52" x2="228" y2="176" stroke="#3a2b1d" stroke-width="3.5"/>
-      <line x1="70" y1="58" x2="120" y2="58" stroke="#2c2013" stroke-width="3"/>
-      <line x1="128" y1="32" x2="202" y2="32" stroke="#2c2013" stroke-width="3.5"/>
-      <line x1="132" y1="70" x2="198" y2="70" stroke="#2c2013" stroke-width="3"/>
-      <line x1="205" y1="66" x2="252" y2="66" stroke="#2c2013" stroke-width="2.5"/>
-      <g class="sailcloth">
-        <path d="M72 60 L118 60 L112 108 Q95 116 78 108 Z" fill="#eef4f2"/>
-      </g>
-      <g class="sailcloth s2">
-        <path d="M130 34 L200 34 L192 92 Q165 102 138 92 Z" fill="#f2f6f4"/>
-      </g>
-      <g class="sailcloth">
-        <path d="M138 100 L192 100 L186 138 Q165 145 144 138 Z" fill="#e6eeec"/>
-      </g>
-      <g class="sailcloth s2">
-        <path d="M207 68 L250 68 L244 104 Q228 110 213 104 Z" fill="#eef4f2"/>
-      </g>
-      <path d="M95 42 L112 47 L95 52 Z" fill="#a63b2e"/>
-      <path d="M165 14 L184 20 L165 26 Z" fill="#a63b2e"/>
-      <path d="M228 52 L244 57 L228 62 Z" fill="#a63b2e"/>
-      <line x1="30" y1="150" x2="72" y2="140" stroke="#3a2b1d" stroke-width="4"/>
-      <path d="M18 154 Q40 138 90 140 L260 140 Q288 140 278 168
-               Q250 196 165 200 Q80 196 30 172 Z" fill="url(#lgPlank)"/>
-      <path d="M18 154 Q40 138 90 140 L260 140 Q288 140 278 168
-               Q250 196 165 200 Q80 196 30 172 Z" fill="url(#lgGrain)"/>
-      <path d="M40 148 Q165 136 260 148" stroke="#3a2718" stroke-width="3" fill="none" opacity=".7"/>
-      <path d="M225 122 Q255 118 268 140 L232 144 Z" fill="#5a3d22"/>
-      <path d="M225 122 Q255 118 268 140 L232 144 Z" fill="url(#lgGrain)" opacity=".6"/>
-      <path d="M22 156 Q45 142 92 144 L258 144" stroke="#c99a63" stroke-width="2.5" fill="none" opacity=".55"/>
-    </svg>
-  </div>
-
-  <div class="sea">
-    <div class="wave w1"></div>
-    <div class="wave w2"></div>
-  </div>
-
-  <div class="card">
-    <div class="lg-title">그대들은<br>어떻게 투자할 것인가</div>
-    <div class="lg-subtitle">항해를 시작하려면 신원을 밝혀주세요</div>
-
-    <div class="field">
-      <label>선원 아이디</label>
-      <input type="text" id="lid" placeholder="아이디" autocomplete="username"
-             onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <div class="field">
-      <label>암구호</label>
-      <input type="password" id="lpw" placeholder="비밀번호" autocomplete="current-password"
-             onkeydown="if(event.key==='Enter')doLogin()">
+  <div class="lg-content">
+    <div class="lg-topbar">
+      <div class="daytoggle">
+        <button id="lgBtnNight" class="on" onclick="lgSetMode(false)">☾ 밤</button>
+        <button id="lgBtnDay" onclick="lgSetMode(true)">☀ 낮</button>
+      </div>
     </div>
 
-    <button class="go" id="lbtn" onclick="doLogin()">승선하기</button>
-    <button class="newacc" onclick="doSignUp()">처음 오셨나요? 새로 등록하기</button>
-    <div id="loginMsg"></div>
-    <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+    <div class="lg-hero">
+      <div class="lg-title">그대들은<br>어떻게 투자할 것인가</div>
+    </div>
+
+    <div class="lg-spacer"></div>
+
+    <div class="card">
+      <div class="field">
+        <label>선원 아이디</label>
+        <input type="text" id="lid" placeholder="선원 아이디를 입력하세요" autocomplete="username"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="field">
+        <label>암구호</label>
+        <input type="password" id="lpw" placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+
+      <button class="go" id="lbtn" onclick="doLogin()">승선하기</button>
+      <button class="newacc" onclick="doSignUp()">처음 오셨나요? 새로 등록하기</button>
+      <div id="loginMsg"></div>
+      <div class="wifi-note">영상 재생에 데이터가 소요되니 Wi-Fi 사용을 권장합니다.</div>
+      <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+    </div>
   </div>
 </div>
 
@@ -817,24 +719,31 @@
 </div>
 
 <script>
-// ===== 로그인 화면: 낮/밤 =====
+// ===== 로그인 화면: 낮/밤 (배경 영상 전환) =====
 function lgSetMode(day){
   document.body.classList.toggle('day', day);
   document.getElementById('lgBtnDay').classList.toggle('on', day);
   document.getElementById('lgBtnNight').classList.toggle('on', !day);
+  var vid = document.getElementById('lgVideo');
+  var src = day ? 'assets/day.mp4' : 'assets/night.mp4';
+  if (vid.dataset.src !== src) {
+    vid.dataset.src = src;
+    vid.src = src;
+    vid.load();
+    vid.play().catch(function () {}); // 자동재생 정책으로 막혀도 무시 (muted라 대부분 허용됨)
+  }
 }
 (function () {
   var h = new Date().getHours();
-  if (h >= 6 && h < 18) lgSetMode(true);
-  var starsEl = document.getElementById('lgStars');
-  for (var i = 0; i < 40; i++) {
-    var s = document.createElement('span');
-    s.style.left = Math.random() * 100 + '%';
-    s.style.top = Math.random() * 100 + '%';
-    s.style.animationDelay = (Math.random() * 3) + 's';
-    starsEl.appendChild(s);
-  }
+  lgSetMode(h >= 6 && h < 18);
 })();
+
+// 배경 영상은 최초 1회만 내려받고 이후에는 캐시에서 즉시 재생되도록 서비스 워커에 맡긴다
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  });
+}
 
 // 같은 사이트의 /api/proxy 를 통해 통신한다. CORS가 적용되지 않는 구조.
 function api(params, onOk, onErr) {
