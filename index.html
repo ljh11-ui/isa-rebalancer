@@ -32,13 +32,15 @@
          background: var(--canvas); transition: background .25s; }
   body.ov { background: var(--ink-deep); }
 
+  /* .wrap은 총 평가금액/비중 카드·현금 입력 카드 등 최상위 섹션들을 감싸는 공통 부모.
+     섹션 사이 간격은 개별 카드의 margin이 아니라 이 gap 하나로 통일 관리한다 (놓치기 쉬운 margin 방식 지양). */
   .wrap { position: relative; background: var(--shell); border-radius: 34px; padding: 14px; max-width: 1040px;
           margin: 0 auto; box-shadow: 0 2px 14px rgba(11,29,51,.16);
-          display: flex; flex-direction: column; gap: 12px;
+          display: flex; flex-direction: column; gap: 14px;
           font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; }
   body.ov .wrap { background: #14304f; }
   @media (min-width: 760px){
-    .wrap { padding: 20px; border-radius: 30px; gap: 14px; }
+    .wrap { padding: 20px; border-radius: 30px; }
   }
 
   /* ===== 로그인: 영상 배경 + 완전 유리 카드 ===== */
