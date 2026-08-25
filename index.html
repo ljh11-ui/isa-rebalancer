@@ -244,7 +244,9 @@
   /* 해야 할 일 목록 / 자산 표 */
   .tasksCard { display: flex; flex-direction: column; gap: 10px; }
   .tasksHead { display: flex; justify-content: space-between; align-items: baseline; }
+  .tasksHeadTitle { display: flex; flex-direction: column; gap: 2px; }
   .tasksCard .ttl { font: 700 11px 'Noto Sans KR', sans-serif; color: var(--ink); }
+  .lastEdit { font: 400 9.5px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.4); }
   .editLink { font: 500 10.5px 'Noto Sans KR', sans-serif; color: var(--brass); cursor: pointer; }
   .tasksCard.editing .editLink { display: none; }
   .doneBtn { display: none; width: 100%; height: 44px; align-items: center; justify-content: center;
@@ -289,7 +291,7 @@
 
   @media (min-width: 760px) {
     .tasksCard { padding: 24px 26px; }
-    .editLink, .doneBtn { display: none !important; }
+    .editLink, .doneBtn, .lastEdit { display: none !important; }
     .assetHead { display: grid; grid-template-columns: 2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr; }
     .assetRow { grid-template-columns: 2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;
                 grid-template-areas: "nm tgt price qty val pct act"; border-radius: 20px; padding: 13px 14px 13px 11px; }
@@ -509,7 +511,10 @@
 
   <div class="card tasksCard" id="tasksCard">
     <div class="tasksHead">
-      <span class="ttl">해야 할 일</span>
+      <div class="tasksHeadTitle">
+        <span class="ttl">해야 할 일</span>
+        <span class="lastEdit" id="lastEditDate"></span>
+      </div>
       <span class="editLink" id="editToggle" onclick="toggleEdit()">수정</span>
     </div>
     <div class="assetHead" id="assetHead">
@@ -1196,6 +1201,11 @@ function toggleEdit() {
 
 function show(d) {
   loaded = d;
+
+  // 헤더 아래 "보유수량 최종 수정" 표기 — 백엔드에 저장된 날짜가 없어 오늘 날짜로 표시
+  var today = new Date();
+  document.getElementById('lastEditDate').innerText =
+    '보유수량 최종 수정 · ' + (today.getMonth() + 1) + '월 ' + today.getDate() + '일';
 
   var w = document.getElementById('warnBox');
   if (d.priceWarning) { w.innerText = d.priceWarning; w.style.display = 'block'; }
