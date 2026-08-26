@@ -155,7 +155,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
   <!-- ---------- 5a 로그인 · 모바일 (인라인 스타일 = 원본 그대로) ---------- -->
   <div class="mobileOnly"><div class="stageInner">
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,29,51,.28) 0%,rgba(11,29,51,.04) 34%,rgba(11,29,51,.3) 76%,rgba(11,29,51,.52) 100%)">
-      <div style="position: absolute; left: 90px; border: 1px solid rgba(226,180,99,.5); background: rgba(11,29,51,.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(11,29,51,.42); border-radius: 16px; padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
+      <div style="position: absolute; left: 50%; transform: translateX(-86px); border: 1px solid rgba(226,180,99,.5); background: rgba(11,29,51,.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(11,29,51,.42); border-radius: 16px; padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
         <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:5px;border-bottom:1.5px solid rgba(226,180,99,.62)">
           <span style="font:600 7.5px 'Noto Sans KR',sans-serif;letter-spacing:.18em;color:rgba(226,180,99,.9)">선원 아이디</span>
           <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
@@ -400,7 +400,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       <p class="quiet">시장 흐름 참고용 시세 변동률입니다. 내 매수 가격과는 무관합니다.
         MDD는 최근 1년 안에서 고점 대비 가장 크게 빠졌던 폭입니다.</p>
       <button class="sub2" id="retBtn" onclick="loadRet()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:var(--ink);border:none;border-radius:999px;cursor:pointer">최근 수익률 조회</button>
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:#0b1d33;border:none;border-radius:999px;cursor:pointer">최근 수익률 조회</button>
       <div class="prog" id="retProg" style="display:none"></div>
       <div id="retArea" style="margin-top:12px"></div>
     </div>
@@ -410,7 +410,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar">▼</span></div>
     <div class="accB">
       <button class="sub2" onclick="reloadLogs()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:var(--ink);border:none;border-radius:999px;cursor:pointer;margin-bottom:12px">다시 불러오기</button>
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:#0b1d33;border:none;border-radius:999px;cursor:pointer;margin-bottom:12px">다시 불러오기</button>
       <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
     </div>
   </div>
@@ -892,7 +892,7 @@ function msg(t) { putText('loginMsg', t || ''); }
 function doLogin() {
   var id = one('lid').value.trim(), pw = one('lpw').value;
   if (!id || !pw) { msg('아이디와 비밀번호를 입력해주세요.'); return; }
-  setDisabled('lbtn', true); msg('확인 중...');
+  setDisabled('lbtn', true); msg('승선 확인중...');
   api({ action: 'login', user: id, pw: pw },
     function (r) {
       setDisabled('lbtn', false);
@@ -956,8 +956,8 @@ function skin() {
     var isM2 = to[j].closest('.mobileOnly');
     to[j].setAttribute('style', isM2 ? tabStyleM(o) : tabStyleD(o));
   }
-  putHTML('thP', o ? '현재가 ($)' : '현재가 (원)');
-  putHTML('thA', o ? '평가금액 ($)' : '평가금액 (원)');
+  putHTML('thP', o ? '현재가<br>($)' : '현재가<br>(원)');
+  putHTML('thA', o ? '평가금액<br>($)' : '평가금액<br>(원)');
 }
 
 function switchMarket(m) {
@@ -1232,7 +1232,7 @@ function show(d) {
             '</div>' +
             '<span style="font:400 12px \'Noto Sans KR\',sans-serif;text-align:right;color:rgba(11,29,51,.65)">' + tgt + '</span>' +
             '<span data-bind="pr' + i + '" style="font:400 12px \'Noto Sans KR\',sans-serif;text-align:right;color:#0b1d33">' + price(a.price) + '</span>' +
-            '<span style="text-align:right"><input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:100%;max-width:72px;padding:6px 8px;font:500 12px \'Noto Sans KR\',sans-serif;color:#0b1d33;text-align:right;border:1px solid rgba(11,29,51,.2);border-radius:8px;background:#fffdf6;font-variant-numeric:tabular-nums lining-nums"></span>' +
+            '<span style="display:flex;justify-content:center"><input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:100%;max-width:72px;padding:6px 8px;font:500 12px \'Noto Sans KR\',sans-serif;color:#0b1d33;text-align:right;border:1px solid rgba(11,29,51,.2);border-radius:8px;background:#fffdf6;font-variant-numeric:tabular-nums lining-nums"></span>' +
             '<span data-bind="amt' + i + '" style="font:400 12px \'Noto Sans KR\',sans-serif;text-align:right;color:#0b1d33">' + money(a.currentAmt) + '</span>' +
             '<span data-bind="pc' + i + '" style="font:500 12px \'Noto Sans KR\',sans-serif;text-align:right;color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
             '<div style="display:flex;flex-direction:column;gap:2px;text-align:right">' +
