@@ -243,15 +243,25 @@
     .bandTrack { height: 11px; }
     .bandRow { display: grid; grid-template-columns: 150px 1fr 62px; align-items: center; gap: 14px; }
     .bandRow .bandTop { display: contents; }
-    .bandRow .bandPct { text-align: right; }
+    /* display:contents로 bandTop이 사라지면 bandTicker/bandPct가 bandTrack과 함께 bandRow의
+       직속 grid item이 되는데, 소스 순서(티커 → 비중 → 트랙)대로 배치되면 트랙이 맨 끝 62px
+       칸으로 밀려 들어가 밴드가 짧게 보인다. order로 티커 → 트랙 → 비중 순서를 강제한다. */
+    .bandRow .bandTicker { order: 1; }
+    .bandTrack { order: 2; }
+    .bandRow .bandPct { order: 3; text-align: right; }
   }
 
-  .cashRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  /* 모바일: cashRow는 그냥 껍데기일 뿐, display:contents로 사라지고 cashBoxes·actionsGroup이
+     taskFlow의 직속 자식이 되어 order대로 배치된다 (현금 → 해야 할 일 → 버튼, 기존 순서 그대로).
+     데스크톱에서만 cashRow가 실제 박스로 살아나 cashBoxes+actionsGroup을 한 줄로 묶는다. */
+  .cashRow { display: contents; }
+  .cashBoxes { order: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .cashBox { background: var(--paper); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
   .cashBox label { font: 500 10.5px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.62); }
   .cashBox input { width: 100%; padding: 0; margin-top: 2px; font: 500 16px 'Noto Sans KR', sans-serif; text-align: right;
                    border: none; background: none; color: var(--ink); }
   .cashBox input:focus { outline: none; }
+  .tasksCard { order: 2; }
 
   /* 해야 할 일 목록 / 자산 표 */
   .tasksCard { display: flex; flex-direction: column; gap: 10px; }
@@ -317,12 +327,13 @@
     .cell.pct { font-weight: 500; font-variant-numeric: tabular-nums lining-nums; }
   }
 
-  /* 실행 버튼 — 알약형. taskFlow = cashRow·tasksCard·actionsGroup 공통 부모.
-     모바일은 세로 스택(현재 순서 그대로: 현금 → 해야 할 일 → 시세조회 → 계산/저장),
-     데스크톱은 grid-template-areas로 현금+버튼을 한 줄로 합친 카드처럼 보이게 재배치한다. */
+  /* 실행 버튼 — 알약형. taskFlow = cashRow·tasksCard 공통 부모.
+     모바일은 cashRow가 display:contents로 사라져 cashBoxes·actionsGroup이 taskFlow 직속
+     자식이 되고, order로 기존 순서(현금 → 해야 할 일 → 시세조회 → 계산/저장)를 그대로 유지한다.
+     데스크톱은 cashRow가 실제 박스로 살아나 cashBoxes+actionsGroup을 한 줄로 묶는다. */
   .taskFlow { display: flex; flex-direction: column; gap: 14px; }
 
-  .actionsGroup { display: flex; flex-direction: column; gap: 9px; }
+  .actionsGroup { order: 3; display: flex; flex-direction: column; gap: 9px; }
   .actionsGroup > #quoteBtn { align-self: flex-end; height: 32px; padding: 0 15px; border-radius: 999px; border: none; cursor: pointer;
                       background: rgba(11,29,51,.06); color: rgba(11,29,51,.7); font: 500 11px 'Noto Sans KR', sans-serif; }
   .ctaRow { display: flex; gap: 9px; }
@@ -429,21 +440,20 @@
     .card.total .num .unit { font-size: 22px; }
     .bandsCard { padding: 30px 32px; }
 
-    /* 데스크톱: 현금 입력 2개 + 시세조회/계산하기/저장하기 3버튼을 한 카드처럼 한 줄로 합친다.
-       tasksCard는 그 아래 독립된 줄에 그대로 둔다. row-gap만 14px, 현금·버튼 사이 column-gap은 0으로
-       붙여서 하나의 카드처럼 이어 보이게 한다 (배경·둥근 모서리를 좌/우로 나눠 이음매를 감춤). */
-    .taskFlow { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "cash actions" "tasks tasks";
-                row-gap: 14px; column-gap: 0; }
-    .cashRow { grid-area: cash; display: flex; gap: 26px; align-items: flex-end;
-               background: var(--paper); border-radius: 26px 0 0 26px; padding: 22px 0 22px 26px; }
+    /* 데스크톱: cashRow가 display:contents를 벗어나 실제 박스로 살아나고, 그 안의
+       cashBoxes(현금 2개) + actionsGroup(버튼 3개)이 진짜 형제 요소로 gap:26px 한 줄에 놓여
+       원본처럼 하나의 카드(padding 22px 26px)로 보인다. tasksCard는 taskFlow의 다음 줄. */
+    .taskFlow { display: flex; flex-direction: column; gap: 14px; }
+    .cashRow { display: flex; gap: 26px; align-items: flex-end;
+               background: var(--paper); border-radius: 26px; padding: 22px 26px; }
+    .cashBoxes { order: initial; display: flex; gap: 26px; }
     .cashRow .cashBox { width: 210px; flex: 0 0 210px; background: rgba(11,29,51,.05); border-radius: 16px; padding: 12px 16px; }
-    .actionsGroup { grid-area: actions; flex-direction: row; align-items: flex-end; gap: 9px;
-                    background: var(--paper); border-radius: 0 26px 26px 0; padding: 22px 26px 22px 0; }
+    .actionsGroup { order: initial; flex: 1; flex-direction: row; align-items: flex-end; gap: 9px; }
     .actionsGroup > #quoteBtn { flex: 1; align-self: auto; height: 50px; }
     .ctaRow { flex: 2.2; gap: 9px; }
     .ctaRow button.main { flex: 1; }
     .ctaRow button.save { flex: 1.2; }
-    .tasksCard { grid-area: tasks; }
+    .tasksCard { order: initial; }
   }
 </style>
 </head>
@@ -528,13 +538,23 @@
 
   <div class="taskFlow">
     <div class="cashRow">
-      <div class="cashBox">
-        <label>계좌내 현금 · 잔액 + 배당</label>
-        <input type="text" id="cash" inputmode="numeric">
+      <div class="cashBoxes">
+        <div class="cashBox">
+          <label>계좌내 현금 · 잔액 + 배당</label>
+          <input type="text" id="cash" inputmode="numeric">
+        </div>
+        <div class="cashBox">
+          <label>신규 입금액</label>
+          <input type="text" id="dep" inputmode="numeric">
+        </div>
       </div>
-      <div class="cashBox">
-        <label>신규 입금액</label>
-        <input type="text" id="dep" inputmode="numeric">
+
+      <div class="actionsGroup">
+        <button id="quoteBtn" onclick="refreshQuote()">시세 조회</button>
+        <div class="ctaRow">
+          <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
+          <button class="save" id="saveBtn" onclick="saveIt()">② 매매 완료 · 저장하기</button>
+        </div>
       </div>
     </div>
 
@@ -552,14 +572,6 @@
       <div id="tbody"></div>
       <button class="doneBtn" type="button" onclick="toggleEdit()">완료</button>
       <div class="tasksFoot" id="sumBox"></div>
-    </div>
-
-    <div class="actionsGroup">
-      <button id="quoteBtn" onclick="refreshQuote()">시세 조회</button>
-      <div class="ctaRow">
-        <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
-        <button class="save" id="saveBtn" onclick="saveIt()">② 매매 완료 · 저장하기</button>
-      </div>
     </div>
   </div>
 
