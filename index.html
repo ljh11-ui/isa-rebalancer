@@ -19,7 +19,11 @@
   /* 색 — 값은 기존 그대로, 이름만 붙였다 */
   --ink:#0b1d33; --brass:#b5713f; --paper:#fffdf6;
   --shell:#f5efe0; --gold:#e2b463; --cream:#fdf6e8;
-  --ink-deep:#071426; --gain:#b3452f; --loss:#2f6fa8; --idle:#b9c2ca; --white:#fff;
+  --ink-deep:#071426; --gain:#b3452f; --loss:#2f6fa8; --white:#fff;
+  /* --idle: "그대로 두기" 텍스트색. 행 배경(#f5f4ee) 위 4.51:1 로 WCAG AA 통과.
+     이전 #b9c2ca 는 1.64:1 이라 사실상 안 보였다. 좌측 3px 바에는 이 색을 쓰지 않고
+     투명 처리해서(아래 actBar) "조치 없음"을 색이 아니라 여백으로 표현한다. */
+  --idle:#617281;
   /* 알파를 섞어 쓰는 색은 rgb 성분만 토큰화해서 rgba(var(--x-rgb),a) 로 쓴다 */
   --ink-rgb:11,29,51; --brass-rgb:181,113,63;
   --cream-rgb:253,246,232; --gold-rgb:226,180,99;
@@ -127,7 +131,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .accB tr:nth-child(even) td{background:rgba(var(--brass-rgb),.05)}
 .accB td b{color:var(--brass)}
 .accB p.quiet{font-size:15px}
-.quiet{color:#7c8a9a;font-size:13px}
+.quiet{color:#687787;font-size:13px}  /* paper 위 4.51:1 (이전 #7c8a9a 는 3.46:1 로 AA 미달) */
 .sub-acc{border-bottom:1px solid rgba(var(--brass-rgb),.2);margin-bottom:4px}
 .sub-accH{padding:11px 4px;background:none;font-weight:600;font-size:15px;cursor:pointer;
   display:flex;justify-content:space-between;color:var(--ink);font-family:var(--serif)}
@@ -310,7 +314,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
         </div>
         <button class="plain" onclick="doLogout()" style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.6)">로그아웃</button>
       </div>
-      <span style="font:700 9px var(--sans);letter-spacing:.14em;color:rgba(var(--ink-rgb),.4)">ISA · FIVE-WAY</span>
+      <span style="font:700 9px var(--sans);letter-spacing:.14em;color:rgba(var(--ink-rgb),.65)">ISA · FIVE-WAY</span>
     </div>
 
     <div style="display:flex;background:rgba(var(--ink-rgb),.07);border-radius:var(--pill);padding:4px;gap:4px">
@@ -986,7 +990,7 @@ function enter(id) {
   uid = id;
   document.getElementById('loginStage').style.display = 'none';
   document.getElementById('main').style.display = 'block';
-  putText('who', id + ' 님');
+  putText('who', id + ' 선장님');
   skin(); load();
 }
 
@@ -1282,6 +1286,8 @@ function show(d) {
     var buy = a.adjShares > 0, sell = a.adjShares < 0;
     // 원본: 매수는 브라스, 매도는 잉크. 그대로 두기는 원본에 없어 흐린 색을 쓴다.
     var actColor = buy ? 'var(--brass)' : (sell ? 'var(--ink)' : 'var(--idle)');
+    // 좌측 바는 매수/매도일 때만 색을 쓴다. '그대로 두기'는 투명 -> 여백으로 표현.
+    var actBar = buy ? 'var(--brass)' : (sell ? 'var(--ink)' : 'transparent');
     var act = buy ? '▲ 매수 ' + a.adjShares + '주'
             : (sell ? '▼ 매도 ' + (-a.adjShares) + '주' : '그대로 두기');
     var amt = signed(a.adjAmt);
@@ -1290,7 +1296,7 @@ function show(d) {
     var tgt = a.target + '% (' + a.upper + '%)';
     var metaFull = cd + ' · 목표 ' + tgt + ' · 현재가 ' + price(a.price) + ' · 보유 ' + a.shares + '주';
 
-    hm += '<div class="taskRow" style="display:flex;flex-direction:column;gap:6px;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-18);padding:12px 14px;border-left:3px solid ' + actColor + '">' +
+    hm += '<div class="taskRow" style="display:flex;flex-direction:column;gap:6px;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-18);padding:12px 14px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">' +
               '<span style="font:500 12.5px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:700 12.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
@@ -1309,7 +1315,7 @@ function show(d) {
             '</div>' +
           '</div>';
 
-    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actColor + '">' +
+    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;flex-direction:column;gap:2px">' +
               '<span style="font:500 13px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + '</span>' +
@@ -1442,11 +1448,16 @@ function next() {
   document.getElementById('retProg').innerText = '해류 확인 중 · ' + (idx + 1) + ' / ' + N;
   api({ action: 'ret', market: mkt, index: idx },
     function (r) { rows.push(r); idx++; next(); },
-    function () { rows.push({ name: '-', code: '', values: {}, mdd: null }); idx++; next(); });
+    function () { rows.push({ name: '-', code: '', values: {}, mdd: null, failed: true }); idx++; next(); });
 }
 
-function cell(v) {
-  if (v === null || v === undefined) return '<span class="retV na">-</span>';
+// failed=true 면 조회 자체가 실패한 것이고, 값만 null 이면 해당 기간 데이터가 없는 것
+// (상장 1년 미만 등). 둘 다 "-"로 뭉뚱그리면 원인을 알 수 없어 구분해서 표기한다.
+function cell(v, failed) {
+  if (v === null || v === undefined) {
+    return failed ? '<span class="retV na" title="시세를 불러오지 못했습니다">조회 실패</span>'
+                  : '<span class="retV na" title="해당 기간 데이터가 없습니다">-</span>';
+  }
   var cls = v > 0 ? 'up' : (v < 0 ? 'dn' : '');
   return '<span class="retV ' + cls + '">' + pct(v) + '</span>';
 }
@@ -1458,18 +1469,21 @@ function render() {
   var todayLabel = String(t.getFullYear() % 100).padStart(2, '0') + '-' +
                    String(t.getMonth() + 1).padStart(2, '0') + '-' +
                    String(t.getDate()).padStart(2, '0');
-  var h = '<div class="retbook">';
+  // 기준일은 5개 카드에 반복하지 않고 섹션 상단에 한 번만 적는다 (형식은 YY-MM-DD 유지)
+  var h = '<p class="quiet" style="font-size:12px;margin:0 0 8px">' + todayLabel + ' 기준 · 최근 1년</p>' +
+          '<div class="retbook">';
   rows.forEach(function (r) {
     h += '<div class="retCard">' +
            '<div class="retHead"><span class="retName">' + (r.short || r.name) + '</span>' +
              '<span class="retCode">' + (r.usTicker || r.code || '') + '</span></div>' +
            '<div class="retGrid">';
     keys.forEach(function (k) {
-      h += '<div class="retCell"><span class="retK">' + k + '</span>' + cell(r.values ? r.values[k] : null) + '</div>';
+      h += '<div class="retCell"><span class="retK">' + k + '</span>' + cell(r.values ? r.values[k] : null, r.failed) + '</div>';
     });
     h += '</div>' +
-         '<div class="retMdd">' + todayLabel + ' 기준 최근 1년 MDD ' + (r.mdd === null || r.mdd === undefined
-              ? '<span class="na">-</span>' : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</div>' +
+         '<div class="retMdd">MDD ' + (r.mdd === null || r.mdd === undefined
+              ? (r.failed ? '<span class="na">조회 실패</span>' : '<span class="na">-</span>')
+              : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</div>' +
          '</div>';
   });
   h += '</div><p class="quiet" style="font-size:12px;margin-top:8px">종가 기준이며 시세 제공에 최대 20분 지연이 있을 수 있습니다.</p>';
