@@ -9,581 +9,390 @@
 <base target="_top">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  :root{
-    /* 배경 계층 (밖 → 안) */
-    --canvas:#dedacd; --shell:#f5efe0; --paper:#fffdf6;
-    /* 잉크 */
-    --ink:#0b1d33; --ink-cream:#f5efe0; --ink-deep:#071426;
-    /* 브라스 */
-    --brass:#b5713f; --brass-light:#e2b463; --cream:#fdf6e8;
-    /* 손익 — 매매방향 색과 분리된 팔레트 */
-    --gain:#b3452f; --gain-bg:rgba(179,69,47,.10);
-    --loss:#2f6fa8; --loss-bg:rgba(47,111,168,.10);
-    /* 링크 */
-    --link:#33526f; --link-hover:#b5713f;
-    --fog:#7c8a9a;
-  }
-  body { font-family:'Noto Sans KR',ui-sans-serif,sans-serif;
-         font-variant-numeric: tabular-nums lining-nums;
-         margin: 0; padding: 14px; line-height: 1.6; color: var(--ink);
-         background: var(--canvas); transition: background .25s; }
-  body.ov { background: var(--ink-deep); }
+/* ============================================================
+   [원본 그대로] Wireframes v1.dc.html 의 <style> 안에 있던 실제 CSS 규칙 전부.
+   원본 style 태그는 대부분 @font-face(구글폰트 로더)였고, 실제 규칙은 아래 4줄이 전부였다.
+   ============================================================ */
+body{margin:0;background:#dedacd}
+a{color:#33526f;text-decoration:none;border-bottom:1px solid rgba(51,82,111,.4)}
+a:hover{color:#b5713f;border-bottom-color:#b5713f}
+body{font-variant-numeric:tabular-nums lining-nums}
 
-  /* .wrap은 총 평가금액/비중 카드·현금 입력 카드 등 최상위 섹션들을 감싸는 공통 부모.
-     섹션 사이 간격은 개별 카드의 margin이 아니라 이 gap 하나로 통일 관리한다 (놓치기 쉬운 margin 방식 지양). */
-  .wrap { position: relative; background: var(--shell); border-radius: 34px; padding: 14px; max-width: 1040px;
-          margin: 0 auto; box-shadow: 0 2px 14px rgba(11,29,51,.16);
-          display: flex; flex-direction: column; gap: 14px;
-          font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; }
-  body.ov .wrap { background: #14304f; }
-  @media (min-width: 760px){
-    .wrap { padding: 20px; border-radius: 30px; }
-  }
+/* ============================================================
+   [새로 작성] 여기부터는 원본에 대응하는 CSS가 없어 직접 쓴 부분.
+   원본은 모든 스타일이 인라인 style="" 이고 class를 하나도 쓰지 않으므로,
+   아래는 (1) 모바일/데스크톱 두 벌 전환 (2) 고정폭 시안 → 실제 화면 대응
+   (3) 원본에 없는 기능 요소(에러 메시지·경고·아코디언 본문) 스타일만 담는다.
+   ============================================================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
-  /* ===== 로그인: 영상 배경 + 완전 유리 카드 ===== */
-  #login{ display:none; }
-  #loginStage{
-    position:fixed; inset:0; width:100%; height:100%;
-    overflow:hidden; z-index:1000; background:#0b1d33;
-  }
-  #loginStage .bgVideo{
-    position:absolute; inset:0; width:100%; height:100%;
-    object-fit:cover; object-position:60% 50%; z-index:0;
-  }
-  /* 스크림 2겹 — 바닥층(항상 고정) + 위층(낮/밤에 따라 바뀜) */
-  #loginStage .scrim-base{
-    position:absolute; inset:0; z-index:1; pointer-events:none;
-    background: linear-gradient(180deg, rgba(11,29,51,.28) 0%, rgba(11,29,51,.04) 34%, rgba(11,29,51,.3) 76%, rgba(11,29,51,.52) 100%);
-  }
-  #loginStage .scrim-dynamic{
-    position:absolute; left:0; right:0; top:0; height:360px; z-index:1; pointer-events:none;
-    background: linear-gradient(180deg, rgba(11,29,51,.3) 0%, rgba(11,29,51,.2) 46%, rgba(11,29,51,0) 100%);
-  }
-  body.day #loginStage .scrim-dynamic{
-    background: linear-gradient(180deg, rgba(11,29,51,.24) 0%, rgba(11,29,51,.16) 40%, rgba(11,29,51,.06) 74%, rgba(11,29,51,0) 100%);
-  }
+/* (1) 두 벌 DOM 전환 — 원본이 모바일 390px 시안과 데스크톱 1040px 시안 두 벌이라 그대로 두 벌 만든다.
+   전환은 반드시 "빈 껍데기 div"에 걸어야 한다. 시안 요소 자체에 걸면 원본 인라인 style의
+   display:flex 가 우선순위에서 이겨버려 두 벌이 동시에 보인다. */
+.mobileOnly{display:block}
+.deskOnly{display:none}
+@media (min-width:760px){
+  .mobileOnly{display:none}
+  .deskOnly{display:block}
+}
+#loginStage .mobileOnly,#loginStage .deskOnly{position:absolute;inset:0}
 
-  /* 모바일: 상단바 → 제목(상단부) → (빈 공간) → 로그인 카드(하단, 가운데) */
-  #loginStage .lg-content{
-    position:relative; z-index:2; height:100%; box-sizing:border-box;
-    display:grid; grid-template-rows:auto auto 1fr auto; grid-template-areas:"topbar" "hero" "." "card";
-    padding:20px 22px 28px;
-  }
-  #loginStage .lg-topbar{ grid-area:topbar; display:flex; justify-content:flex-end; }
-  #loginStage .daytoggle{ display:flex; gap:2px; padding:2px; border-radius:999px;
-    border:1px solid rgba(253,246,232,.3); background:rgba(11,29,51,.22); backdrop-filter:blur(8px); }
-  #loginStage .daytoggle button{
-    padding:6px 13px; font-size:11px; font-weight:700; border-radius:999px; letter-spacing:.06em;
-    border:none; background:transparent; color:rgba(253,246,232,.92); cursor:pointer;
-  }
-  #loginStage .daytoggle button.on{ background:rgba(253,246,232,.85); color:#0b1d33; }
+/* (2) 고정폭 시안 → 실제 화면. 원본 시안은 width:390px / width:1040px 고정이나
+       실제 페이지에서는 가운데 정렬 + 최대폭으로 바꿔야 한다. 그 외 값은 원본 그대로. */
+body{padding:14px}
+@media (min-width:760px){ body{padding:24px} }
+.artboardM{width:100%;max-width:390px;margin:0 auto}
+.artboardD{width:100%;max-width:1040px;margin:0 auto}
+.accHost{width:100%;max-width:390px;margin:12px auto 0}
+@media (min-width:760px){ .accHost{max-width:1040px;margin-top:14px} }
 
-  #loginStage .lg-hero{ grid-area:hero; margin-top:56px; max-width:420px; }
-  #loginStage .lg-title{
-    font-family:'Fraunces','Gowun Batang',serif; font-style:italic; font-weight:300;
-    font-size:33px; line-height:1.24; color:#fdf6e8; letter-spacing:-.6px;
-    text-shadow: 0 2px 20px rgba(11,29,51,.8), 0 0 44px rgba(11,29,51,.5);
-  }
-  body.day #loginStage .lg-title{
-    text-shadow: 0 1px 0 rgba(0,0,0,.9), 0 -1px 0 rgba(0,0,0,.9), 1px 0 0 rgba(0,0,0,.9),
-                 -1px 0 0 rgba(0,0,0,.9), 0 4px 18px rgba(0,0,0,.75), 0 0 40px rgba(0,0,0,.5);
-  }
+/* 로그인 무대 — 원본 시안은 390x750 / 1040x700 고정 액자였으나 실제로는 화면 전체 */
+#loginStage{position:fixed;inset:0;overflow:hidden;background:#0b1d33;z-index:1000}
+#loginStage .stageInner{position:absolute;inset:0}
+#loginStage input{border:none;background:transparent;padding:0;width:100%}
+#loginStage input:focus{outline:none}
+#loginStage button{border:none;background:none;padding:0;cursor:pointer;font:inherit;color:inherit}
+/* 원본 video는 5a가 object-position:60% 50%, 5b가 50% 50%. 영상을 두 번 내려받지 않도록
+   video 요소는 하나만 두고 위치만 미디어쿼리로 바꾼다. */
+#lgVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%}
+@media (min-width:760px){ #lgVideo{object-position:50% 50%} }
+/* 원본에 없는 요소: 로그인 실패 메시지 자리 */
+.loginMsg{position:absolute;left:0;right:0;text-align:center;color:#ffb4a0;
+  font:500 12px 'Noto Sans KR',sans-serif;text-shadow:0 1px 6px rgba(11,29,51,.9);min-height:16px}
 
-  /* 로그인 유리 카드 — 모바일 값 (기본) */
-  #loginStage .card{
-    position:relative; z-index:2; grid-area:card; width:min(300px, 86vw); justify-self:center;
-    border:1px solid rgba(226,180,99,.5); border-radius:16px;
-    background: rgba(11,29,51,.34); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 14px 40px rgba(11,29,51,.4);
-    padding:12px 14px 10px; text-align:left;
-  }
-  #loginStage .field{ margin-bottom:0; }
-  #loginStage .field + .field{ margin-top:8px; }
-  #loginStage .field label{
-    display:block; font-size:7.5px; font-weight:600; letter-spacing:.18em;
-    color:rgba(226,180,99,.9); text-transform:uppercase; margin-bottom:2px;
-  }
-  #loginStage input{
-    width:100%; padding:0 0 9px; font:400 15px 'Noto Sans KR',sans-serif;
-    border:none; border-bottom:1.5px solid rgba(226,180,99,.62);
-    background:transparent; color:#fdf6e8;
-  }
-  #loginStage input::placeholder{ color:rgba(253,246,232,.62); }
-  #loginStage input:focus{ outline:none; border-bottom-color:#e2b463; }
-  #loginStage .go{
-    width:100%; height:30px; margin-top:11px; padding:0; border:none; border-radius:999px;
-    background:#e2b463; box-shadow: 0 6px 20px rgba(226,180,99,.24);
-    color:#0b1d33; font-weight:700; font-size:10.5px; letter-spacing:.1em; cursor:pointer;
-  }
-  #loginStage .go:active{ transform: translateY(1px); }
-  #loginStage .go:disabled{ background:rgba(148,163,184,.6); box-shadow:none; }
-  #loginStage #loginMsg{ text-align:center; color:#ffb4a0; font-size:12.5px; min-height:18px; margin-top:8px; }
-  #loginStage .newacc{
-    display:block; width:fit-content; margin:8px auto 0; background:none; border:none;
-    color:rgba(253,246,232,.72); font-size:9px; font-weight:500; cursor:pointer;
-  }
-  #loginStage .wifi-note{ font-size:10.5px; color:rgba(226,180,99,.85); text-align:center; margin-top:12px; line-height:1.5; }
-  #loginStage .hint-install{ font-size:10.5px; color:rgba(253,246,232,.5); text-align:center; margin-top:12px; line-height:1.5; }
+/* (3) 원본에 없는 기능 요소 */
+.warnBox{background:rgba(181,113,63,.12);border-radius:18px;padding:12px 16px;
+  font:500 12px 'Noto Sans KR',sans-serif;color:#b5713f}
+.belowBanner{background:rgba(181,113,63,.1);border-radius:22px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:5px}
+.belowBanner b{font:700 10.5px 'Noto Sans KR',sans-serif;color:#b5713f}
+.belowBanner .below-body{font-family:'Cormorant Garamond','Gowun Batang',serif;font-size:16px;
+  line-height:1.55;color:rgba(11,29,51,.75)}
+/* 보유수량 수정 모드 — 원본의 sc-if(editHoldings) 분기를 class 토글로 구현.
+   각 분기 안의 인라인 스타일 값은 원본 그대로 유지된다. */
+.rowRead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rowEdit{display:none}
+.tasksCard.editing .rowRead{display:none}
+.tasksCard.editing .rowEdit{display:flex}
+.tasksCard.editing .editLink{display:none}
+.doneBtn{display:none}
+.tasksCard.editing .doneBtn{display:flex}
+button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;color:inherit;text-align:inherit}
 
-  @media (min-width: 760px){
-    /* 데스크톱: 상단바 → (빈 공간) → 제목·카드가 같은 줄, 화면 맨 아래 */
-    #loginStage .lg-content{
-      padding:32px 52px 44px;
-      grid-template-rows:auto 1fr auto; grid-template-columns:1fr auto;
-      grid-template-areas:"topbar topbar" ". ." "hero card";
-      align-items:end; column-gap:24px;
-    }
-    #loginStage .lg-hero{ grid-area:hero; margin-top:0; max-width:470px; align-self:end; }
-    #loginStage .lg-title{ font-size:50px; letter-spacing:-1.4px; }
-    #loginStage .bgVideo{ object-position:50% 50%; }
-    #loginStage .scrim-base{
-      background: linear-gradient(180deg,rgba(11,29,51,.2) 0%,rgba(11,29,51,0) 26%,rgba(11,29,51,.24) 100%);
-    }
-    #loginStage .scrim-dynamic{
-      inset:0; height:auto; top:0; bottom:0;
-      background: linear-gradient(105deg,rgba(11,29,51,.4) 0%,rgba(11,29,51,.12) 45%,rgba(11,29,51,.02) 64%,rgba(11,29,51,.2) 100%);
-    }
-    body.day #loginStage .scrim-dynamic{
-      background: linear-gradient(28deg,rgba(11,29,51,.3) 0%,rgba(11,29,51,.2) 30%,rgba(11,29,51,.08) 60%,rgba(11,29,51,.02) 100%);
-    }
-    #loginStage .card{
-      grid-area:card; justify-self:end; align-self:end; width:254px;
-      border-color:rgba(226,180,99,.46); border-radius:20px;
-      background:rgba(11,29,51,.42); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-      padding:26px 26px 20px;
-    }
-    #loginStage .field + .field{ margin-top:18px; }
-    #loginStage .field label{ font-size:11px; }
-    #loginStage .go{ height:50px; margin-top:24px; font-size:15px; box-shadow:0 8px 24px rgba(226,180,99,.3); }
-    #loginStage .newacc{ font-size:13px; }
-  }
-
-  .link { background: none; border: none; color: var(--link); text-decoration: underline;
-          cursor: pointer; font-size: 13px; padding: 6px; width: auto; display: block; margin: 10px auto 0; }
-
-  /* ===== 메인 — 둥근 카드 · Noto Sans KR ===== */
-  .headerRow { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px 0; gap: 10px; flex-wrap: wrap; }
-  .headerRow .brand { display: flex; align-items: center; gap: 8px; }
-  .headerRow .brand .ico { width: 26px; height: 26px; border-radius: 999px; background: rgba(181,113,63,.16);
-                            display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--brass); flex-shrink: 0; }
-  .headerRow .brand span.nm { font-weight: 500; font-size: 12px; color: var(--ink); }
-  .userbar { display: flex; align-items: center; gap: 14px; }
-  .userbar #who { font-size: 12px; color: rgba(11,29,51,.6); }
-  .userbar .link { display: inline; margin: 0; width: auto; text-decoration: none; font-size: 11.5px; font-weight: 500;
-                    color: rgba(11,29,51,.6); background: rgba(11,29,51,.06); border-radius: 999px; padding: 7px 14px; }
-  .userbar .link:hover { color: var(--ink); background: rgba(11,29,51,.1); }
-  body.ov .headerRow .brand .ico, body.ov .headerRow .brand span.nm { color: var(--brass-light); }
-  body.ov .userbar #who { color: rgba(245,239,224,.65); }
-  body.ov .userbar .link { color: rgba(245,239,224,.75); background: rgba(245,239,224,.1); }
-
-  /* 탭 */
-  .tabs { display: flex; background: rgba(11,29,51,.07); border-radius: 999px; padding: 4px; gap: 4px; }
-  .tabs button { flex: 1; padding: 10px 0; font: 500 12.5px 'Noto Sans KR', sans-serif; background: none; color: rgba(11,29,51,.62);
-                 border: none; border-radius: 999px; cursor: pointer; }
-  .tabs button.on { background: var(--ink); color: var(--ink-cream); font-weight: 700; }
-  .tabs button.on.ov { background: var(--brass); color: var(--cream); }
-  body.ov .tabs { background: rgba(245,239,224,.08); }
-  body.ov .tabs button { color: rgba(245,239,224,.6); }
-  @media (min-width: 760px){
-    .tabs { flex: none; display: flex; }
-    .tabs button { flex: none; padding: 8px 18px; font-size: 12px; }
-    /* 원본은 브랜드+탭이 한 그룹으로 왼쪽에 붙어있고 userbar만 오른쪽 끝으로 밀려남.
-       headerRow의 justify-content:space-between이 3개를 고르게 벌려서 탭이 가운데로
-       와버리던 문제 — userbar에 margin-left:auto를 줘서 2그룹 배치로 되돌린다. */
-    .headerRow { gap: 22px; }
-    .userbar { margin-left: auto; }
-  }
-
-  .card { background: var(--paper); border: none; border-radius: 26px; padding: 22px; box-shadow: none; }
-  .card.total { display: flex; flex-direction: column; padding: 26px 22px 22px; }
-  .card.total .lbl { font: 500 11px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.62); }
-  .card.total .num { font-family: 'Fraunces', 'Gowun Batang', serif; font-size: 40px; font-weight: 400;
-                      color: var(--ink); margin: 10px 0 0; letter-spacing: -1.2px; line-height: 1.08; }
-  .card.total .num .unit { font-family: 'Noto Sans KR', sans-serif; font-size: 17px; font-weight: 400; }
-  .card.total .fx { font-size: 12px; color: rgba(11,29,51,.55); display: block; margin-top: 4px; }
-  .card.profit { padding: 0; font-size: 11.5px; color: rgba(11,29,51,.6); background: none; }
-  .card.profit .pf-badges { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
-  .card.profit .pf-pill { font: 700 11.5px 'Noto Sans KR', sans-serif; border-radius: 999px; padding: 7px 13px;
-                           font-variant-numeric: tabular-nums lining-nums; }
-  .card.profit .pf-pill.up { color: var(--gain); background: var(--gain-bg); }
-  .card.profit .pf-pill.dn { color: var(--loss); background: var(--loss-bg); }
-  .card.profit .pf-peak { font-size: 11px; color: rgba(11,29,51,.55); }
-  .card.profit .pf-cum { display: block; font-size: 11.5px; color: rgba(11,29,51,.6); margin-top: 14px; }
-  .warn { background: #fee2e2; color: #991b1b; font-size: 13.5px; font-weight: 700;
-          border-radius: 18px; padding: 14px 16px; }
-  .below { background: rgba(181,113,63,.1); font-size: 13.5px; color: rgba(11,29,51,.78);
-           text-align: left; padding: 16px 18px; border-radius: 22px; display: flex; gap: 14px; align-items: baseline; }
-  .below b { color: var(--brass); font: 700 10.5px 'Noto Sans KR', sans-serif; flex-shrink: 0; }
-  .below-body { font-family: 'Cormorant Garamond', 'Gowun Batang', serif; font-size: 16px; line-height: 1.55; }
-  .below-body div { margin-top: 2px; }
-  @media (min-width: 760px){
-    .below { border-radius: 24px; padding: 18px 24px; }
-    .below b { font-size: 11px; }
-    .below-body { font-size: 17px; }
-  }
-
-  /* 비중 밴드 */
-  .bandsCard { display: flex; flex-direction: column; gap: 15px; }
-  .bandsHead { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
-  .bandsHead .ttl { font: 700 11px 'Noto Sans KR', sans-serif; color: var(--ink); }
-  .bandsLegend { display: flex; gap: 9px; font-size: 9.5px; color: rgba(11,29,51,.6); align-items: center; flex-wrap: wrap; }
-  .bandsLegend span { display: flex; align-items: center; gap: 3px; }
-  .bandsLegend i.tgt { width: 2px; height: 9px; background: rgba(11,29,51,.55); display: inline-block; }
-  .bandsLegend i.upr { width: 2px; height: 9px; background: var(--brass); display: inline-block; }
-  .bandsLegend i.ovr { width: 9px; height: 9px; border-radius: 2px; background: rgba(181,113,63,.55); display: inline-block; }
-  .bandRow { display: flex; flex-direction: column; gap: 6px; }
-  .bandRow .bandTop { display: flex; justify-content: space-between; align-items: baseline; }
-  .bandRow .bandTicker { font-weight: 500; font-size: 11.5px; color: var(--ink); }
-  .bandRow .bandPct { font-weight: 500; font-size: 11.5px; font-variant-numeric: tabular-nums lining-nums; }
-  .bandTrack { position: relative; height: 10px; background: rgba(11,29,51,.07); border-radius: 999px; }
-  .bandFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
-              transition: width 1.1s cubic-bezier(.22,.9,.25,1); }
-  .bandMark { position: absolute; top: -2px; bottom: -2px; width: 2px; border-radius: 999px; }
-  @media (min-width: 760px) {
-    .bandsHead .ttl { font-size: 12px; }
-    .bandsLegend { gap: 14px; }
-    .bandTrack { height: 11px; }
-    .bandRow { display: grid; grid-template-columns: 150px 1fr 62px; align-items: center; gap: 14px; }
-    .bandRow .bandTop { display: contents; }
-    /* display:contents로 bandTop이 사라지면 bandTicker/bandPct가 bandTrack과 함께 bandRow의
-       직속 grid item이 되는데, 소스 순서(티커 → 비중 → 트랙)대로 배치되면 트랙이 맨 끝 62px
-       칸으로 밀려 들어가 밴드가 짧게 보인다. order로 티커 → 트랙 → 비중 순서를 강제한다. */
-    .bandRow .bandTicker { order: 1; }
-    .bandTrack { order: 2; }
-    .bandRow .bandPct { order: 3; text-align: right; }
-  }
-
-  /* 모바일: cashRow는 그냥 껍데기일 뿐, display:contents로 사라지고 cashBoxes·actionsGroup이
-     taskFlow의 직속 자식이 되어 order대로 배치된다 (현금 → 해야 할 일 → 버튼, 기존 순서 그대로).
-     데스크톱에서만 cashRow가 실제 박스로 살아나 cashBoxes+actionsGroup을 한 줄로 묶는다. */
-  .cashRow { display: contents; }
-  .cashBoxes { order: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .cashBox { background: var(--paper); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
-  .cashBox label { font: 500 10.5px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.62); }
-  .cashBox input { width: 100%; padding: 0; margin-top: 2px; font: 500 16px 'Noto Sans KR', sans-serif; text-align: right;
-                   border: none; background: none; color: var(--ink); }
-  .cashBox input:focus { outline: none; }
-  .tasksCard { order: 2; }
-
-  /* 해야 할 일 목록 / 자산 표 */
-  .tasksCard { display: flex; flex-direction: column; gap: 10px; }
-  .tasksHead { display: flex; justify-content: space-between; align-items: baseline; }
-  .tasksHeadTitle { display: flex; flex-direction: column; gap: 2px; }
-  .tasksCard .ttl { font: 700 11px 'Noto Sans KR', sans-serif; color: var(--ink); }
-  .lastEdit { font: 400 9.5px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.4); }
-  .editLink { font: 500 10.5px 'Noto Sans KR', sans-serif; color: var(--brass); cursor: pointer; }
-  .tasksCard.editing .editLink { display: none; }
-  .doneBtn { display: none; width: 100%; height: 44px; align-items: center; justify-content: center;
-             border: none; border-radius: 999px; background: var(--ink); color: var(--ink-cream);
-             font: 700 13px 'Noto Sans KR', sans-serif; cursor: pointer; }
-  .tasksCard.editing .doneBtn { display: flex; }
-  .assetHead { display: none; font: 500 10.5px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.6); padding: 0 14px 4px; }
-  .assetHead span:not(:first-child) { text-align: right; }
-  .assetRow { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "nm act" "qty qty";
-              gap: 6px 12px; align-items: center;
-              background: rgba(11,29,51,.04); border-radius: 18px; padding: 12px 14px; border-left: 3px solid transparent; }
-  .assetRow.buy { border-left-color: var(--brass); }
-  .assetRow.sell { border-left-color: var(--ink); }
-  .assetRow .cell.nm { grid-area: nm; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .assetRow .cell.nm .nmMain { font-weight: 500; font-size: 12.5px; color: var(--ink); }
-  .assetRow .cell.nm .nmSub,
-  .assetRow .cell.nm .nmFull { font-size: 10.5px; color: rgba(11,29,51,.6); }
-  .assetRow .cell.nm .nmSub { display: none; }
-  .assetRow .cell.act { grid-area: act; display: flex; flex-direction: column; gap: 2px; text-align: right; flex-shrink: 0; }
-  .assetRow .cell.act .actLabel { font-weight: 700; font-size: 12.5px; font-variant-numeric: tabular-nums lining-nums; }
-  .assetRow .cell.act .actAmt { font-size: 10.5px; font-variant-numeric: tabular-nums lining-nums; }
-  .assetRow.buy .actLabel, .assetRow.buy .actAmt { color: var(--brass); }
-  .assetRow.sell .actLabel, .assetRow.sell .actAmt { color: var(--ink); }
-  .assetRow.idle .actLabel, .assetRow.idle .actAmt { color: #b9c2ca; }
-  .cell.tgt, .cell.price, .cell.val, .cell.pct { display: none; }
-  .qtyWrap { grid-area: qty; display: none; justify-content: space-between; align-items: center; }
-  .tasksCard.editing .qtyWrap { display: flex; }
-  .qtyWrap label { font-size: 10.5px; font-weight: 500; color: rgba(11,29,51,.55); }
-  .qtyWrap input { width: 80px; padding: 8px 10px; font: 500 14px 'Noto Sans KR', sans-serif; text-align: right;
-                   border: 1px solid rgba(11,29,51,.2); border-radius: 8px; background: var(--paper); color: var(--ink);
-                   font-variant-numeric: tabular-nums lining-nums; }
-  .qtyWrap input:focus { outline: none; border-color: var(--brass); }
-  .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;
-         background: rgba(181,113,63,.15); color: var(--brass); margin-top: 3px; }
-  .oneLineNote { font-size: 11px; color: rgba(11,29,51,.5); margin-top: 2px; }
-  .tasksFoot { display: flex; gap: 16px; flex-wrap: wrap; justify-content: flex-end; padding-top: 4px;
-               font-size: 11.5px; color: rgba(11,29,51,.6); }
-  .tasksFoot .fBuy { color: var(--brass); font-weight: 500; }
-  .tasksFoot .fSell { color: var(--ink); font-weight: 500; }
-  .tasksFoot .fLeft { font-weight: 700; color: var(--ink); background: rgba(11,29,51,.06); border-radius: 999px; padding: 8px 14px; }
-  .tasksFoot .fWarn { color: var(--brass); font-weight: 700; }
-
-  @media (min-width: 760px) {
-    .tasksCard { padding: 24px 26px; }
-    .editLink, .doneBtn, .lastEdit { display: none !important; }
-    .assetHead { display: grid; grid-template-columns: 2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr; }
-    .assetRow { grid-template-columns: 2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;
-                grid-template-areas: "nm tgt price qty val pct act"; border-radius: 20px; padding: 13px 14px 13px 11px; }
-    .assetRow .cell.nm .nmSub { display: block; }
-    .assetRow .cell.nm .nmFull { display: none; }
-    .cell.tgt, .cell.price, .cell.val, .cell.pct { display: block; text-align: right; font: 400 12px 'Noto Sans KR', sans-serif; color: var(--ink); }
-    .cell.tgt { color: rgba(11,29,51,.65); }
-    .qtyWrap { display: flex !important; justify-content: center; }
-    .qtyWrap label { display: none; }
-    .qtyWrap input { width: 100%; max-width: 72px; }
-    .cell.pct { font-weight: 500; font-variant-numeric: tabular-nums lining-nums; }
-  }
-
-  /* 실행 버튼 — 알약형. taskFlow = cashRow·tasksCard 공통 부모.
-     모바일은 cashRow가 display:contents로 사라져 cashBoxes·actionsGroup이 taskFlow 직속
-     자식이 되고, order로 기존 순서(현금 → 해야 할 일 → 시세조회 → 계산/저장)를 그대로 유지한다.
-     데스크톱은 cashRow가 실제 박스로 살아나 cashBoxes+actionsGroup을 한 줄로 묶는다. */
-  .taskFlow { display: flex; flex-direction: column; gap: 14px; }
-
-  .actionsGroup { order: 3; display: flex; flex-direction: column; gap: 9px; }
-  .actionsGroup > #quoteBtn { align-self: flex-end; height: 32px; padding: 0 15px; border-radius: 999px; border: none; cursor: pointer;
-                      background: rgba(11,29,51,.06); color: rgba(11,29,51,.7); font: 500 11px 'Noto Sans KR', sans-serif; }
-  .ctaRow { display: flex; gap: 9px; }
-  .ctaRow button { flex: 1 1 50%; min-width: 0; height: 48px; padding: 0 10px;
-                   font: 500 13px 'Noto Sans KR', sans-serif; border-radius: 999px; border: none;
-                   cursor: pointer; line-height: 1.3; }
-  .ctaRow button.main { background: rgba(11,29,51,.07); color: var(--ink); }
-  .ctaRow button.main:hover { background: rgba(11,29,51,.11); }
-  .ctaRow button.save { background: var(--brass); color: var(--cream); font-weight: 700; }
-  .ctaRow button.save:hover { background: #a3653a; }
-  .ctaRow button:disabled, .actionsGroup > #quoteBtn:disabled { background: rgba(11,29,51,.05); color: #a9b2bd; }
-  @media (min-width: 760px){
-    .ctaRow button { height: 50px; }
-  }
-
-  /* 최근 기록 · 최근 수익률 카드 (아코디언 안) */
-  .logbook { display: flex; flex-direction: column; gap: 8px; }
-  .logEntry { display: flex; gap: 12px; border-radius: 16px; padding: 12px 14px; background: rgba(11,29,51,.04); }
-  .logDate { flex: 0 0 auto; font-family: 'Fraunces', serif; font-weight: 600; font-size: 13px;
-             color: var(--shell); background: var(--ink); border-radius: 8px; padding: 6px 8px;
-             text-align: center; height: fit-content; white-space: nowrap; }
-  .logBody { flex: 1; min-width: 0; }
-  .logSummary { font-size: 13.5px; color: var(--ink); line-height: 1.5; }
-  .logMeta { font-size: 11.5px; color: rgba(11,29,51,.55); margin-top: 3px; }
-
-  .retbook { display: flex; flex-direction: column; gap: 10px; }
-  .retCard { border-radius: 16px; overflow: hidden; background: rgba(11,29,51,.04); }
-  .retHead { background: linear-gradient(180deg, var(--ink) 0%, var(--ink-deep) 100%);
-             color: var(--shell); padding: 9px 12px; display: flex; align-items: baseline; gap: 8px; }
-  .retName { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; }
-  .retCode { font-size: 11px; color: var(--brass-light); }
-  .retGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: rgba(11,29,51,.08); border-radius: 10px; overflow: hidden; }
-  .retCell { background: var(--paper); padding: 8px 3px; text-align: center; }
-  .retK { display: block; font: 700 8.5px 'Noto Sans KR', sans-serif; color: rgba(11,29,51,.5); margin-bottom: 3px; }
-  .retV { font: 500 11px 'Noto Sans KR', sans-serif; font-variant-numeric: tabular-nums lining-nums; }
-  .retMdd { padding: 7px 12px; font-size: 12px; color: var(--ink); background: rgba(181,113,63,.06); }
-  @media (min-width: 760px){
-    .retCell { padding: 10px 4px; }
-    .retK { font-size: 9px; }
-    .retV { font-size: 12px; }
-  }
-
-  /* 아코디언 — 둥근 흰 카드 리스트 */
-  .accWrap { background: var(--paper); border-radius: 26px; padding: 8px 20px; display: flex; flex-direction: column; }
-  .acc { border-bottom: 1px solid rgba(11,29,51,.06); }
-  .acc:last-child { border-bottom: none; }
-  .accH { padding: 15px 0; background: none; color: var(--ink); font: 500 13.5px 'Noto Sans KR', sans-serif;
-          cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-          white-space: nowrap; transition: color .15s; }
-  .accH:hover { color: var(--brass); }
-  .accH .ar { color: rgba(11,29,51,.4); font: 400 12px 'Noto Sans KR', sans-serif; flex-shrink: 0; margin-left: 8px; }
-  .accH .ar::before { content: '＋'; }
-  .accH.open .ar::before { content: '−'; }
-  .accH.open .ar { color: var(--brass); }
-  .accB { display: none; padding: 0 0 16px; }
-  .accB.open { display: flex; flex-direction: column; gap: 10px; animation: accFade .22s ease; }
-  @keyframes accFade{ from{ opacity:0; } to{ opacity:1; } }
-  .accB h4 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px; margin: 18px 0 6px; color: var(--ink); }
-  .accB h4:first-child { margin-top: 0; }
-  .accB p, .accB li { font-family: 'Cormorant Garamond', serif; font-size: 14.5px; line-height: 1.6; color: #3d4a57; }
-  .accB ul, .accB ol { padding-left: 20px; margin: 6px 0; }
-  .accB li { margin-bottom: 5px; }
-  .accB table { margin: 10px 0; border-radius: 10px; overflow: hidden; border-collapse: separate; border-spacing: 0;
-                background: rgba(11,29,51,.03); }
-  .accB td, .accB th { font-size: 13px; padding: 8px 7px;
-                        font-family: 'Noto Sans KR', -apple-system, sans-serif;
-                        border: 1px solid rgba(11,29,51,.08); }
-  .accB th { background: var(--ink); color: var(--shell); font-weight: 700; letter-spacing: .01em; }
-  .accB tr:nth-child(even) td { background: rgba(181,113,63,.05); }
-  .accB td b { color: var(--brass); }
-  .quiet { color: var(--fog); font-size: 13px; }
-  .sub-acc { border-bottom: 1px solid rgba(181,113,63,.2); margin-bottom: 4px; }
-  .sub-accH { padding: 11px 4px; background: none; font-weight: 600; font-size: 15px;
-              cursor: pointer; display: flex; justify-content: space-between; color: var(--ink);
-              font-family: 'Fraunces', serif; }
-  .sub-accH:hover { color: var(--brass); }
-  .sub-accB { display: none; padding: 4px 4px 14px; }
-  .sub-accB.open { display: block; animation: accFade .2s ease; }
-  .lead { font-style: italic; color: var(--brass); font-size: 18px; margin-top: 0;
-          font-family: 'Cormorant Garamond', serif; }
-  .accB p.quiet { font-size: 15px; }
-  @media (min-width: 760px){
-    .accWrap { padding: 8px 26px; }
-    .accH { padding: 16px 0; font-size: 14px; }
-    .accH .ar { font-size: 13px; }
-    .accB { padding: 0 0 20px; gap: 12px; max-width: 520px; }
-  }
-
-  .prog { text-align: center; font-weight: 700; font-size: 15px; margin: 12px 0; color: var(--ink); }
-  .up { color: var(--gain); font-weight: 700; }
-  .dn { color: var(--loss); font-weight: 700; }
-  .na { color: #b9c2ca; }
-
-  /* 총액 카드 + 비중 밴드 카드 — 모바일은 세로로, 데스크톱은 2단 그리드로 */
-  .totalGrid { display: flex; flex-direction: column; gap: 12px; }
-
-  @media (min-width: 760px) {
-    .totalGrid { display: grid; grid-template-columns: 1.02fr 1fr; gap: 14px; }
-    .card.total { padding: 34px 32px; }
-    .card.total .lbl { font-size: 11.5px; }
-    .card.profit .pf-badges { gap: 9px; }
-    .card.profit .pf-pill { font-size: 12.5px; padding: 9px 16px; }
-    .card.total .num { font-size: 58px; letter-spacing: -2px; }
-    .card.total .num .unit { font-size: 22px; }
-    .bandsCard { padding: 30px 32px; }
-
-    /* 데스크톱: cashRow가 display:contents를 벗어나 실제 박스로 살아나고, 그 안의
-       cashBoxes(현금 2개) + actionsGroup(버튼 3개)이 진짜 형제 요소로 gap:26px 한 줄에 놓여
-       원본처럼 하나의 카드(padding 22px 26px)로 보인다. tasksCard는 taskFlow의 다음 줄. */
-    .taskFlow { display: flex; flex-direction: column; gap: 14px; }
-    .cashRow { display: flex; gap: 26px; align-items: flex-end;
-               background: var(--paper); border-radius: 26px; padding: 22px 26px; }
-    .cashBoxes { order: initial; display: flex; gap: 26px; }
-    .cashRow .cashBox { width: 210px; flex: 0 0 210px; background: rgba(11,29,51,.05); border-radius: 16px; padding: 12px 16px; }
-    .actionsGroup { order: initial; flex: 1; flex-direction: row; align-items: flex-end; gap: 9px; }
-    .actionsGroup > #quoteBtn { flex: 1; align-self: auto; height: 50px; }
-    .ctaRow { flex: 2.2; gap: 9px; }
-    .ctaRow button.main { flex: 1; }
-    .ctaRow button.save { flex: 1.2; }
-    .tasksCard { order: initial; }
-  }
+/* 아코디언 — 원본 시안에는 펼친 샘플 본문 하나뿐이라 실제 본문(운용 규칙·종목 설명 등)의
+   스타일이 없다. 아래는 기존 index.html에서 그대로 가져온 아코디언 본문 스타일이다.
+   아코디언은 본문이 길어(240줄) 두 벌로 복제하지 않고 한 벌만 두고 공유한다. */
+.accWrap{background:#fffdf6;border-radius:26px;padding:8px 20px;display:flex;flex-direction:column}
+@media (min-width:760px){ .accWrap{padding:8px 26px} }
+.acc{border-bottom:1px solid rgba(11,29,51,.06)}
+.acc:last-child{border-bottom:none}
+.accH{padding:15px 0;background:none;color:#0b1d33;font:500 13.5px 'Noto Sans KR',sans-serif;
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  white-space:nowrap;transition:color .15s}
+@media (min-width:760px){ .accH{padding:16px 0;font-size:14px} }
+.accH:hover{color:#b5713f}
+.accH .ar{color:rgba(11,29,51,.4);font:400 12px 'Noto Sans KR',sans-serif;flex-shrink:0;margin-left:8px}
+@media (min-width:760px){ .accH .ar{font-size:13px} }
+.accH .ar::before{content:'＋'}
+.accH.open .ar::before{content:'−'}
+.accH.open .ar{color:#b5713f}
+.accB{display:none;padding:0 0 16px}
+.accB.open{display:flex;flex-direction:column;gap:10px;animation:accFade .22s ease}
+@keyframes accFade{from{opacity:0}to{opacity:1}}
+.accB h4{font-family:'Fraunces','Gowun Batang',serif;font-weight:600;font-size:14px;margin:18px 0 6px;color:#0b1d33}
+.accB h4:first-child{margin-top:0}
+.accB p,.accB li{font-family:'Cormorant Garamond','Gowun Batang',serif;font-size:14.5px;line-height:1.6;color:#3d4a57}
+.accB ul,.accB ol{padding-left:20px;margin:6px 0}
+.accB li{margin-bottom:5px}
+.accB table{margin:10px 0;border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0;background:rgba(11,29,51,.03)}
+.accB td,.accB th{font-size:13px;padding:8px 7px;font-family:'Noto Sans KR',-apple-system,sans-serif;border:1px solid rgba(11,29,51,.08)}
+.accB th{background:#0b1d33;color:#f5efe0;font-weight:700;letter-spacing:.01em}
+.accB tr:nth-child(even) td{background:rgba(181,113,63,.05)}
+.accB td b{color:#b5713f}
+.accB p.quiet{font-size:15px}
+.quiet{color:#7c8a9a;font-size:13px}
+.sub-acc{border-bottom:1px solid rgba(181,113,63,.2);margin-bottom:4px}
+.sub-accH{padding:11px 4px;background:none;font-weight:600;font-size:15px;cursor:pointer;
+  display:flex;justify-content:space-between;color:#0b1d33;font-family:'Fraunces','Gowun Batang',serif}
+.sub-accH:hover{color:#b5713f}
+.sub-accB{display:none;padding:4px 4px 14px}
+.sub-accB.open{display:block;animation:accFade .2s ease}
+.lead{font-style:italic;color:#b5713f;font-size:18px;margin-top:0;font-family:'Cormorant Garamond','Gowun Batang',serif}
+.prog{text-align:center;font-weight:700;font-size:15px;margin:12px 0;color:#0b1d33}
+.up{color:#b3452f;font-weight:700}
+.dn{color:#2f6fa8;font-weight:700}
+.na{color:#b9c2ca}
+.tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;
+  background:rgba(181,113,63,.15);color:#b5713f;margin-top:3px}
+.logbook{display:flex;flex-direction:column;gap:8px}
+.logEntry{display:flex;gap:12px;border-radius:16px;padding:12px 14px;background:rgba(11,29,51,.04)}
+.logDate{flex:0 0 auto;font-family:'Fraunces','Gowun Batang',serif;font-weight:600;font-size:13px;
+  color:#f5efe0;background:#0b1d33;border-radius:8px;padding:6px 8px;text-align:center;height:fit-content;white-space:nowrap}
+.logBody{flex:1;min-width:0}
+.logSummary{font-size:13.5px;color:#0b1d33;line-height:1.5}
+.logMeta{font-size:11.5px;color:rgba(11,29,51,.55);margin-top:3px}
+.retbook{display:flex;flex-direction:column;gap:10px}
+.retCard{border-radius:16px;overflow:hidden;background:rgba(11,29,51,.04)}
+.retHead{background:linear-gradient(180deg,#0b1d33 0%,#071426 100%);color:#f5efe0;padding:9px 12px;
+  display:flex;align-items:baseline;gap:8px}
+.retName{font-family:'Fraunces','Gowun Batang',serif;font-weight:600;font-size:15px}
+.retCode{font-size:11px;color:#e2b463}
+.retGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(11,29,51,.08);border-radius:10px;overflow:hidden}
+.retCell{background:#fffdf6;padding:8px 3px;text-align:center}
+.retK{display:block;font:700 8.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.5);margin-bottom:3px}
+.retV{font:500 11px 'Noto Sans KR',sans-serif;font-variant-numeric:tabular-nums lining-nums}
+.retMdd{padding:7px 12px;font-size:12px;color:#0b1d33;background:rgba(181,113,63,.06)}
 </style>
 </head>
 <body>
 
-<div id="login"></div>
-
+<!-- ================= 로그인 ================= -->
 <div id="loginStage">
-  <video class="bgVideo" id="lgVideo" autoplay muted loop playsinline></video>
-  <div class="scrim-base"></div>
-  <div class="scrim-dynamic"></div>
+  <video id="lgVideo" autoplay muted loop playsinline></video>
 
-  <div class="lg-content">
-    <div class="lg-topbar">
-      <div class="daytoggle">
-        <button id="lgBtnNight" class="on" onclick="lgSetMode(false)">☾ 밤</button>
-        <button id="lgBtnDay" onclick="lgSetMode(true)">☀ 낮</button>
+  <!-- ---------- 5a 로그인 · 모바일 (인라인 스타일 = 원본 그대로) ---------- -->
+  <div class="mobileOnly"><div class="stageInner">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,29,51,.28) 0%,rgba(11,29,51,.04) 34%,rgba(11,29,51,.3) 76%,rgba(11,29,51,.52) 100%)">
+      <div style="position: absolute; left: 90px; border: 1px solid rgba(226,180,99,.5); background: rgba(11,29,51,.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(11,29,51,.42); border-radius: 16px; padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
+        <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:5px;border-bottom:1.5px solid rgba(226,180,99,.62)">
+          <span style="font:600 7.5px 'Noto Sans KR',sans-serif;letter-spacing:.18em;color:rgba(226,180,99,.9)">선원 아이디</span>
+          <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
+                 onkeydown="if(event.key==='Enter')doLogin()"
+                 style="font:400 12px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.9)">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px;padding-bottom:5px;border-bottom:1.5px solid rgba(226,180,99,.62)">
+          <span style="font:600 7.5px 'Noto Sans KR',sans-serif;letter-spacing:.18em;color:rgba(226,180,99,.9)">암구호 (비밀번호)</span>
+          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder="••••••••"
+                 onkeydown="if(event.key==='Enter')doLogin()"
+                 style="font:400 12px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.9)">
+        </div>
+        <button data-bind="lbtn" onclick="doLogin()" style="margin-top:11px;height:30px;flex-shrink:0;background:#e2b463;border-radius:999px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(226,180,99,.24);width:100%">
+          <span style="font:700 10.5px 'Noto Sans KR',sans-serif;letter-spacing:.1em;color:#0b1d33">승선하기</span>
+        </button>
+        <div style="display:flex;justify-content:center;margin-top:8px">
+          <button onclick="doSignUp()" style="font:500 9px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.72);border-bottom:1px solid rgba(226,180,99,.5);padding-bottom:1px">새로 등록하기</button>
+        </div>
+      </div>
+      <div class="loginMsg" data-bind="loginMsg" style="bottom:28px"></div>
+    </div>
+
+    <div data-bind="topScrim" style="position:absolute;left:0;right:0;top:0;height:360px;pointer-events:none"></div>
+
+    <div style="position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font:700 9.5px 'Noto Sans KR',sans-serif;letter-spacing:.22em;color:#e2b463;text-shadow:0 1px 8px rgba(11,29,51,.7)"><br></span>
+      <div style="display:flex;border:1px solid rgba(253,246,232,.3);border-radius:999px;padding:2px;gap:2px;background:rgba(11,29,51,.22);backdrop-filter:blur(8px)">
+        <span data-bind="dayTab" onclick="lgSetMode(true)">☀ 낮</span>
+        <span data-bind="nightTab" onclick="lgSetMode(false)">☾ 밤</span>
       </div>
     </div>
 
-    <div class="lg-hero">
-      <div class="lg-title">그대들은<br>어떻게 투자할 것인가</div>
+    <div style="position:absolute;left:26px;right:26px;top:132px;display:flex;flex-direction:column;gap:14px">
+      <div data-bind="lgTitle" style="font-family:'Fraunces','Gowun Batang',serif;font-style:italic;font-weight:300;font-size:35px;line-height:1.24;color:#fdf6e8;letter-spacing:-.8px">그대들은<br>어떻게 투자할 것인가</div>
+    </div>
+  </div></div>
+
+  <!-- ---------- 5b 로그인 · 데스크톱 (인라인 스타일 = 원본 그대로) ---------- -->
+  <div class="deskOnly"><div class="stageInner">
+    <div data-bind="deskScrim" style="position:absolute;inset:0;pointer-events:none"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,29,51,.2) 0%,rgba(11,29,51,0) 26%,rgba(11,29,51,.24) 100%)"></div>
+
+    <div style="position:absolute;top:28px;left:48px;right:48px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font:700 10px 'Noto Sans KR',sans-serif;letter-spacing:.24em;color:#e2b463;text-shadow:0 1px 8px rgba(11,29,51,.7)"><br></span>
+      <div style="display:flex;border:1px solid rgba(253,246,232,.3);border-radius:999px;padding:2px;gap:2px;background:rgba(11,29,51,.22);backdrop-filter:blur(8px)">
+        <span data-bind="dayTab" onclick="lgSetMode(true)">☀ 낮</span>
+        <span data-bind="nightTab" onclick="lgSetMode(false)">☾ 밤</span>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="field">
-        <label>선원 아이디</label>
-        <input type="text" id="lid" placeholder="선원 아이디를 입력하세요" autocomplete="username"
-               onkeydown="if(event.key==='Enter')doLogin()">
-      </div>
-      <div class="field">
-        <label>암구호</label>
-        <input type="password" id="lpw" placeholder="••••••••" autocomplete="current-password"
-               onkeydown="if(event.key==='Enter')doLogin()">
-      </div>
-
-      <button class="go" id="lbtn" onclick="doLogin()">승선하기</button>
-      <button class="newacc" onclick="doSignUp()">처음 오셨나요? 새로 등록하기</button>
-      <div id="loginMsg"></div>
-      <div class="wifi-note">영상 재생에 데이터가 소요되니 Wi-Fi 사용을 권장합니다.</div>
-      <div class="hint-install">휴대폰에서 브라우저 메뉴 → '홈 화면에 추가'를 누르면<br>앱처럼 쓸 수 있습니다.</div>
+    <div style="position: absolute; left: 48px; width: 470px; display: flex; flex-direction: column; gap: 18px; bottom: 174px">
+      <div data-bind="lgTitle" style="font-family: 'Fraunces','Gowun Batang',serif; font-style: italic; font-weight: 300; font-size: 50px; line-height: 1.16; color: #fdf6e8; letter-spacing: -1.6px">그대들은<br>어떻게 투자할 것인가</div>
     </div>
-  </div>
+
+    <div style="position:absolute;right:0px;bottom:56px;width:352px;display:flex;align-items:flex-end">
+      <div style="width: 254px; border: 1px solid rgba(226,180,99,.46); border-radius: 20px; background: rgba(11,29,51,.42); backdrop-filter: blur(10px); box-shadow: 0 14px 40px rgba(11,29,51,.4); padding: 26px 26px 20px; display: flex; flex-direction: column; min-height: 224px">
+        <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:9px;border-bottom:1.5px solid rgba(226,180,99,.62)">
+          <span style="font:600 11px 'Noto Sans KR',sans-serif;letter-spacing:.18em;color:rgba(226,180,99,.95)">선원 아이디</span>
+          <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
+                 onkeydown="if(event.key==='Enter')doLogin()"
+                 style="font:400 15px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.92)">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:18px;padding-bottom:9px;border-bottom:1.5px solid rgba(226,180,99,.62)">
+          <span style="font:600 11px 'Noto Sans KR',sans-serif;letter-spacing:.18em;color:rgba(226,180,99,.95)">암구호 (비밀번호)</span>
+          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder="••••••••"
+                 onkeydown="if(event.key==='Enter')doLogin()"
+                 style="font:400 15px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.92)">
+        </div>
+        <button data-bind="lbtn" onclick="doLogin()" style="margin-top:24px;height:50px;flex-shrink:0;background:#e2b463;border-radius:999px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(226,180,99,.3);width:100%">
+          <span style="font:700 15px 'Noto Sans KR',sans-serif;letter-spacing:.1em;color:#0b1d33">승선하기</span>
+        </button>
+        <div style="display:flex;justify-content:center;margin-top:14px">
+          <button onclick="doSignUp()" style="font:500 13px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.8);border-bottom:1px solid rgba(226,180,99,.5);padding-bottom:2px">새로 등록하기</button>
+        </div>
+      </div>
+    </div>
+    <div class="loginMsg" data-bind="loginMsg" style="bottom:24px"></div>
+  </div></div>
 </div>
 
 
-<div class="wrap" id="main" style="display:none">
-  <div class="headerRow">
-    <div class="brand">
-      <span class="ico">⚓</span>
-      <span class="nm">5분할 리밸런싱</span>
-    </div>
-    <div class="tabs">
-      <button id="tD" class="on" onclick="switchMarket('domestic')">국내 ISA</button>
-      <button id="tO" onclick="switchMarket('overseas')">미국 직투</button>
-    </div>
-    <div class="userbar"><span id="who"></span><button class="link" onclick="doLogout()">로그아웃</button></div>
-  </div>
+<!-- ================= 메인 ================= -->
+<div id="main" style="display:none">
 
-  <div id="warnBox" class="card warn" style="display:none"></div>
+  <!-- ---------- 2c 메인 · 모바일 390px (인라인 스타일 = 원본 그대로) ---------- -->
+  <div class="mobileOnly"><div class="artboardM" style="box-sizing:border-box;background:#f5efe0;border-radius:34px;padding:14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 14px rgba(11,29,51,.16)">
 
-  <div class="totalGrid">
-    <div class="card total">
-      <div class="lbl">총 평가금액 · 종목 + 현금</div>
-      <div class="num" id="totalTxt">-</div>
-      <span class="fx" id="fxTxt"></span>
-      <div class="card profit" id="profitBox"></div>
+    <div style="display:flex;flex-direction:column;gap:6px;padding:6px 10px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:7px">
+          <span style="width:26px;height:26px;border-radius:999px;background:rgba(181,113,63,.16);display:flex;align-items:center;justify-content:center;font-size:12px;color:#b5713f">⚓</span>
+          <span data-bind="who" style="font:500 12px 'Noto Sans KR',sans-serif;color:#0b1d33"></span>
+        </div>
+        <button class="plain" onclick="doLogout()" style="font:500 11px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6)">로그아웃</button>
+      </div>
+      <span style="font:700 9px 'Noto Sans KR',sans-serif;letter-spacing:.14em;color:rgba(11,29,51,.4)">ISA · FIVE-WAY</span>
     </div>
 
-    <div class="card bandsCard">
-      <div class="bandsHead">
-        <span class="ttl">비중 밴드</span>
-        <div class="bandsLegend">
-          <span><i class="tgt"></i>목표</span>
-          <span><i class="upr"></i>상단 밴드</span>
-          <span><i class="ovr"></i>초과분</span>
+    <div style="display:flex;background:rgba(11,29,51,.07);border-radius:999px;padding:4px;gap:4px">
+      <button class="plain" data-bind="tabD" onclick="switchMarket('domestic')" style="flex:1;text-align:center;padding:10px 0;border-radius:999px"><span>국내 ISA</span></button>
+      <button class="plain" data-bind="tabO" onclick="switchMarket('overseas')" style="flex:1;text-align:center;padding:10px 0;border-radius:999px"><span>미국 직투</span></button>
+    </div>
+
+    <div class="warnBox" data-bind="warnBox" style="display:none"></div>
+
+    <div style="background:#fffdf6;border-radius:26px;padding:26px 22px 22px;display:flex;flex-direction:column">
+      <span style="font:500 11px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.62)">총 평가금액</span>
+      <div data-bind="totalTxt" style="font-family:'Fraunces','Gowun Batang',serif;font-weight:400;font-size:40px;line-height:1.08;color:#0b1d33;letter-spacing:-1.2px;margin-top:10px">-</div>
+      <span data-bind="fxTxt" style="font:400 11.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6);margin-top:6px"></span>
+      <div data-bind="profitBoxM"></div>
+    </div>
+
+    <div style="background:#fffdf6;border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:15px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font:700 11px 'Noto Sans KR',sans-serif;color:#0b1d33">비중</span>
+        <div style="display:flex;gap:9px;font:400 9.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6);align-items:center">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:2px;height:9px;background:rgba(11,29,51,.55);display:inline-block"></span>목표</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:2px;height:9px;background:#b5713f;display:inline-block"></span>상단 밴드</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(181,113,63,.55);display:inline-block"></span>초과분</span>
         </div>
       </div>
-      <div id="bandsArea"></div>
+      <div data-bind="bandsAreaM" style="display:flex;flex-direction:column;gap:15px"></div>
     </div>
-  </div>
 
-  <div class="taskFlow">
-    <div class="cashRow">
-      <div class="cashBoxes">
-        <div class="cashBox">
-          <label>계좌내 현금 · 잔액 + 배당</label>
-          <input type="text" id="cash" inputmode="numeric">
-        </div>
-        <div class="cashBox">
-          <label>신규 입금액</label>
-          <input type="text" id="dep" inputmode="numeric">
-        </div>
+    <div style="display:flex;gap:10px">
+      <div style="flex:1;background:#fffdf6;border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+        <span style="font:500 10.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.62)">계좌내 현금</span>
+        <input data-bind="cash" inputmode="numeric" style="font:500 16px 'Noto Sans KR',sans-serif;color:#0b1d33;text-align:right;border:none;background:none;width:100%;padding:0">
       </div>
-
-      <div class="actionsGroup">
-        <button id="quoteBtn" onclick="refreshQuote()">시세 조회</button>
-        <div class="ctaRow">
-          <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
-          <button class="save" id="saveBtn" onclick="saveIt()">② 매매 완료 · 저장하기</button>
-        </div>
+      <div style="flex:1;background:#fffdf6;border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+        <span style="font:500 10.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.62)">신규 입금액</span>
+        <input data-bind="dep" inputmode="numeric" style="font:500 16px 'Noto Sans KR',sans-serif;color:#0b1d33;text-align:right;border:none;background:none;width:100%;padding:0">
       </div>
     </div>
 
-    <div class="card tasksCard" id="tasksCard">
-      <div class="tasksHead">
-        <div class="tasksHeadTitle">
-          <span class="ttl">해야 할 일</span>
-          <span class="lastEdit" id="lastEditDate"></span>
+    <div class="tasksCard" data-bind="tasksCardM" style="background:#fffdf6;border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font:700 11px 'Noto Sans KR',sans-serif;color:#0b1d33">해야 할 일</span>
+          <span data-bind="lastEditDate" style="font:400 9.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.4)"></span>
         </div>
-        <span class="editLink" id="editToggle" onclick="toggleEdit()">수정</span>
+        <button class="plain editLink" onclick="toggleEdit()" style="font:500 10.5px 'Noto Sans KR',sans-serif;color:#b5713f;cursor:pointer">수정</button>
       </div>
-      <div class="assetHead" id="assetHead">
-        <span>종목명</span><span>목표(상단)</span><span id="thP">현재가</span><span>보유</span><span id="thA">평가금액</span><span>비중</span><span>해야 할 일</span>
-      </div>
-      <div id="tbody"></div>
-      <button class="doneBtn" type="button" onclick="toggleEdit()">완료</button>
-      <div class="tasksFoot" id="sumBox"></div>
+      <div data-bind="tbodyM" style="display:flex;flex-direction:column;gap:10px"></div>
+      <button class="plain doneBtn" onclick="toggleEdit()" style="height:44px;border-radius:999px;background:#0b1d33;align-items:center;justify-content:center;cursor:pointer">
+        <span style="font:700 13px 'Noto Sans KR',sans-serif;color:#f5efe0">완료</span>
+      </button>
+      <div data-bind="sumBoxM" style="display:flex;justify-content:space-between;padding-top:6px"></div>
     </div>
-  </div>
 
-  <!-- 하단 이탈 자산이 있을 때만 나타남 -->
-  <div id="belowBanner" class="card below" style="display:none"></div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;justify-content:flex-end">
+        <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="height:32px;padding:0 15px;border-radius:999px;background:rgba(11,29,51,.06);display:flex;align-items:center;justify-content:center;font:500 11px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.7)">시세 조회</button>
+      </div>
+      <div style="display:flex;gap:9px">
+        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:48px;border-radius:999px;background:rgba(11,29,51,.07);display:flex;align-items:center;justify-content:center;font:500 13px 'Noto Sans KR',sans-serif;color:#0b1d33">① 계산하기</button>
+        <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1;height:48px;border-radius:999px;background:#b5713f;display:flex;align-items:center;justify-content:center;font:700 13px 'Noto Sans KR',sans-serif;color:#fdf6e8">② 저장하기</button>
+      </div>
+    </div>
 
-  <div class="accWrap">
+    <div class="belowBanner" data-bind="belowBanner" style="display:none"></div>
+  </div></div>
+
+  <!-- ---------- 2c 메인 · 데스크톱 1040px (인라인 스타일 = 원본 그대로) ---------- -->
+  <div class="deskOnly"><div class="artboardD" style="box-sizing:border-box;background:#f5efe0;border-radius:30px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 2px 14px rgba(11,29,51,.16)">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 12px">
+      <div style="display:flex;align-items:center;gap:22px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:28px;height:28px;border-radius:999px;background:rgba(181,113,63,.16);display:flex;align-items:center;justify-content:center;font-size:13px;color:#b5713f">⚓</span>
+          <span style="font:700 12.5px 'Noto Sans KR',sans-serif;color:#0b1d33">5분할 리밸런싱</span>
+        </div>
+        <div style="display:flex;background:rgba(11,29,51,.07);border-radius:999px;padding:4px;gap:4px">
+          <button class="plain" data-bind="tabD" onclick="switchMarket('domestic')" style="padding:8px 18px;border-radius:999px"><span>국내 ISA</span></button>
+          <button class="plain" data-bind="tabO" onclick="switchMarket('overseas')" style="padding:8px 18px;border-radius:999px"><span>미국 직투</span></button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span data-bind="who" style="font:500 12px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.55)"></span>
+        <button class="plain" onclick="doLogout()" style="font:500 11.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6);background:rgba(11,29,51,.06);border-radius:999px;padding:7px 14px">로그아웃</button>
+      </div>
+    </div>
+
+    <div class="warnBox" data-bind="warnBox" style="display:none"></div>
+
+    <div style="display:grid;grid-template-columns:1.02fr 1fr;gap:14px">
+      <div style="background:#fffdf6;border-radius:26px;padding:34px 32px;display:flex;flex-direction:column">
+        <span style="font:500 11.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.62)">총 평가금액 · 종목 + 현금</span>
+        <div data-bind="totalTxt" style="font-family:'Fraunces','Gowun Batang',serif;font-weight:400;font-size:58px;line-height:1.04;color:#0b1d33;letter-spacing:-2px;margin-top:14px">-</div>
+        <span data-bind="fxTxt" style="font:400 12px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6);margin-top:8px"></span>
+        <div data-bind="profitBoxD"></div>
+      </div>
+
+      <div style="background:#fffdf6;border-radius:26px;padding:30px 32px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font:700 12px 'Noto Sans KR',sans-serif;color:#0b1d33">비중 밴드</span>
+          <div style="display:flex;gap:14px;font:400 10.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6);align-items:center">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:2px;height:10px;background:rgba(11,29,51,.55);display:inline-block"></span>목표</span>
+            <span style="display:flex;align-items:center;gap:4px;color:#b5713f"><span style="width:2px;height:10px;background:#b5713f;display:inline-block"></span>상단 밴드</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(181,113,63,.55);display:inline-block"></span>초과분</span>
+          </div>
+        </div>
+        <div data-bind="bandsAreaD" style="display:flex;flex-direction:column;gap:16px"></div>
+      </div>
+    </div>
+
+    <div style="background:#fffdf6;border-radius:26px;padding:22px 26px;display:flex;gap:26px;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:6px;width:210px">
+        <span style="font:500 11px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.62)">계좌내 현금 · 잔액 + 배당</span>
+        <input data-bind="cash" inputmode="numeric" style="background:rgba(11,29,51,.05);border-radius:16px;padding:12px 16px;text-align:right;font:500 17px 'Noto Sans KR',sans-serif;color:#0b1d33;border:none;width:100%">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;width:210px">
+        <span style="font:500 11px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.62)">신규 입금액</span>
+        <input data-bind="dep" inputmode="numeric" style="background:rgba(11,29,51,.05);border-radius:16px;padding:12px 16px;text-align:right;font:500 17px 'Noto Sans KR',sans-serif;color:#0b1d33;border:none;width:100%">
+      </div>
+      <div style="flex:1;display:flex;gap:9px">
+        <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:1;height:50px;border-radius:999px;background:rgba(11,29,51,.07);display:flex;align-items:center;justify-content:center;font:500 13px 'Noto Sans KR',sans-serif;color:#0b1d33">시세 조회</button>
+        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:50px;border-radius:999px;background:rgba(11,29,51,.07);display:flex;align-items:center;justify-content:center;font:500 13px 'Noto Sans KR',sans-serif;color:#0b1d33">① 계산하기</button>
+        <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1.2;height:50px;border-radius:999px;background:#b5713f;display:flex;align-items:center;justify-content:center;font:700 13px 'Noto Sans KR',sans-serif;color:#fdf6e8">② 매매 완료 · 저장</button>
+      </div>
+    </div>
+
+    <div class="tasksCard" data-bind="tasksCardD" style="background:#fffdf6;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:grid;grid-template-columns:2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;padding:0 14px 4px;font:500 10.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6)">
+        <span>종목명</span><span style="text-align:right">목표 (상단)</span><span data-bind="thP" style="text-align:right">현재가</span><span style="text-align:right">보유</span><span data-bind="thA" style="text-align:right">평가금액</span><span style="text-align:right">비중</span><span style="text-align:right">해야 할 일</span>
+      </div>
+      <div data-bind="tbodyD" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div data-bind="sumBoxD" style="display:flex;gap:16px;justify-content:flex-end;align-items:center;padding-top:8px"></div>
+    </div>
+
+    <div class="belowBanner" data-bind="belowBanner" style="display:none"></div>
+  </div></div>
+
+  <!-- ---------- 아코디언 (모바일·데스크톱 공유 한 벌 · 기존 본문 그대로) ----------
+       본문이 길고 retArea/logArea/aumArea 같은 id를 갖고 있어 두 벌로 복제하지 않는다.
+       폭만 미디어쿼리로 두 시안에 맞춘다. -->
+  <div class="accHost"><div class="accWrap">
   <!-- ① 최근 수익률 -->
   <div class="acc">
     <div class="accH" onclick="tog(this)"><span>종목별 최근 수익률</span><span class="ar">▼</span></div>
@@ -933,15 +742,77 @@
       </div>
     </div>
   </div>
-  </div>
+  </div></div>
 </div>
 
 <script>
+/* ============================================================
+   [새로 작성] 모바일/데스크톱 두 벌 DOM 동기화 헬퍼.
+   원본 디자인이 두 벌이라 같은 요소가 화면에 두 개씩 존재한다.
+   - 화면에 쓸 때는 두 벌 모두에 쓴다 (putText / putHTML / setVal / setDisp)
+   - 화면에서 읽을 때는 지금 보이는 쪽에서 읽는다 (one)
+   계산 로직은 이 헬퍼를 거치지 않는다.
+   ============================================================ */
+function all(n){ return document.querySelectorAll('[data-bind="' + n + '"]'); }
+function one(n){
+  var e = all(n);
+  for (var i = 0; i < e.length; i++) if (e[i].offsetParent !== null) return e[i];
+  return e[0] || null;
+}
+function putText(n, t){ var e = all(n); for (var i = 0; i < e.length; i++) e[i].innerText = t; }
+function putHTML(n, h){ var e = all(n); for (var i = 0; i < e.length; i++) e[i].innerHTML = h; }
+function setVal(n, v){ var e = all(n); for (var i = 0; i < e.length; i++) e[i].value = v; }
+function setDisp(n, v){ var e = all(n); for (var i = 0; i < e.length; i++) e[i].style.display = v; }
+function setStyle(n, s){ var e = all(n); for (var i = 0; i < e.length; i++) e[i].setAttribute('style', s); }
+function setDisabled(n, v){ var e = all(n); for (var i = 0; i < e.length; i++) e[i].disabled = v; }
+
+// 한쪽 입력칸에 타이핑하면 반대쪽 사본에도 그대로 옮겨 적는다 (값이 어긋나지 않게)
+document.addEventListener('input', function (ev) {
+  var t = ev.target;
+  if (!t || !t.getAttribute) return;
+  var n = t.getAttribute('data-bind');
+  if (!n) return;
+  if (n === 'cash' || n === 'dep') fmtCashInput(t);
+  var e = all(n);
+  for (var i = 0; i < e.length; i++) if (e[i] !== t) e[i].value = t.value;
+});
+
+/* ===== 원본 디자인 스크립트에 있던 상태별 스타일 값 (그대로 옮김) ===== */
+var DZ = {
+  titleShadow: {
+    night: '0 2px 20px rgba(11,29,51,.8), 0 0 44px rgba(11,29,51,.5)',
+    day:   '0 1px 0 rgba(0,0,0,.9), 0 -1px 0 rgba(0,0,0,.9), 1px 0 0 rgba(0,0,0,.9), -1px 0 0 rgba(0,0,0,.9), 0 4px 18px rgba(0,0,0,.75), 0 0 40px rgba(0,0,0,.5)'
+  },
+  topScrim: {
+    night: 'linear-gradient(180deg,rgba(11,29,51,.3) 0%,rgba(11,29,51,.2) 46%,rgba(11,29,51,0) 100%)',
+    day:   'linear-gradient(180deg,rgba(11,29,51,.24) 0%,rgba(11,29,51,.16) 40%,rgba(11,29,51,.06) 74%,rgba(11,29,51,0) 100%)'
+  },
+  deskScrim: {
+    night: 'linear-gradient(105deg,rgba(11,29,51,.4) 0%,rgba(11,29,51,.12) 45%,rgba(11,29,51,.02) 64%,rgba(11,29,51,.2) 100%)',
+    day:   'linear-gradient(28deg,rgba(11,29,51,.3) 0%,rgba(11,29,51,.2) 30%,rgba(11,29,51,.08) 60%,rgba(11,29,51,.02) 100%)'
+  },
+  // 원본 tab(on) 함수와 동일
+  tab: function (on) {
+    return "font:" + (on ? '700' : '500') + " 10px 'Noto Sans KR', sans-serif;letter-spacing:.14em;" +
+           "padding:5px 13px;border-radius:999px;cursor:pointer;" +
+           "background:" + (on ? 'rgba(253,246,232,.82)' : 'transparent') + ";" +
+           "color:" + (on ? '#0b1d33' : 'rgba(253,246,232,.92)') + ";";
+  }
+};
+
 // ===== 로그인 화면: 낮/밤 (배경 영상 전환) =====
 function lgSetMode(day){
   document.body.classList.toggle('day', day);
-  document.getElementById('lgBtnDay').classList.toggle('on', day);
-  document.getElementById('lgBtnNight').classList.toggle('on', !day);
+  var k = day ? 'day' : 'night';
+  setStyle('dayTab', DZ.tab(day));
+  setStyle('nightTab', DZ.tab(!day));
+  var t = all('lgTitle');
+  for (var i = 0; i < t.length; i++) t[i].style.textShadow = DZ.titleShadow[k];
+  var ts = all('topScrim');
+  for (var j = 0; j < ts.length; j++) ts[j].style.background = DZ.topScrim[k];
+  var ds = all('deskScrim');
+  for (var m = 0; m < ds.length; m++) ds[m].style.background = DZ.deskScrim[k];
+
   var vid = document.getElementById('lgVideo');
   var src = day ? 'assets/day.mp4' : 'assets/night.mp4';
   if (vid.dataset.src !== src) {
@@ -1014,30 +885,28 @@ function fmtCashInput(el) {
   var digits = el.value.replace(/[^0-9]/g, '');
   el.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
 }
-document.getElementById('cash').addEventListener('input', function () { fmtCashInput(this); });
-document.getElementById('dep').addEventListener('input', function () { fmtCashInput(this); });
 
 // ===== 로그인 =====
-function msg(t) { document.getElementById('loginMsg').innerText = t || ''; }
+function msg(t) { putText('loginMsg', t || ''); }
 
 function doLogin() {
-  var id = document.getElementById('lid').value.trim(), pw = document.getElementById('lpw').value;
+  var id = one('lid').value.trim(), pw = one('lpw').value;
   if (!id || !pw) { msg('아이디와 비밀번호를 입력해주세요.'); return; }
-  document.getElementById('lbtn').disabled = true; msg('확인 중...');
+  setDisabled('lbtn', true); msg('확인 중...');
   api({ action: 'login', user: id, pw: pw },
     function (r) {
-      document.getElementById('lbtn').disabled = false;
+      setDisabled('lbtn', false);
       if (!r.ok) { msg(r.msg); return; }
       enter(r.userId);
     },
     function (e) {
-      document.getElementById('lbtn').disabled = false;
+      setDisabled('lbtn', false);
       msg('연결하지 못했습니다: ' + (e ? e.message : '알 수 없음'));
     });
 }
 
 function doSignUp() {
-  var id = document.getElementById('lid').value.trim(), pw = document.getElementById('lpw').value;
+  var id = one('lid').value.trim(), pw = one('lpw').value;
   if (!id || !pw) { msg('만들 아이디와 비밀번호를 입력한 뒤 눌러주세요.'); return; }
   if (!confirm("'" + id + "' 아이디로 새 계정을 만들까요?")) return;
   msg('생성 중...');
@@ -1050,35 +919,50 @@ function enter(id) {
   uid = id;
   document.getElementById('loginStage').style.display = 'none';
   document.getElementById('main').style.display = 'block';
-  document.getElementById('who').innerText = id + ' 님';
+  putText('who', id + ' 님');
   skin(); load();
 }
 
 function doLogout() {
   uid = null; loaded = null;
   document.getElementById('main').style.display = 'none';
-  document.getElementById('loginStage').style.display = 'flex';
-  document.getElementById('lpw').value = '';
+  document.getElementById('loginStage').style.display = 'block';
+  setVal('lpw', '');
   document.getElementById('retArea').innerHTML = '';
-  document.body.classList.remove('ov');
   msg('');
 }
 
 // ===== 시장 =====
+// 원본 디자인의 탭 인라인 스타일 값 (선택 / 비선택)
+function tabStyleM(on) {
+  return 'flex:1;text-align:center;padding:10px 0;border-radius:999px;' +
+         (on ? 'background:#0b1d33;font:700 12.5px \'Noto Sans KR\',sans-serif;color:#f5efe0'
+             : 'font:500 12.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.62)');
+}
+function tabStyleD(on) {
+  return 'padding:8px 18px;border-radius:999px;' +
+         (on ? 'background:#0b1d33;font:700 12px \'Noto Sans KR\',sans-serif;color:#f5efe0'
+             : 'font:500 12px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.5)');
+}
 function skin() {
   var o = mkt === 'overseas';
-  document.body.classList.toggle('ov', o);
   document.getElementById('themeColor').setAttribute('content', o ? '#071426' : '#f5efe0');
-  document.getElementById('tD').className = o ? '' : 'on';
-  document.getElementById('tO').className = o ? 'on ov' : '';
-  document.getElementById('thP').innerHTML = o ? '현재가<br>($)' : '현재가<br>(원)';
-  document.getElementById('thA').innerHTML = o ? '평가금액<br>($)' : '평가금액<br>(원)';
+  var td = all('tabD'), to = all('tabO');
+  for (var i = 0; i < td.length; i++) {
+    var isM = td[i].closest('.mobileOnly');
+    td[i].setAttribute('style', isM ? tabStyleM(!o) : tabStyleD(!o));
+  }
+  for (var j = 0; j < to.length; j++) {
+    var isM2 = to[j].closest('.mobileOnly');
+    to[j].setAttribute('style', isM2 ? tabStyleM(o) : tabStyleD(o));
+  }
+  putHTML('thP', o ? '현재가 ($)' : '현재가 (원)');
+  putHTML('thA', o ? '평가금액 ($)' : '평가금액 (원)');
 }
 
 function switchMarket(m) {
   if (m === mkt) return;
-  var btns = document.querySelectorAll('.tabs button');
-  for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+  setDisabled('tabD', true); setDisabled('tabO', true);
   mkt = m; skin();
   document.getElementById('retArea').innerHTML = '';
   document.getElementById('retProg').style.display = 'none';
@@ -1087,29 +971,35 @@ function switchMarket(m) {
   var accs = document.querySelectorAll('.accH');
   for (var j = 0; j < accs.length; j++) delete accs[j].dataset.loaded;
   load();
-  for (var k = 0; k < btns.length; k++) btns[k].disabled = false;
+  setDisabled('tabD', false); setDisabled('tabO', false);
 }
 
 // ===== 데이터 =====
 function load() {
-  document.getElementById('totalTxt').innerText = '불러오는 중...';
+  putText('totalTxt', '불러오는 중...');
   api({ action: 'load', user: uid, market: mkt }, show, fail);
 }
 
 function grab() {
   var s = [];
   for (var i = 0; i < N; i++) {
-    var el = document.getElementById('sh' + i);
+    var el = one('sh' + i);
     s.push(el ? num(el) : 0);
   }
-  return { cash: num(document.getElementById('cash')), dep: num(document.getElementById('dep')), shares: s };
+  return { cash: num(one('cash')), dep: num(one('dep')), shares: s };
 }
 
-function busy(on, id, txt) {
-  var b = document.getElementById(id);
+function busy(on, name, txt) {
   var idle = { calcBtn: '① 계산하기', saveBtn: '② 매매 완료 · 저장하기', quoteBtn: '시세 조회' };
-  b.disabled = on;
-  b.innerText = on ? txt : idle[id];
+  // 데스크톱 시안의 저장 버튼 문구는 '② 매매 완료 · 저장', 모바일은 '② 저장하기'
+  var e = all(name);
+  for (var i = 0; i < e.length; i++) {
+    e[i].disabled = on;
+    if (on) { e[i].innerText = txt; }
+    else if (name === 'saveBtn') { e[i].innerText = e[i].closest('.mobileOnly') ? '② 저장하기' : '② 매매 완료 · 저장'; }
+    else if (name === 'calcBtn') { e[i].innerText = idle.calcBtn; }
+    else { e[i].innerText = idle[name]; }
+  }
 }
 
 // ① 시세만 새로고침 — 보유수량·해야 할 일은 건드리지 않음
@@ -1121,29 +1011,22 @@ function refreshQuote() {
 }
 
 function showQuote(d) {
-  var w = document.getElementById('warnBox');
-  if (d.priceWarning) { w.innerText = d.priceWarning; w.style.display = 'block'; }
-  else w.style.display = 'none';
+  if (d.priceWarning) { putText('warnBox', d.priceWarning); setDisp('warnBox', 'block'); }
+  else setDisp('warnBox', 'none');
 
-  document.getElementById('totalTxt').innerHTML = krw()
-    ? Math.round(d.newTotal).toLocaleString('ko-KR') + '<span class="unit"> 원</span>'
-    : money(d.newTotal);
-  document.getElementById('fxTxt').innerText = (!krw() && d.fx > 0)
-    ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '';
+  putHTML('totalTxt', krw()
+    ? Math.round(d.newTotal).toLocaleString('ko-KR') + unitSpan()
+    : money(d.newTotal));
+  putText('fxTxt', (!krw() && d.fx > 0)
+    ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '');
 
   renderProfit(d);
   renderBands(d.assets);
 
   d.assets.forEach(function (a, i) {
-    var prEl = document.getElementById('pr' + i);
-    var amtEl = document.getElementById('amt' + i);
-    var pcEl = document.getElementById('pc' + i);
-    if (prEl) prEl.innerText = price(a.price);
-    if (amtEl) amtEl.innerText = money(a.currentAmt);
-    if (pcEl) {
-      var tag = a.isOver ? '<br><span class="tag">상단 초과</span>' : '';
-      pcEl.innerHTML = a.pct.toFixed(2) + '%' + tag;
-    }
+    putText('pr' + i, price(a.price));
+    putText('amt' + i, money(a.currentAmt));
+    putText('pc' + i, a.pct.toFixed(2) + '%');
   });
 
   busy(false, 'quoteBtn');
@@ -1187,63 +1070,95 @@ function months(d) {
   return m > 0 ? (m + '개월 ' + r + '일째') : (d + '일째');
 }
 
-// 자산별 비중 밴드 바 — 목표/상단 마커와 현재 비중 채움을 그린다
+// 원본 총액의 단위 span (모바일 17px / 데스크톱 22px — 두 벌이라 각각 넣는다)
+function unitSpan() {
+  return '<span style="font-family:\'Noto Sans KR\',sans-serif;font-size:1em;font-weight:400;letter-spacing:0"> 원</span>';
+}
+
+/* ===== 비중 밴드 =====
+   원본 mk() 의 값 계산식을 그대로 따른다: fill = pct/32*100, target = 20/32*100,
+   upper = 밴드/32*100, transition = width 1.1s cubic-bezier(.22,.9,.25,1) {i*90}ms.
+   초과 여부만 원본의 하드코딩(pct>25) 대신 백엔드가 준 a.isOver 를 쓴다(계산 로직 유지). */
 function bandFillPct(a, maxScale) {
   return Math.max(0, Math.min(a.pct, maxScale)) / maxScale * 100;
 }
 
-// 자산별 비중 밴드 바 — 최초 렌더 시 0%에서 실제 값까지 1.1s로 채워지고, 행마다 90ms씩 지연된다
 function renderBands(assets) {
-  var maxScale = 32; // 밴드(23~25%)보다 넉넉히 위까지 그려서 초과분도 보이게
-  var h = '';
+  var maxScale = 32;
+  var hm = '', hd = '';
   assets.forEach(function (a, i) {
-    var targetPct = Math.min(a.target, maxScale) / maxScale * 100;
-    var upperPct = Math.min(a.upper, maxScale) / maxScale * 100;
-    var fillColor = a.isOver ? 'var(--brass)' : 'rgba(11,29,51,.3)';
-    var pctColor = a.isOver ? 'var(--brass)' : 'rgba(11,29,51,.65)';
-    h += '<div class="bandRow">' +
-           '<div class="bandTop">' +
-             '<span class="bandTicker">' + (a.short || a.name) + '</span>' +
-             '<span class="bandPct" style="color:' + pctColor + '">' + a.pct.toFixed(2) + '%</span>' +
-           '</div>' +
-           '<div class="bandTrack">' +
-             '<div class="bandFill" id="bandFill' + i + '" style="width:0%;background:' + fillColor + ';transition-delay:' + (i * 90) + 'ms"></div>' +
-             '<div class="bandMark" style="left:' + targetPct.toFixed(1) + '%;background:rgba(11,29,51,.55)"></div>' +
-             '<div class="bandMark" style="left:' + upperPct.toFixed(1) + '%;background:var(--brass)"></div>' +
-           '</div>' +
-         '</div>';
+    var targetPct = (Math.min(a.target, maxScale) / maxScale * 100).toFixed(1);
+    var upperPct  = (Math.min(a.upper,  maxScale) / maxScale * 100).toFixed(1);
+    var fillColor = a.isOver ? 'rgba(181,113,63,.55)' : 'rgba(11,29,51,.3)';
+    var pctColor  = a.isOver ? '#b5713f' : 'rgba(11,29,51,.65)';
+    var trans     = 'width 1.1s cubic-bezier(.22,.9,.25,1) ' + (i * 90) + 'ms';
+    var nm = a.short || a.name;
+    var track =
+      '<div style="position:absolute;left:0;top:0;bottom:0;width:0%;background:' + fillColor +
+        ';border-radius:999px;transition:' + trans + '" data-bind="bandFill' + i + '"></div>' +
+      '<div style="position:absolute;left:' + targetPct + '%;top:-2px;bottom:-2px;width:2px;border-radius:999px;background:rgba(11,29,51,.55)"></div>' +
+      '<div style="position:absolute;left:' + upperPct + '%;top:-2px;bottom:-2px;width:2px;border-radius:999px;background:#b5713f"></div>';
+
+    hm += '<div style="display:flex;flex-direction:column;gap:6px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline">' +
+              '<span style="font:500 11.5px \'Noto Sans KR\',sans-serif;color:#0b1d33">' + nm + '</span>' +
+              '<span style="font:500 11.5px \'Noto Sans KR\',sans-serif;color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
+            '</div>' +
+            '<div style="position:relative;height:10px;background:rgba(11,29,51,.07);border-radius:999px">' + track + '</div>' +
+          '</div>';
+
+    hd += '<div style="display:grid;grid-template-columns:132px 1fr 58px;align-items:center;gap:14px">' +
+            '<span style="font:500 12px \'Noto Sans KR\',sans-serif;color:#0b1d33">' + nm + '</span>' +
+            '<div style="position:relative;height:11px;background:rgba(11,29,51,.07);border-radius:999px">' + track + '</div>' +
+            '<span style="font:500 11.5px \'Noto Sans KR\',sans-serif;text-align:right;color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
+          '</div>';
   });
-  document.getElementById('bandsArea').innerHTML = h;
+  putHTML('bandsAreaM', hm);
+  putHTML('bandsAreaD', hd);
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
       assets.forEach(function (a, i) {
-        var el = document.getElementById('bandFill' + i);
-        if (el) el.style.width = bandFillPct(a, maxScale).toFixed(1) + '%';
+        var e = all('bandFill' + i);
+        for (var k = 0; k < e.length; k++) e[k].style.width = bandFillPct(a, maxScale).toFixed(1) + '%';
       });
     });
   });
 }
 
 function renderProfit(d) {
-  var p = document.getElementById('profitBox');
   if (d.rate === null) {
-    p.innerHTML = '<span class="quiet">누적 입금액이 없어 수익률을 계산할 수 없습니다. ' +
-                  '신규 입금액을 입력하고 계산하면 이때부터 기록이 시작됩니다.</span>';
+    var q = '<span style="font:400 11.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.6);margin-top:14px;display:block">' +
+            '누적 입금액이 없어 수익률을 계산할 수 없습니다. 신규 입금액을 입력하고 계산하면 이때부터 기록이 시작됩니다.</span>';
+    putHTML('profitBoxM', q); putHTML('profitBoxD', q);
     return;
   }
-  var cls = d.rate >= 0 ? 'up' : 'dn';
-  p.innerHTML =
-    '<div class="pf-badges">' +
-      '<span class="pf-pill ' + cls + '">평가손익 ' + signed(d.netValue) + '</span>' +
-      '<span class="pf-pill ' + cls + '">' + pct(d.rate) + '</span>' +
-      (d.peakRate !== null ? '<span class="pf-peak">역대 최고 ' + pct(d.peakRate) + '</span>' : '') +
+  // 원본: profitColor/profitBg 는 손익 부호로만 갈린다 (매매방향 색과 별개 팔레트)
+  var pos = d.netValue >= 0;
+  var c  = pos ? '#b3452f' : '#2f6fa8';
+  var bg = pos ? 'rgba(179,69,47,.1)' : 'rgba(47,111,168,.1)';
+  var peak = (d.peakRate !== null && d.peakRate !== undefined);
+
+  putHTML('profitBoxM',
+    '<div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">' +
+      '<span style="font:700 11.5px \'Noto Sans KR\',sans-serif;color:' + c + ';background:' + bg + ';border-radius:999px;padding:7px 13px;font-variant-numeric:tabular-nums lining-nums">평가손익 ' + signed(d.netValue) + '</span>' +
+      '<span style="font:700 11.5px \'Noto Sans KR\',sans-serif;color:' + c + ';background:' + bg + ';border-radius:999px;padding:7px 13px">' + pct(d.rate) + '</span>' +
+      (peak ? '<span style="font:400 11px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.68);align-self:center">역대 최고 ' + pct(d.peakRate) + '</span>' : '') +
     '</div>' +
-    '<span class="pf-cum">누적 원금 ' + money(d.cumDeposit) + '</span>';
+    '<span style="font:400 11.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.6);margin-top:14px">누적 원금 ' + money(d.cumDeposit) + '</span>');
+
+  putHTML('profitBoxD',
+    '<div style="display:flex;gap:9px;margin-top:26px;flex-wrap:wrap">' +
+      '<span style="font:700 12.5px \'Noto Sans KR\',sans-serif;color:' + c + ';background:' + bg + ';border-radius:999px;padding:9px 16px">평가손익 ' + signed(d.netValue) + '</span>' +
+      '<span style="font:700 12.5px \'Noto Sans KR\',sans-serif;color:' + c + ';background:' + bg + ';border-radius:999px;padding:9px 16px">' + pct(d.rate) + '</span>' +
+      (peak ? '<span style="font:400 12px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.58);align-self:center">역대 최고 ' + pct(d.peakRate) + '</span>' : '') +
+    '</div>' +
+    '<span style="font:400 12px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.6);margin-top:18px">누적 원금 ' + money(d.cumDeposit) + '</span>');
 }
 
-// 보유수량 수정 모드 — 모바일 "해야 할 일" 카드에서 5개 종목 입력칸을 한꺼번에 열고 닫는다 (데스크톱은 항상 보임)
+// 보유수량 수정 모드 — 원본 sc-if(editHoldings) 분기를 class 토글로 재현 (모바일 카드에만 존재)
 function toggleEdit() {
-  document.getElementById('tasksCard').classList.toggle('editing');
+  var e = all('tasksCardM');
+  for (var i = 0; i < e.length; i++) e[i].classList.toggle('editing');
 }
 
 function show(d) {
@@ -1251,75 +1166,97 @@ function show(d) {
 
   // 헤더 아래 "보유수량 최종 수정" 표기 — 백엔드에 저장된 날짜가 없어 오늘 날짜로 표시
   var today = new Date();
-  document.getElementById('lastEditDate').innerText =
-    '보유수량 최종 수정 · ' + (today.getMonth() + 1) + '월 ' + today.getDate() + '일';
+  putText('lastEditDate', '보유수량 최종 수정 · ' + (today.getMonth() + 1) + '월 ' + today.getDate() + '일');
 
-  var w = document.getElementById('warnBox');
-  if (d.priceWarning) { w.innerText = d.priceWarning; w.style.display = 'block'; }
-  else w.style.display = 'none';
+  if (d.priceWarning) { putText('warnBox', d.priceWarning); setDisp('warnBox', 'block'); }
+  else setDisp('warnBox', 'none');
 
-  document.getElementById('totalTxt').innerHTML = krw()
-    ? Math.round(d.newTotal).toLocaleString('ko-KR') + '<span class="unit"> 원</span>'
-    : money(d.newTotal);
-  document.getElementById('fxTxt').innerText = (!krw() && d.fx > 0)
-    ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '';
+  putHTML('totalTxt', krw()
+    ? Math.round(d.newTotal).toLocaleString('ko-KR') + unitSpan()
+    : money(d.newTotal));
+  putText('fxTxt', (!krw() && d.fx > 0)
+    ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '');
 
-  document.getElementById('cash').value = krw()
-    ? Math.round(d.cashAsset).toLocaleString('ko-KR') : Number(d.cashAsset).toFixed(2);
-  document.getElementById('dep').value = krw()
-    ? Math.round(d.newDeposit).toLocaleString('ko-KR') : Number(d.newDeposit).toFixed(2);
+  setVal('cash', krw() ? Math.round(d.cashAsset).toLocaleString('ko-KR') : Number(d.cashAsset).toFixed(2));
+  setVal('dep',  krw() ? Math.round(d.newDeposit).toLocaleString('ko-KR') : Number(d.newDeposit).toFixed(2));
 
   renderProfit(d);
   renderBands(d.assets);
 
   // 하단 관찰 — 실제로 이탈 자산이 있을 때만 배너로 등장
-  var bb = document.getElementById('belowBanner');
   if (d.below && d.below.length) {
-    var bh = '<b>하단 관찰</b><div class="below-body">목표보다 낮은 상태가 이어지는 자산입니다. 조치는 없고 인지 목적입니다.';
+    var bh = '<b>참고 사항</b><div class="below-body">목표보다 낮은 상태가 이어지는 자산입니다. 조치는 없고 인지 목적입니다.';
     d.below.forEach(function (x) { bh += '<div>· ' + x.name + ' — ' + months(x.days) + '</div>'; });
     bh += '</div>';
-    bb.innerHTML = bh;
-    bb.style.display = 'flex';
-  } else bb.style.display = 'none';
+    putHTML('belowBanner', bh);
+    setDisp('belowBanner', 'flex');
+  } else setDisp('belowBanner', 'none');
 
-  // 해야 할 일 — 종목명 아래 미국 직투 티커·국내코드, 보유수량 입력, 매수(브라스)/매도(잉크) 표시
-  var tb = document.getElementById('tbody');
-  tb.innerHTML = '';
+  // 해야 할 일 — 원본 rows 반복부의 인라인 스타일 그대로
+  var hm = '', hd = '';
   d.assets.forEach(function (a, i) {
-    var cls = a.adjShares > 0 ? 'buy' : (a.adjShares < 0 ? 'sell' : 'idle');
-    var act = a.adjShares > 0 ? '매수 ' + a.adjShares + '주'
-            : (a.adjShares < 0 ? '매도 ' + (-a.adjShares) + '주' : '그대로 두기');
-    var sub = (a.adjShares === 0 && Math.abs(a.adjAmt) > 0.001)
-      ? '<div class="quiet" style="font-size:11px">1주 값보다 적어 매매 없음</div>' : '';
-    var tag = a.isOver ? '<br><span class="tag">상단 초과</span>' : '';
+    var buy = a.adjShares > 0, sell = a.adjShares < 0;
+    // 원본: 매수는 브라스, 매도는 잉크. 그대로 두기는 원본에 없어 흐린 색을 쓴다.
+    var actColor = buy ? '#b5713f' : (sell ? '#0b1d33' : '#b9c2ca');
+    var act = buy ? '▲ 매수 ' + a.adjShares + '주'
+            : (sell ? '▼ 매도 ' + (-a.adjShares) + '주' : '그대로 두기');
+    var amt = signed(a.adjAmt);
+    var pctColor = a.isOver ? '#b5713f' : 'rgba(11,29,51,.65)';
     var cd = krw() ? [a.usTicker, a.code].filter(Boolean).join(' · ') : (a.usTicker || a.code);
-    // 모바일 읽기 모드: 정보 패리티를 위해 티커·목표·현재가·보유수량을 한 줄로 합친다
-    var full = cd + ' · 목표 ' + a.target + '% (' + a.upper + '%) · 현재가 ' + price(a.price) + ' · 보유 ' + a.shares + '주';
-    tb.innerHTML +=
-      '<div class="assetRow ' + cls + '">' +
-        '<div class="cell nm"><span class="nmMain">' + a.name + '</span>' +
-          '<span class="nmSub">' + cd + '</span>' +
-          '<span class="nmFull">' + full + '</span></div>' +
-        '<div class="cell tgt">' + a.target + '% <span class="quiet">(' + a.upper + '%)</span></div>' +
-        '<div class="cell price" id="pr' + i + '">' + price(a.price) + '</div>' +
-        '<div class="qtyWrap"><label>보유수량</label><input type="text" id="sh' + i + '" inputmode="numeric" value="' + a.shares + '"></div>' +
-        '<div class="cell val" id="amt' + i + '">' + money(a.currentAmt) + '</div>' +
-        '<div class="cell pct" id="pc' + i + '">' + a.pct.toFixed(2) + '%' + tag + '</div>' +
-        '<div class="cell act"><span class="actLabel">' + act + '</span>' +
-          '<span class="actAmt">' + signed(a.adjAmt) + '</span>' + sub + '</div>' +
-      '</div>';
-  });
+    var tgt = a.target + '% (' + a.upper + '%)';
+    var metaFull = cd + ' · 목표 ' + tgt + ' · 현재가 ' + price(a.price) + ' · 보유 ' + a.shares + '주';
 
-  // 합계 — 예상 매수/매도는 칩 없는 평문(매수 브라스 / 매도 잉크), 잔여현금만 중립 칩. 세 값 모두 "원" 단위.
-  var s;
+    hm += '<div style="display:flex;flex-direction:column;gap:6px;background:rgba(11,29,51,.04);border-radius:18px;padding:12px 14px;border-left:3px solid ' + actColor + '">' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">' +
+              '<span style="font:500 12.5px \'Noto Sans KR\',sans-serif;color:#0b1d33">' + a.name + '</span>' +
+              '<span style="font:700 12.5px \'Noto Sans KR\',sans-serif;color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
+            '</div>' +
+            '<div class="rowRead">' +
+              '<span style="font:400 10.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.6)">' + metaFull + '</span>' +
+              '<span style="font:400 10.5px \'Noto Sans KR\',sans-serif;color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums;flex-shrink:0">' + amt + '</span>' +
+            '</div>' +
+            '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px">' +
+              '<span style="font:400 10.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.6)">' + cd + ' · 목표 ' + tgt + ' · 현재가 <span data-bind="pr' + i + '">' + price(a.price) + '</span></span>' +
+              '<span style="font:400 10.5px \'Noto Sans KR\',sans-serif;color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums;flex-shrink:0">' + amt + '</span>' +
+            '</div>' +
+            '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px;margin-top:2px">' +
+              '<span style="font:500 10.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.55)">보유수량</span>' +
+              '<input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:80px;padding:8px 10px;font:500 14px \'Noto Sans KR\',sans-serif;color:#0b1d33;text-align:right;border:1px solid rgba(11,29,51,.2);border-radius:8px;background:#fffdf6;font-variant-numeric:tabular-nums lining-nums">' +
+            '</div>' +
+          '</div>';
+
+    hd += '<div style="display:grid;grid-template-columns:2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;align-items:center;background:rgba(11,29,51,.04);border-radius:20px;padding:13px 14px 13px 11px;border-left:3px solid ' + actColor + '">' +
+            '<div style="display:flex;flex-direction:column;gap:2px">' +
+              '<span style="font:500 13px \'Noto Sans KR\',sans-serif;color:#0b1d33">' + a.name + '</span>' +
+              '<span style="font:400 10.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.6)">' + cd + '</span>' +
+            '</div>' +
+            '<span style="font:400 12px \'Noto Sans KR\',sans-serif;text-align:right;color:rgba(11,29,51,.65)">' + tgt + '</span>' +
+            '<span data-bind="pr' + i + '" style="font:400 12px \'Noto Sans KR\',sans-serif;text-align:right;color:#0b1d33">' + price(a.price) + '</span>' +
+            '<span style="text-align:right"><input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:100%;max-width:72px;padding:6px 8px;font:500 12px \'Noto Sans KR\',sans-serif;color:#0b1d33;text-align:right;border:1px solid rgba(11,29,51,.2);border-radius:8px;background:#fffdf6;font-variant-numeric:tabular-nums lining-nums"></span>' +
+            '<span data-bind="amt' + i + '" style="font:400 12px \'Noto Sans KR\',sans-serif;text-align:right;color:#0b1d33">' + money(a.currentAmt) + '</span>' +
+            '<span data-bind="pc' + i + '" style="font:500 12px \'Noto Sans KR\',sans-serif;text-align:right;color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
+            '<div style="display:flex;flex-direction:column;gap:2px;text-align:right">' +
+              '<span style="font:700 12.5px \'Noto Sans KR\',sans-serif;color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
+              '<span style="font:400 10.5px \'Noto Sans KR\',sans-serif;color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + amt + '</span>' +
+            '</div>' +
+          '</div>';
+  });
+  putHTML('tbodyM', hm);
+  putHTML('tbodyD', hd);
+
+  // 합계 — 원본 하단 요약줄의 인라인 스타일 그대로
   if (d.leftover < -0.001) {
-    s = '<span class="fWarn">현금이 부족합니다 (' + money(d.leftover) + '). 매수를 줄이거나 현금을 더 넣어주세요.</span>';
+    var warn = '<span style="font:700 11.5px \'Noto Sans KR\',sans-serif;color:#b5713f">현금이 부족합니다 (' + money(d.leftover) + '). 매수를 줄이거나 현금을 더 넣어주세요.</span>';
+    putHTML('sumBoxM', warn); putHTML('sumBoxD', warn);
   } else {
-    s = '<span class="fBuy">예상 매수 ' + money(d.spent) + '</span>' +
-        '<span class="fSell">예상 매도 ' + money(d.gained) + '</span>' +
-        '<span class="fLeft">잔여현금 ' + money(d.leftover) + '</span>';
+    putHTML('sumBoxM',
+      '<span style="font:400 11.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.55)">예상 잔여현금</span>' +
+      '<span style="font:700 11.5px \'Noto Sans KR\',sans-serif;color:#0b1d33">' + money(d.leftover) + '</span>');
+    putHTML('sumBoxD',
+      '<span style="font:500 11.5px \'Noto Sans KR\',sans-serif;color:#b5713f">예상 매수 ' + money(d.spent) + '</span>' +
+      '<span style="font:500 11.5px \'Noto Sans KR\',sans-serif;color:#0b1d33">예상 매도 ' + money(d.gained) + '</span>' +
+      '<span style="font:700 11.5px \'Noto Sans KR\',sans-serif;color:#0b1d33;background:rgba(11,29,51,.06);border-radius:999px;padding:8px 14px">잔여현금 ' + money(d.leftover) + '</span>');
   }
-  document.getElementById('sumBox').innerHTML = s;
 
   busy(false, 'calcBtn'); busy(false, 'saveBtn');
 }
