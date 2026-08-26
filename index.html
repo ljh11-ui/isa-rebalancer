@@ -1369,6 +1369,11 @@ function cell(v) {
 
 function render() {
   var keys = ['1일', '1주일', '1개월', '6개월', '1년'];
+  // 오늘 날짜 기준으로 "트레일링 1년"이라는 걸 보여준다. 날짜는 매일 자동으로 바뀐다.
+  var t = new Date();
+  var todayLabel = String(t.getFullYear() % 100).padStart(2, '0') + '-' +
+                   String(t.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(t.getDate()).padStart(2, '0');
   var h = '<div class="retbook">';
   rows.forEach(function (r) {
     h += '<div class="retCard">' +
@@ -1379,7 +1384,7 @@ function render() {
       h += '<div class="retCell"><span class="retK">' + k + '</span>' + cell(r.values ? r.values[k] : null) + '</div>';
     });
     h += '</div>' +
-         '<div class="retMdd">1년 MDD ' + (r.mdd === null || r.mdd === undefined
+         '<div class="retMdd">' + todayLabel + ' 기준 최근 1년 MDD ' + (r.mdd === null || r.mdd === undefined
               ? '<span class="na">-</span>' : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</div>' +
          '</div>';
   });
