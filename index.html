@@ -410,7 +410,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     </div>
 
     <div class="tasksCard" data-bind="tasksCardD" style="background:#fffdf6;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:8px">
-      <div style="display:grid;grid-template-columns:2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;gap:0 14px;padding:0 14px 4px;font:500 10.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6)">
+      <div style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;padding:0 14px 4px;font:500 10.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6)">
         <span>종목명</span><span style="text-align:right">목표 (상단)</span><span data-bind="thP" style="text-align:right">현재가</span><span style="text-align:center">보유</span><span data-bind="thA" style="text-align:right">평가금액</span><span style="text-align:right">비중</span><span style="text-align:right">해야 할 일</span>
       </div>
       <div data-bind="tbodyD" style="display:flex;flex-direction:column;gap:8px"></div>
@@ -1271,7 +1271,7 @@ function show(d) {
             '</div>' +
           '</div>';
 
-    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;gap:0 14px;align-items:center;background:rgba(11,29,51,.04);border-radius:20px;padding:13px 14px 13px 11px;border-left:3px solid ' + actColor + '">' +
+    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(11,29,51,.04);border-radius:20px;padding:13px 14px 13px 11px;border-left:3px solid ' + actColor + '">' +
             '<div style="display:flex;flex-direction:column;gap:2px">' +
               '<span style="font:500 13px \'Noto Sans KR\',sans-serif;color:#0b1d33">' + a.name + '</span>' +
               '<span style="font:400 10.5px \'Noto Sans KR\',sans-serif;color:rgba(11,29,51,.6)">' + cd + '</span>' +
