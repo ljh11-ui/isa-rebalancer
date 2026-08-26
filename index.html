@@ -133,7 +133,7 @@
     #loginStage .lg-content{
       padding:32px 52px 44px;
       grid-template-rows:auto 1fr auto; grid-template-columns:1fr auto;
-      grid-template-areas:"topbar topbar" "." "hero card";
+      grid-template-areas:"topbar topbar" ". ." "hero card";
       align-items:end; column-gap:24px;
     }
     #loginStage .lg-hero{ grid-area:hero; margin-top:0; max-width:470px; align-self:end; }
@@ -150,14 +150,14 @@
       background: linear-gradient(28deg,rgba(11,29,51,.3) 0%,rgba(11,29,51,.2) 30%,rgba(11,29,51,.08) 60%,rgba(11,29,51,.02) 100%);
     }
     #loginStage .card{
-      grid-area:card; justify-self:end; align-self:end; width:300px;
+      grid-area:card; justify-self:end; align-self:end; width:254px;
       border-color:rgba(226,180,99,.46); border-radius:20px;
       background:rgba(11,29,51,.42); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
       padding:26px 26px 20px;
     }
-    #loginStage .field + .field{ margin-top:16px; }
+    #loginStage .field + .field{ margin-top:18px; }
     #loginStage .field label{ font-size:11px; }
-    #loginStage .go{ height:50px; margin-top:16px; font-size:15px; box-shadow:0 8px 24px rgba(226,180,99,.3); }
+    #loginStage .go{ height:50px; margin-top:24px; font-size:15px; box-shadow:0 8px 24px rgba(226,180,99,.3); }
     #loginStage .newacc{ font-size:13px; }
   }
 
@@ -190,6 +190,11 @@
   @media (min-width: 760px){
     .tabs { flex: none; display: flex; }
     .tabs button { flex: none; padding: 8px 18px; font-size: 12px; }
+    /* 원본은 브랜드+탭이 한 그룹으로 왼쪽에 붙어있고 userbar만 오른쪽 끝으로 밀려남.
+       headerRow의 justify-content:space-between이 3개를 고르게 벌려서 탭이 가운데로
+       와버리던 문제 — userbar에 margin-left:auto를 줘서 2그룹 배치로 되돌린다. */
+    .headerRow { gap: 22px; }
+    .userbar { margin-left: auto; }
   }
 
   .card { background: var(--paper); border: none; border-radius: 26px; padding: 22px; box-shadow: none; }
