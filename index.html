@@ -19,15 +19,21 @@
   /* 색 — 값은 기존 그대로, 이름만 붙였다 */
   --ink:#0b1d33; --brass:#b5713f; --paper:#fffdf6;
   --shell:#f5efe0; --gold:#e2b463; --cream:#fdf6e8;
+  --ink-deep:#071426; --gain:#b3452f; --loss:#2f6fa8; --idle:#b9c2ca; --white:#fff;
   /* 알파를 섞어 쓰는 색은 rgb 성분만 토큰화해서 rgba(var(--x-rgb),a) 로 쓴다 */
   --ink-rgb:11,29,51; --brass-rgb:181,113,63;
   --cream-rgb:253,246,232; --gold-rgb:226,180,99;
+  --gain-rgb:179,69,47; --loss-rgb:47,111,168;
   /* 서체 스택 */
   --sans:'Noto Sans KR',sans-serif;
   --serif:'Fraunces','Gowun Batang',serif;
   --serif-body:'Cormorant Garamond','Gowun Batang',serif;
   /* 알약 모양 */
   --pill:999px;
+  /* border-radius 중 2번 이상 반복되는 값만 토큰화. xs/sm/md/lg 4단계로는 실제 종류(7개)를
+     다 못 나눠서(2/8/10/16/18/20/26px), 값이 섞이는 걸 막으려고 이름에 px값을 그대로 썼다.
+     1번만 쓰인 4px·22px·30px·34px는 반복이 아니라서 그대로 리터럴로 둔다. */
+  --r-2:2px; --r-8:8px; --r-10:10px; --r-16:16px; --r-18:18px; --r-20:20px; --r-26:26px;
 }
 body{margin:0;background:#dedacd}
 a{color:#33526f;text-decoration:none;border-bottom:1px solid rgba(51,82,111,.4)}
@@ -77,7 +83,7 @@ body{padding:14px}
   font:500 12px var(--sans);text-shadow:0 1px 6px rgba(var(--ink-rgb),.9);min-height:16px}
 
 /* (3) 원본에 없는 기능 요소 */
-.warnBox{background:rgba(var(--brass-rgb),.12);border-radius:18px;padding:12px 16px;
+.warnBox{background:rgba(var(--brass-rgb),.12);border-radius:var(--r-18);padding:12px 16px;
   font:500 12px var(--sans);color:var(--brass)}
 .belowBanner{background:rgba(var(--brass-rgb),.1);border-radius:22px;padding:16px 18px;
   display:flex;flex-direction:column;gap:5px}
@@ -98,7 +104,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 /* 아코디언 — 원본 시안에는 펼친 샘플 본문 하나뿐이라 실제 본문(운용 규칙·종목 설명 등)의
    스타일이 없다. 아래는 기존 index.html에서 그대로 가져온 아코디언 본문 스타일이다.
    아코디언은 본문이 길어(240줄) 두 벌로 복제하지 않고 한 벌만 두고 공유한다. */
-.accWrap{background:var(--paper);border-radius:26px;padding:8px 20px;display:flex;flex-direction:column}
+.accWrap{background:var(--paper);border-radius:var(--r-26);padding:8px 20px;display:flex;flex-direction:column}
 @media (min-width:760px){ .accWrap{padding:8px 26px} }
 .acc{border-bottom:1px solid rgba(var(--ink-rgb),.06)}
 .acc:last-child{border-bottom:none}
@@ -115,7 +121,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .accB p,.accB li{font-family:var(--serif-body);font-size:14.5px;line-height:1.6;color:#3d4a57}
 .accB ul,.accB ol{padding-left:20px;margin:6px 0}
 .accB li{margin-bottom:5px}
-.accB table{margin:10px 0;border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0;background:rgba(var(--ink-rgb),.03)}
+.accB table{margin:10px 0;border-radius:var(--r-10);overflow:hidden;border-collapse:separate;border-spacing:0;background:rgba(var(--ink-rgb),.03)}
 .accB td,.accB th{font-size:13px;padding:8px 7px;font-family:'Noto Sans KR',-apple-system,sans-serif;border:1px solid rgba(var(--ink-rgb),.08)}
 .accB th{background:var(--ink);color:var(--shell);font-weight:700;letter-spacing:.01em}
 .accB tr:nth-child(even) td{background:rgba(var(--brass-rgb),.05)}
@@ -134,25 +140,25 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .sub-accB.open{display:block;animation:accFade .2s ease}
 .lead{font-style:italic;color:var(--brass);font-size:18px;margin-top:0;font-family:var(--serif-body)}
 .prog{text-align:center;font-weight:700;font-size:15px;margin:12px 0;color:var(--ink)}
-.up{color:#b3452f;font-weight:700}
-.dn{color:#2f6fa8;font-weight:700}
-.na{color:#b9c2ca}
+.up{color:var(--gain);font-weight:700}
+.dn{color:var(--loss);font-weight:700}
+.na{color:var(--idle)}
 .tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;
   background:rgba(var(--brass-rgb),.15);color:var(--brass);margin-top:3px}
 .logbook{display:flex;flex-direction:column;gap:8px}
-.logEntry{display:flex;gap:12px;border-radius:16px;padding:12px 14px;background:rgba(var(--ink-rgb),.04)}
+.logEntry{display:flex;gap:12px;border-radius:var(--r-16);padding:12px 14px;background:rgba(var(--ink-rgb),.04)}
 .logDate{flex:0 0 auto;font-family:var(--serif);font-weight:600;font-size:13px;
-  color:var(--shell);background:var(--ink);border-radius:8px;padding:6px 8px;text-align:center;height:fit-content;white-space:nowrap}
+  color:var(--shell);background:var(--ink);border-radius:var(--r-8);padding:6px 8px;text-align:center;height:fit-content;white-space:nowrap}
 .logBody{flex:1;min-width:0}
 .logSummary{font-size:13.5px;color:var(--ink);line-height:1.5}
 .logMeta{font-size:11.5px;color:rgba(var(--ink-rgb),.55);margin-top:3px}
 .retbook{display:flex;flex-direction:column;gap:10px}
-.retCard{border-radius:16px;overflow:hidden;background:rgba(var(--ink-rgb),.04)}
-.retHead{background:linear-gradient(180deg,var(--ink) 0%,#071426 100%);color:var(--shell);padding:9px 12px;
+.retCard{border-radius:var(--r-16);overflow:hidden;background:rgba(var(--ink-rgb),.04)}
+.retHead{background:linear-gradient(180deg,var(--ink) 0%,var(--ink-deep) 100%);color:var(--shell);padding:9px 12px;
   display:flex;align-items:baseline;gap:8px}
 .retName{font-family:var(--serif);font-weight:600;font-size:15px}
 .retCode{font-size:11px;color:var(--gold)}
-.retGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(var(--ink-rgb),.08);border-radius:10px;overflow:hidden}
+.retGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(var(--ink-rgb),.08);border-radius:var(--r-10);overflow:hidden}
 .retCell{background:var(--paper);padding:8px 3px;text-align:center}
 .retK{display:block;font:700 8.5px var(--sans);color:rgba(var(--ink-rgb),.5);margin-bottom:3px}
 .retV{font:500 11px var(--sans);font-variant-numeric:tabular-nums lining-nums}
@@ -181,7 +187,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 
 
 /* (2) 총 평가금액 숫자 아래 브라스 그라디언트 밑줄 — 표 헤더 밑줄과 같은 어휘 */
-.totalRule{height:2px;margin-top:10px;border-radius:2px;
+.totalRule{height:2px;margin-top:10px;border-radius:var(--r-2);
   background:linear-gradient(90deg,var(--brass) 0%,rgba(var(--brass-rgb),.15) 78%,rgba(var(--brass-rgb),0) 100%)}
 
 /* (3) 아코디언 화살표 — ＋/− 텍스트 대신 나침반 바늘처럼 90도 돌아가는 삼각 표시 */
@@ -208,7 +214,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
   <!-- ---------- 5a 로그인 · 모바일 (인라인 스타일 = 원본 그대로) ---------- -->
   <div class="mobileOnly"><div class="stageInner">
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--ink-rgb),.28) 0%,rgba(var(--ink-rgb),.04) 34%,rgba(var(--ink-rgb),.3) 76%,rgba(var(--ink-rgb),.52) 100%)">
-      <div style="position: absolute; left: 50%; transform: translateX(-86px); border: 1px solid rgba(var(--gold-rgb),.5); background: rgba(var(--ink-rgb),.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(var(--ink-rgb),.42); border-radius: 16px; padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
+      <div style="position: absolute; left: 50%; transform: translateX(-86px); border: 1px solid rgba(var(--gold-rgb),.5); background: rgba(var(--ink-rgb),.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(var(--ink-rgb),.42); border-radius:var(--r-16); padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
         <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:5px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
           <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">선원 아이디</span>
           <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
@@ -264,7 +270,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     </div>
 
     <div style="position:absolute;right:0px;bottom:56px;width:352px;display:flex;align-items:flex-end">
-      <div style="width: 254px; border: 1px solid rgba(var(--gold-rgb),.46); border-radius: 20px; background: rgba(var(--ink-rgb),.42); backdrop-filter: blur(10px); box-shadow: 0 14px 40px rgba(var(--ink-rgb),.4); padding: 26px 26px 20px; display: flex; flex-direction: column; min-height: 224px">
+      <div style="width: 254px; border: 1px solid rgba(var(--gold-rgb),.46); border-radius:var(--r-20); background: rgba(var(--ink-rgb),.42); backdrop-filter: blur(10px); box-shadow: 0 14px 40px rgba(var(--ink-rgb),.4); padding: 26px 26px 20px; display: flex; flex-direction: column; min-height: 224px">
         <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:9px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
           <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">선원 아이디</span>
           <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
@@ -314,7 +320,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 
     <div class="warnBox" data-bind="warnBox" style="display:none"></div>
 
-    <div class="paperCard" style="border-radius:26px;padding:26px 22px 22px;display:flex;flex-direction:column">
+    <div class="paperCard" style="border-radius:var(--r-26);padding:26px 22px 22px;display:flex;flex-direction:column">
       <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">총 평가금액</span>
       <div data-bind="totalTxt" style="font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.08;color:var(--ink);letter-spacing:-1.2px;margin-top:10px">-</div>
       <div class="totalRule"></div>
@@ -322,30 +328,30 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       <div data-bind="profitBoxM"></div>
     </div>
 
-    <div class="paperCard" style="border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:15px">
+    <div class="paperCard" style="border-radius:var(--r-26);padding:22px;display:flex;flex-direction:column;gap:15px">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <span style="font:700 11px var(--sans);color:var(--ink)">비중</span>
         <div style="display:flex;gap:9px;font:400 9.5px var(--sans);color:rgba(var(--ink-rgb),.6);align-items:center">
           <span style="display:flex;align-items:center;gap:3px"><span style="width:2px;height:9px;background:rgba(var(--ink-rgb),.55);display:inline-block"></span>목표</span>
           <span style="display:flex;align-items:center;gap:3px"><span style="width:2px;height:9px;background:var(--brass);display:inline-block"></span>상단 밴드</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(var(--brass-rgb),.55);display:inline-block"></span>초과분</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:9px;height:9px;border-radius:var(--r-2);background:rgba(var(--brass-rgb),.55);display:inline-block"></span>초과분</span>
         </div>
       </div>
       <div data-bind="bandsAreaM" style="display:flex;flex-direction:column;gap:15px"></div>
     </div>
 
     <div style="display:flex;gap:10px">
-      <div class="paperCard" style="flex:1;border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+      <div class="paperCard" style="flex:1;border-radius:var(--r-20);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
         <span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금</span>
         <input data-bind="cash" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:none;background:none;width:100%;padding:0">
       </div>
-      <div class="paperCard" style="flex:1;border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+      <div class="paperCard" style="flex:1;border-radius:var(--r-20);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
         <span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
         <input data-bind="dep" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:none;background:none;width:100%;padding:0">
       </div>
     </div>
 
-    <div class="paperCard tasksCard" data-bind="tasksCardM" style="border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:10px">
+    <div class="paperCard tasksCard" data-bind="tasksCardM" style="border-radius:var(--r-26);padding:22px;display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <div style="display:flex;flex-direction:column;gap:2px">
           <span style="font:700 11px var(--sans);color:var(--ink)">해야 할 일</span>
@@ -396,7 +402,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="warnBox" data-bind="warnBox" style="display:none"></div>
 
     <div style="display:grid;grid-template-columns:1.02fr 1fr;gap:14px">
-      <div class="paperCard" style="border-radius:26px;padding:34px 32px;display:flex;flex-direction:column">
+      <div class="paperCard" style="border-radius:var(--r-26);padding:34px 32px;display:flex;flex-direction:column">
         <span style="font:500 11.5px var(--sans);color:rgba(var(--ink-rgb),.62)">총 평가금액 · 종목 + 현금</span>
         <div data-bind="totalTxt" style="font-family:var(--serif);font-weight:400;font-size:58px;line-height:1.04;color:var(--ink);letter-spacing:-2px;margin-top:14px">-</div>
         <div class="totalRule"></div>
@@ -404,27 +410,27 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
         <div data-bind="profitBoxD"></div>
       </div>
 
-      <div class="paperCard" style="border-radius:26px;padding:30px 32px;display:flex;flex-direction:column;gap:16px">
+      <div class="paperCard" style="border-radius:var(--r-26);padding:30px 32px;display:flex;flex-direction:column;gap:16px">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
           <span style="font:700 12px var(--sans);color:var(--ink)">비중 밴드</span>
           <div style="display:flex;gap:14px;font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6);align-items:center">
             <span style="display:flex;align-items:center;gap:4px"><span style="width:2px;height:10px;background:rgba(var(--ink-rgb),.55);display:inline-block"></span>목표</span>
             <span style="display:flex;align-items:center;gap:4px;color:var(--brass)"><span style="width:2px;height:10px;background:var(--brass);display:inline-block"></span>상단 밴드</span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(var(--brass-rgb),.55);display:inline-block"></span>초과분</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:var(--r-2);background:rgba(var(--brass-rgb),.55);display:inline-block"></span>초과분</span>
           </div>
         </div>
         <div data-bind="bandsAreaD" style="display:flex;flex-direction:column;gap:16px"></div>
       </div>
     </div>
 
-    <div class="paperCard" style="border-radius:26px;padding:22px 26px;display:flex;gap:26px;align-items:flex-end">
+    <div class="paperCard" style="border-radius:var(--r-26);padding:22px 26px;display:flex;gap:26px;align-items:flex-end">
       <div style="display:flex;flex-direction:column;gap:6px;width:210px">
         <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금 · 잔액 + 배당</span>
-        <input data-bind="cash" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:16px;padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:none;width:100%">
+        <input data-bind="cash" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:none;width:100%">
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;width:210px">
         <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
-        <input data-bind="dep" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:16px;padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:none;width:100%">
+        <input data-bind="dep" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:none;width:100%">
       </div>
       <div style="flex:1;display:flex;gap:9px">
         <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:1;height:50px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.07);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">시세 조회</button>
@@ -433,7 +439,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       </div>
     </div>
 
-    <div class="paperCard tasksCard" data-bind="tasksCardD" style="border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:8px">
+    <div class="paperCard tasksCard" data-bind="tasksCardD" style="border-radius:var(--r-26);padding:24px 26px;display:flex;flex-direction:column;gap:8px">
       <div style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;padding:0 14px 4px;font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">
         <span>종목명</span><span style="text-align:right">목표 (상단)</span><span data-bind="thP" style="text-align:right">현재가</span><span style="text-align:center">보유</span><span data-bind="thA" style="text-align:right">평가금액</span><span style="text-align:right">비중</span><span style="text-align:right">해야 할 일</span>
       </div>
@@ -453,7 +459,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="accH" onclick="tog(this)"><span>종목별 최근 수익률</span><span class="ar"></span></div>
     <div class="accB">
       <button class="sub2" id="retBtn" onclick="loadRet()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:var(--ink);border:none;border-radius:var(--pill);cursor:pointer">최근 수익률 조회</button>
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:var(--white);background:var(--ink);border:none;border-radius:var(--pill);cursor:pointer">최근 수익률 조회</button>
       <div class="prog" id="retProg" style="display:none"></div>
       <div id="retArea" style="margin-top:12px"></div>
     </div>
@@ -463,7 +469,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar"></span></div>
     <div class="accB">
       <button class="sub2" onclick="reloadLogs()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:#fff;background:var(--ink);border:none;border-radius:var(--pill);cursor:pointer;margin-bottom:12px">다시 불러오기</button>
+              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:var(--white);background:var(--ink);border:none;border-radius:var(--pill);cursor:pointer;margin-bottom:12px">다시 불러오기</button>
       <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
     </div>
   </div>
@@ -906,6 +912,14 @@ function api(params, onOk, onErr) {
 
 var uid = null, mkt = 'domestic', loaded = null, N = 5;
 
+// <meta name="theme-color">는 HTML 속성이라 var(--x)가 해석되지 않는다(브라우저가 CSS
+// 캐스케이드 없이 값을 그대로 색으로 파싱). :root 값을 한 번 읽어서 실제 색 문자열로
+// 캐싱해두고 그 값만 넣는다 -- 값은 CSS 쪽(:root) 하나에서만 정의된다.
+var THEME_COLOR = (function () {
+  var cs = getComputedStyle(document.documentElement);
+  return { shell: cs.getPropertyValue('--shell').trim(), inkDeep: cs.getPropertyValue('--ink-deep').trim() };
+})();
+
 function krw() { return mkt === 'domestic'; }
 function money(v) {
   return krw() ? Math.round(v).toLocaleString('ko-KR') + '원'
@@ -999,7 +1013,7 @@ function tabStyleD(on) {
 }
 function skin() {
   var o = mkt === 'overseas';
-  document.getElementById('themeColor').setAttribute('content', o ? '#071426' : 'var(--shell)');
+  document.getElementById('themeColor').setAttribute('content', o ? THEME_COLOR.inkDeep : THEME_COLOR.shell);
   var td = all('tabD'), to = all('tabO');
   for (var i = 0; i < td.length; i++) {
     var isM = td[i].closest('.mobileOnly');
@@ -1206,7 +1220,7 @@ function renderProfit(d) {
   }
   // 원본: profitColor/profitBg 는 손익 부호로만 갈린다 (매매방향 색과 별개 팔레트)
   var pos = d.netValue >= 0;
-  var c  = pos ? '#b3452f' : '#2f6fa8';
+  var c  = pos ? 'var(--gain)' : 'var(--loss)';
   var bg = pos ? 'rgba(179,69,47,.1)' : 'rgba(47,111,168,.1)';
   var peak = (d.peakRate !== null && d.peakRate !== undefined);
 
@@ -1267,7 +1281,7 @@ function show(d) {
   d.assets.forEach(function (a, i) {
     var buy = a.adjShares > 0, sell = a.adjShares < 0;
     // 원본: 매수는 브라스, 매도는 잉크. 그대로 두기는 원본에 없어 흐린 색을 쓴다.
-    var actColor = buy ? 'var(--brass)' : (sell ? 'var(--ink)' : '#b9c2ca');
+    var actColor = buy ? 'var(--brass)' : (sell ? 'var(--ink)' : 'var(--idle)');
     var act = buy ? '▲ 매수 ' + a.adjShares + '주'
             : (sell ? '▼ 매도 ' + (-a.adjShares) + '주' : '그대로 두기');
     var amt = signed(a.adjAmt);
@@ -1276,7 +1290,7 @@ function show(d) {
     var tgt = a.target + '% (' + a.upper + '%)';
     var metaFull = cd + ' · 목표 ' + tgt + ' · 현재가 ' + price(a.price) + ' · 보유 ' + a.shares + '주';
 
-    hm += '<div class="taskRow" style="display:flex;flex-direction:column;gap:6px;background:rgba(var(--ink-rgb),.04);border-radius:18px;padding:12px 14px;border-left:3px solid ' + actColor + '">' +
+    hm += '<div class="taskRow" style="display:flex;flex-direction:column;gap:6px;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-18);padding:12px 14px;border-left:3px solid ' + actColor + '">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">' +
               '<span style="font:500 12.5px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:700 12.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
@@ -1291,18 +1305,18 @@ function show(d) {
             '</div>' +
             '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px;margin-top:2px">' +
               '<span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.55)">보유수량</span>' +
-              '<input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:80px;padding:8px 10px;font:500 14px var(--sans);color:var(--ink);text-align:right;border:1px solid rgba(var(--ink-rgb),.2);border-radius:8px;background:var(--paper);font-variant-numeric:tabular-nums lining-nums">' +
+              '<input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:80px;padding:8px 10px;font:500 14px var(--sans);color:var(--ink);text-align:right;border:1px solid rgba(var(--ink-rgb),.2);border-radius:var(--r-8);background:var(--paper);font-variant-numeric:tabular-nums lining-nums">' +
             '</div>' +
           '</div>';
 
-    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:20px;padding:13px 14px 13px 11px;border-left:3px solid ' + actColor + '">' +
+    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actColor + '">' +
             '<div style="display:flex;flex-direction:column;gap:2px">' +
               '<span style="font:500 13px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + '</span>' +
             '</div>' +
             '<span style="font:400 12px var(--sans);text-align:right;color:rgba(var(--ink-rgb),.65)">' + tgt + '</span>' +
             '<span data-bind="pr' + i + '" style="font:400 12px var(--sans);text-align:right;color:var(--ink)">' + price(a.price) + '</span>' +
-            '<span style="display:flex;justify-content:center"><input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:100%;max-width:72px;padding:6px 8px;font:500 12px var(--sans);color:var(--ink);text-align:right;border:1px solid rgba(var(--ink-rgb),.2);border-radius:8px;background:var(--paper);font-variant-numeric:tabular-nums lining-nums"></span>' +
+            '<span style="display:flex;justify-content:center"><input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:100%;max-width:72px;padding:6px 8px;font:500 12px var(--sans);color:var(--ink);text-align:right;border:1px solid rgba(var(--ink-rgb),.2);border-radius:var(--r-8);background:var(--paper);font-variant-numeric:tabular-nums lining-nums"></span>' +
             '<span data-bind="amt' + i + '" style="font:400 12px var(--sans);text-align:right;color:var(--ink)">' + money(a.currentAmt) + '</span>' +
             '<span data-bind="pc' + i + '" style="font:500 12px var(--sans);text-align:right;color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
             '<div style="display:flex;flex-direction:column;gap:2px;text-align:right">' +
