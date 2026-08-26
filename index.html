@@ -53,21 +53,26 @@
     position:absolute; inset:0; width:100%; height:100%;
     object-fit:cover; object-position:60% 50%; z-index:0;
   }
-  /* 모바일 상단 스크림 (높이 360px, 밤) */
-  #loginStage .scrim{
+  /* 스크림 2겹 — 바닥층(항상 고정) + 위층(낮/밤에 따라 바뀜) */
+  #loginStage .scrim-base{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background: linear-gradient(180deg, rgba(11,29,51,.28) 0%, rgba(11,29,51,.04) 34%, rgba(11,29,51,.3) 76%, rgba(11,29,51,.52) 100%);
+  }
+  #loginStage .scrim-dynamic{
     position:absolute; left:0; right:0; top:0; height:360px; z-index:1; pointer-events:none;
     background: linear-gradient(180deg, rgba(11,29,51,.3) 0%, rgba(11,29,51,.2) 46%, rgba(11,29,51,0) 100%);
   }
-  /* 모바일 상단 스크림 — 낮 */
-  body.day #loginStage .scrim{
+  body.day #loginStage .scrim-dynamic{
     background: linear-gradient(180deg, rgba(11,29,51,.24) 0%, rgba(11,29,51,.16) 40%, rgba(11,29,51,.06) 74%, rgba(11,29,51,0) 100%);
   }
 
+  /* 모바일: 상단바 → 제목(상단부) → (빈 공간) → 로그인 카드(하단, 가운데) */
   #loginStage .lg-content{
     position:relative; z-index:2; height:100%; box-sizing:border-box;
-    display:flex; flex-direction:column; padding:20px 22px 28px;
+    display:grid; grid-template-rows:auto auto 1fr auto; grid-template-areas:"topbar" "hero" "." "card";
+    padding:20px 22px 28px;
   }
-  #loginStage .lg-topbar{ display:flex; justify-content:flex-end; }
+  #loginStage .lg-topbar{ grid-area:topbar; display:flex; justify-content:flex-end; }
   #loginStage .daytoggle{ display:flex; gap:2px; padding:2px; border-radius:999px;
     border:1px solid rgba(253,246,232,.3); background:rgba(11,29,51,.22); backdrop-filter:blur(8px); }
   #loginStage .daytoggle button{
@@ -76,7 +81,7 @@
   }
   #loginStage .daytoggle button.on{ background:rgba(253,246,232,.85); color:#0b1d33; }
 
-  #loginStage .lg-hero{ margin-top:56px; max-width:420px; }
+  #loginStage .lg-hero{ grid-area:hero; margin-top:56px; max-width:420px; }
   #loginStage .lg-title{
     font-family:'Fraunces','Gowun Batang',serif; font-style:italic; font-weight:300;
     font-size:33px; line-height:1.24; color:#fdf6e8; letter-spacing:-.6px;
@@ -87,11 +92,9 @@
                  -1px 0 0 rgba(0,0,0,.9), 0 4px 18px rgba(0,0,0,.75), 0 0 40px rgba(0,0,0,.5);
   }
 
-  #loginStage .lg-spacer{ flex:1; min-height:24px; }
-
   /* 로그인 유리 카드 — 모바일 값 (기본) */
   #loginStage .card{
-    position:relative; z-index:2; width:min(300px, 86vw); align-self:center;
+    position:relative; z-index:2; grid-area:card; width:min(300px, 86vw); justify-self:center;
     border:1px solid rgba(226,180,99,.5); border-radius:16px;
     background: rgba(11,29,51,.34); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 14px 40px rgba(11,29,51,.4);
@@ -126,19 +129,28 @@
   #loginStage .hint-install{ font-size:10.5px; color:rgba(253,246,232,.5); text-align:center; margin-top:12px; line-height:1.5; }
 
   @media (min-width: 760px){
-    #loginStage .lg-content{ padding:32px 52px 44px; }
-    #loginStage .lg-hero{ margin-top:150px; max-width:520px; }
+    /* 데스크톱: 상단바 → (빈 공간) → 제목·카드가 같은 줄, 화면 맨 아래 */
+    #loginStage .lg-content{
+      padding:32px 52px 44px;
+      grid-template-rows:auto 1fr auto; grid-template-columns:1fr auto;
+      grid-template-areas:"topbar topbar" "." "hero card";
+      align-items:end; column-gap:24px;
+    }
+    #loginStage .lg-hero{ grid-area:hero; margin-top:0; max-width:470px; align-self:end; }
     #loginStage .lg-title{ font-size:50px; letter-spacing:-1.4px; }
     #loginStage .bgVideo{ object-position:50% 50%; }
-    #loginStage .scrim{
+    #loginStage .scrim-base{
+      background: linear-gradient(180deg,rgba(11,29,51,.2) 0%,rgba(11,29,51,0) 26%,rgba(11,29,51,.24) 100%);
+    }
+    #loginStage .scrim-dynamic{
       inset:0; height:auto; top:0; bottom:0;
       background: linear-gradient(105deg,rgba(11,29,51,.4) 0%,rgba(11,29,51,.12) 45%,rgba(11,29,51,.02) 64%,rgba(11,29,51,.2) 100%);
     }
-    body.day #loginStage .scrim{
+    body.day #loginStage .scrim-dynamic{
       background: linear-gradient(28deg,rgba(11,29,51,.3) 0%,rgba(11,29,51,.2) 30%,rgba(11,29,51,.08) 60%,rgba(11,29,51,.02) 100%);
     }
     #loginStage .card{
-      align-self:flex-end; width:300px;
+      grid-area:card; justify-self:end; align-self:end; width:300px;
       border-color:rgba(226,180,99,.46); border-radius:20px;
       background:rgba(11,29,51,.42); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
       padding:26px 26px 20px;
@@ -305,21 +317,25 @@
     .cell.pct { font-weight: 500; font-variant-numeric: tabular-nums lining-nums; }
   }
 
-  /* 실행 버튼 — 알약형 */
-  .quoterow { display: flex; justify-content: flex-end; }
-  .quoterow button { height: 32px; padding: 0 15px; border-radius: 999px; border: none; cursor: pointer;
+  /* 실행 버튼 — 알약형. taskFlow = cashRow·tasksCard·actionsGroup 공통 부모.
+     모바일은 세로 스택(현재 순서 그대로: 현금 → 해야 할 일 → 시세조회 → 계산/저장),
+     데스크톱은 grid-template-areas로 현금+버튼을 한 줄로 합친 카드처럼 보이게 재배치한다. */
+  .taskFlow { display: flex; flex-direction: column; gap: 14px; }
+
+  .actionsGroup { display: flex; flex-direction: column; gap: 9px; }
+  .actionsGroup > #quoteBtn { align-self: flex-end; height: 32px; padding: 0 15px; border-radius: 999px; border: none; cursor: pointer;
                       background: rgba(11,29,51,.06); color: rgba(11,29,51,.7); font: 500 11px 'Noto Sans KR', sans-serif; }
-  .btnrow { display: flex; gap: 9px; }
-  .btnrow button { flex: 1 1 50%; min-width: 0; height: 48px; padding: 0 10px;
+  .ctaRow { display: flex; gap: 9px; }
+  .ctaRow button { flex: 1 1 50%; min-width: 0; height: 48px; padding: 0 10px;
                    font: 500 13px 'Noto Sans KR', sans-serif; border-radius: 999px; border: none;
                    cursor: pointer; line-height: 1.3; }
-  .btnrow button.main { background: rgba(11,29,51,.07); color: var(--ink); }
-  .btnrow button.main:hover { background: rgba(11,29,51,.11); }
-  .btnrow button.save { background: var(--brass); color: var(--cream); font-weight: 700; }
-  .btnrow button.save:hover { background: #a3653a; }
-  .btnrow button:disabled, .quoterow button:disabled { background: rgba(11,29,51,.05); color: #a9b2bd; }
+  .ctaRow button.main { background: rgba(11,29,51,.07); color: var(--ink); }
+  .ctaRow button.main:hover { background: rgba(11,29,51,.11); }
+  .ctaRow button.save { background: var(--brass); color: var(--cream); font-weight: 700; }
+  .ctaRow button.save:hover { background: #a3653a; }
+  .ctaRow button:disabled, .actionsGroup > #quoteBtn:disabled { background: rgba(11,29,51,.05); color: #a9b2bd; }
   @media (min-width: 760px){
-    .btnrow button { height: 50px; }
+    .ctaRow button { height: 50px; }
   }
 
   /* 최근 기록 · 최근 수익률 카드 (아코디언 안) */
@@ -412,9 +428,22 @@
     .card.total .num { font-size: 58px; letter-spacing: -2px; }
     .card.total .num .unit { font-size: 22px; }
     .bandsCard { padding: 30px 32px; }
-    .cashRow { grid-template-columns: 1fr 1fr; max-width: 480px; background: var(--paper);
-               border-radius: 26px; padding: 22px 26px; }
-    .cashRow .cashBox { background: rgba(11,29,51,.05); border-radius: 16px; padding: 12px 16px; }
+
+    /* 데스크톱: 현금 입력 2개 + 시세조회/계산하기/저장하기 3버튼을 한 카드처럼 한 줄로 합친다.
+       tasksCard는 그 아래 독립된 줄에 그대로 둔다. row-gap만 14px, 현금·버튼 사이 column-gap은 0으로
+       붙여서 하나의 카드처럼 이어 보이게 한다 (배경·둥근 모서리를 좌/우로 나눠 이음매를 감춤). */
+    .taskFlow { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "cash actions" "tasks tasks";
+                row-gap: 14px; column-gap: 0; }
+    .cashRow { grid-area: cash; display: flex; gap: 26px; align-items: flex-end;
+               background: var(--paper); border-radius: 26px 0 0 26px; padding: 22px 0 22px 26px; }
+    .cashRow .cashBox { width: 210px; flex: 0 0 210px; background: rgba(11,29,51,.05); border-radius: 16px; padding: 12px 16px; }
+    .actionsGroup { grid-area: actions; flex-direction: row; align-items: flex-end; gap: 9px;
+                    background: var(--paper); border-radius: 0 26px 26px 0; padding: 22px 26px 22px 0; }
+    .actionsGroup > #quoteBtn { flex: 1; align-self: auto; height: 50px; }
+    .ctaRow { flex: 2.2; gap: 9px; }
+    .ctaRow button.main { flex: 1; }
+    .ctaRow button.save { flex: 1.2; }
+    .tasksCard { grid-area: tasks; }
   }
 </style>
 </head>
@@ -424,7 +453,8 @@
 
 <div id="loginStage">
   <video class="bgVideo" id="lgVideo" autoplay muted loop playsinline></video>
-  <div class="scrim"></div>
+  <div class="scrim-base"></div>
+  <div class="scrim-dynamic"></div>
 
   <div class="lg-content">
     <div class="lg-topbar">
@@ -437,8 +467,6 @@
     <div class="lg-hero">
       <div class="lg-title">그대들은<br>어떻게 투자할 것인가</div>
     </div>
-
-    <div class="lg-spacer"></div>
 
     <div class="card">
       <div class="field">
@@ -498,39 +526,41 @@
     </div>
   </div>
 
-  <div class="cashRow">
-    <div class="cashBox">
-      <label>계좌내 현금 · 잔액 + 배당</label>
-      <input type="text" id="cash" inputmode="numeric">
-    </div>
-    <div class="cashBox">
-      <label>신규 입금액</label>
-      <input type="text" id="dep" inputmode="numeric">
-    </div>
-  </div>
-
-  <div class="card tasksCard" id="tasksCard">
-    <div class="tasksHead">
-      <div class="tasksHeadTitle">
-        <span class="ttl">해야 할 일</span>
-        <span class="lastEdit" id="lastEditDate"></span>
+  <div class="taskFlow">
+    <div class="cashRow">
+      <div class="cashBox">
+        <label>계좌내 현금 · 잔액 + 배당</label>
+        <input type="text" id="cash" inputmode="numeric">
       </div>
-      <span class="editLink" id="editToggle" onclick="toggleEdit()">수정</span>
+      <div class="cashBox">
+        <label>신규 입금액</label>
+        <input type="text" id="dep" inputmode="numeric">
+      </div>
     </div>
-    <div class="assetHead" id="assetHead">
-      <span>종목명</span><span>목표(상단)</span><span id="thP">현재가</span><span>보유</span><span id="thA">평가금액</span><span>비중</span><span>해야 할 일</span>
-    </div>
-    <div id="tbody"></div>
-    <button class="doneBtn" type="button" onclick="toggleEdit()">완료</button>
-    <div class="tasksFoot" id="sumBox"></div>
-  </div>
 
-  <div class="quoterow">
-    <button id="quoteBtn" onclick="refreshQuote()">시세 조회</button>
-  </div>
-  <div class="btnrow">
-    <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
-    <button class="save" id="saveBtn" onclick="saveIt()">② 매매 완료 · 저장하기</button>
+    <div class="card tasksCard" id="tasksCard">
+      <div class="tasksHead">
+        <div class="tasksHeadTitle">
+          <span class="ttl">해야 할 일</span>
+          <span class="lastEdit" id="lastEditDate"></span>
+        </div>
+        <span class="editLink" id="editToggle" onclick="toggleEdit()">수정</span>
+      </div>
+      <div class="assetHead" id="assetHead">
+        <span>종목명</span><span>목표(상단)</span><span id="thP">현재가</span><span>보유</span><span id="thA">평가금액</span><span>비중</span><span>해야 할 일</span>
+      </div>
+      <div id="tbody"></div>
+      <button class="doneBtn" type="button" onclick="toggleEdit()">완료</button>
+      <div class="tasksFoot" id="sumBox"></div>
+    </div>
+
+    <div class="actionsGroup">
+      <button id="quoteBtn" onclick="refreshQuote()">시세 조회</button>
+      <div class="ctaRow">
+        <button class="main" id="calcBtn" onclick="calc()">① 계산하기</button>
+        <button class="save" id="saveBtn" onclick="saveIt()">② 매매 완료 · 저장하기</button>
+      </div>
+    </div>
   </div>
 
   <!-- 하단 이탈 자산이 있을 때만 나타남 -->
