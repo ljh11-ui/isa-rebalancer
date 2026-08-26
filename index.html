@@ -201,7 +201,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <span style="font:700 10.5px 'Noto Sans KR',sans-serif;letter-spacing:.1em;color:#0b1d33">승선하기</span>
         </button>
         <div style="display:flex;justify-content:center;margin-top:8px">
-          <button onclick="doSignUp()" style="font:500 9px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.72);border-bottom:1px solid rgba(226,180,99,.5);padding-bottom:1px">새로 등록하기</button>
+          <button onclick="doSignUp()" style="font:500 9px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.72);border-bottom:1px solid rgba(226,180,99,.5);padding-bottom:1px">새 선원 등록하기</button>
         </div>
       </div>
       <div class="loginMsg" data-bind="loginMsg" style="bottom:28px"></div>
@@ -257,7 +257,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <span style="font:700 15px 'Noto Sans KR',sans-serif;letter-spacing:.1em;color:#0b1d33">승선하기</span>
         </button>
         <div style="display:flex;justify-content:center;margin-top:14px">
-          <button onclick="doSignUp()" style="font:500 13px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.8);border-bottom:1px solid rgba(226,180,99,.5);padding-bottom:2px">새로 등록하기</button>
+          <button onclick="doSignUp()" style="font:500 13px 'Noto Sans KR',sans-serif;color:rgba(253,246,232,.8);border-bottom:1px solid rgba(226,180,99,.5);padding-bottom:2px">새 선원 등록하기</button>
         </div>
       </div>
     </div>
@@ -411,7 +411,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 
     <div class="tasksCard" data-bind="tasksCardD" style="background:#fffdf6;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:8px">
       <div style="display:grid;grid-template-columns:2fr .9fr .8fr .7fr 1.1fr .8fr 1.2fr;padding:0 14px 4px;font:500 10.5px 'Noto Sans KR',sans-serif;color:rgba(11,29,51,.6)">
-        <span>종목명</span><span style="text-align:right">목표 (상단)</span><span data-bind="thP" style="text-align:right">현재가</span><span style="text-align:right">보유</span><span data-bind="thA" style="text-align:right">평가금액</span><span style="text-align:right">비중</span><span style="text-align:right">해야 할 일</span>
+        <span>종목명</span><span style="text-align:right">목표 (상단)</span><span data-bind="thP" style="text-align:right">현재가</span><span style="text-align:center">보유</span><span data-bind="thA" style="text-align:right">평가금액</span><span style="text-align:right">비중</span><span style="text-align:right">해야 할 일</span>
       </div>
       <div data-bind="tbodyD" style="display:flex;flex-direction:column;gap:8px"></div>
       <div data-bind="sumBoxD" style="display:flex;gap:16px;justify-content:flex-end;align-items:center;padding-top:8px"></div>
@@ -1005,7 +1005,9 @@ function switchMarket(m) {
 
 // ===== 데이터 =====
 function load() {
-  putText('totalTxt', '항해도 불러오는 중...');
+  // totalTxt는 Fraunces 40~58px 큰 숫자 자리라, 로딩 문구는 작은 산세리프로 덮어 써야
+  // 화면에 거대한 글씨로 안 나온다. show()/showQuote()가 실제 숫자로 다시 채운다.
+  putHTML('totalTxt', '<span style="font-family:\'Noto Sans KR\',sans-serif;font-size:16px;font-weight:500;color:rgba(11,29,51,.6)">불러오는 중...</span>');
   api({ action: 'load', user: uid, market: mkt }, show, fail);
 }
 
