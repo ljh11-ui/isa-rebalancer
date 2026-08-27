@@ -190,6 +190,8 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 /* 입력 필드 3종(모바일 현금·데스크톱 현금·보유수량)의 상자 모델과 포커스를 통일.
    평소엔 은은한 채움 + 투명 보더, 포커스 시에만 브라스 테두리가 드러난다. */
 #main input:focus{ outline:none; border-color:var(--brass); }
+/* 브라우저 기본 placeholder 회색은 입력칸 배경(#f3f2ec) 위에서 AA 미달이라 명시한다 (4.63:1) */
+#main input::placeholder{ color:rgba(var(--ink-rgb),.62); opacity:1; }
 .paperCard{
   background:var(--paper);
   background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNDAnIGhlaWdodD0nMTQwJz4KPGZpbHRlciBpZD0nbic+PGZlVHVyYnVsZW5jZSB0eXBlPSdmcmFjdGFsTm9pc2UnIGJhc2VGcmVxdWVuY3k9JzAuODUnIG51bU9jdGF2ZXM9JzInIHN0aXRjaFRpbGVzPSdzdGl0Y2gnLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAgMCAwIDAgMC4wNDMgIDAgMCAwIDAgMC4xMTQgIDAgMCAwIDAgMC4yICAwIDAgMCAwLjA1IDAnLz48L2ZpbHRlcj4KPHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI24pJy8+PC9zdmc+");
@@ -358,7 +360,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       </div>
       <div class="paperCard" style="flex:1;border-radius:var(--r-20);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
         <span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
-        <input data-bind="dep" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);width:100%;padding:6px 10px">
+        <input data-bind="dep" inputmode="numeric" placeholder="0" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);width:100%;padding:6px 10px">
       </div>
     </div>
 
@@ -441,7 +443,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;width:210px">
         <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
-        <input data-bind="dep" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
+        <input data-bind="dep" inputmode="numeric" placeholder="0" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
       </div>
       <div style="flex:1;display:flex;gap:9px">
         <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:1;height:50px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.07);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">시세 조회</button>
@@ -1273,7 +1275,11 @@ function show(d) {
     ? '약 ' + Math.round(d.newTotal * d.fx).toLocaleString('ko-KR') + '원 (환율 ' + d.fx.toFixed(2) + ')' : '');
 
   setVal('cash', krw() ? Math.round(d.cashAsset).toLocaleString('ko-KR') : Number(d.cashAsset).toFixed(2));
-  setVal('dep',  krw() ? Math.round(d.newDeposit).toLocaleString('ko-KR') : Number(d.newDeposit).toFixed(2));
+  // 신규 입금액은 "아직 안 넣음"과 "0원"이 사실상 같은 뜻이라, 0이면 value를 비워
+  // placeholder 0 이 보이게 한다. grab()의 num()은 빈 문자열을 0으로 읽으므로 계산에는 영향 없다.
+  // (계좌내 현금은 0원이 실제 잔액일 수 있어 그대로 값으로 표시한다.)
+  setVal('dep',  d.newDeposit ? (krw() ? Math.round(d.newDeposit).toLocaleString('ko-KR')
+                                       : Number(d.newDeposit).toFixed(2)) : '');
 
   renderProfit(d);
   renderBands(d.assets);
