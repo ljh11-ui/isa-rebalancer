@@ -19,7 +19,11 @@
   /* 색 — 값은 기존 그대로, 이름만 붙였다 */
   --ink:#0b1d33; --brass:#b5713f; --paper:#fffdf6;
   --shell:#f5efe0; --gold:#e2b463; --cream:#fdf6e8;
-  --ink-deep:#071426; --gain:#b3452f; --loss:#2f6fa8; --idle:#b9c2ca; --white:#fff;
+  --ink-deep:#071426; --gain:#b3452f; --loss:#2f6fa8; --white:#fff;
+  /* --idle: "그대로 두기" 텍스트색. 행 배경(#f5f4ee) 위 4.51:1 로 WCAG AA 통과.
+     이전 #b9c2ca 는 1.64:1 이라 사실상 안 보였다. 좌측 3px 바에는 이 색을 쓰지 않고
+     투명 처리해서(아래 actBar) "조치 없음"을 색이 아니라 여백으로 표현한다. */
+  --idle:#617281;
   /* 알파를 섞어 쓰는 색은 rgb 성분만 토큰화해서 rgba(var(--x-rgb),a) 로 쓴다 */
   --ink-rgb:11,29,51; --brass-rgb:181,113,63;
   --cream-rgb:253,246,232; --gold-rgb:226,180,99;
@@ -127,7 +131,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .accB tr:nth-child(even) td{background:rgba(var(--brass-rgb),.05)}
 .accB td b{color:var(--brass)}
 .accB p.quiet{font-size:15px}
-.quiet{color:#7c8a9a;font-size:13px}
+.quiet{color:#687787;font-size:13px}  /* paper 위 4.51:1 (이전 #7c8a9a 는 3.46:1 로 AA 미달) */
 .sub-acc{border-bottom:1px solid rgba(var(--brass-rgb),.2);margin-bottom:4px}
 .sub-accH{padding:11px 4px;background:none;font-weight:600;font-size:15px;cursor:pointer;
   display:flex;justify-content:space-between;color:var(--ink);font-family:var(--serif)}
@@ -154,15 +158,15 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .logMeta{font-size:11.5px;color:rgba(var(--ink-rgb),.55);margin-top:3px}
 .retbook{display:flex;flex-direction:column;gap:10px}
 .retCard{border-radius:var(--r-16);overflow:hidden;background:rgba(var(--ink-rgb),.04)}
-.retHead{background:linear-gradient(180deg,var(--ink) 0%,var(--ink-deep) 100%);color:var(--shell);padding:9px 12px;
+.retHead{background:rgba(var(--brass-rgb),.08);color:var(--ink);padding:9px 12px;
   display:flex;align-items:baseline;gap:8px}
 .retName{font-family:var(--serif);font-weight:600;font-size:15px}
-.retCode{font-size:11px;color:var(--gold)}
-.retGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(var(--ink-rgb),.08);border-radius:var(--r-10);overflow:hidden}
-.retCell{background:var(--paper);padding:8px 3px;text-align:center}
-.retK{display:block;font:700 8.5px var(--sans);color:rgba(var(--ink-rgb),.5);margin-bottom:3px}
+.retCode{font-size:11px;color:rgba(var(--ink-rgb),.62)}  /* 밝아진 헤더 위 4.53:1 */
+.retGrid{display:grid;grid-template-columns:repeat(5,1fr);background:none;border-top:1px solid rgba(var(--ink-rgb),.08)}
+.retCell{background:none;padding:10px 3px;text-align:center}
+.retK{display:block;font:700 8.5px var(--sans);color:rgba(var(--ink-rgb),.62);margin-bottom:3px}  /* 4.52:1 */
 .retV{font:500 11px var(--sans);font-variant-numeric:tabular-nums lining-nums}
-.retMdd{padding:7px 12px;font-size:12px;color:var(--ink);background:rgba(var(--brass-rgb),.06)}
+.retMdd{padding:7px 12px;font-size:12px;color:var(--ink);background:none;border-top:1px solid rgba(var(--ink-rgb),.08)}
 
 /* ============================================================
    [고급스러움 보강 — 컨셉(항해·해도 문서·잉크+브라스+크림) 안에서 추가]
@@ -171,19 +175,18 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 /* (1) 종이 카드에 아주 옅은 그레인 텍스처 — 색은 그대로, 결만 더함.
    inline style="background:var(--paper);border-radius:..." 로 시작하는 큰 카드에만 건다
    (작은 셀·표는 제외). */
-.paperCard{ background:var(--paper); }
-/* 종이 그레인 텍스처 — 현재 꺼져 있음.
-   PR #9에서 넣었지만 실제로는 한 번도 렌더된 적이 없다: 당시엔 카드의 인라인
-   style에 background 단축 속성이 있었고, 단축 속성이 background-image를 none으로
-   리셋하는 데다 인라인이 스타일시트보다 우선이라 항상 덮어써졌다.
-   이번 리팩토링으로 인라인 background가 사라져서 이제 켤 수 있는 상태다.
-   지금은 화면을 픽셀 단위로 그대로 유지하려고 꺼둔다. 켜려면 아래 주석 해제. */
-/*
+/* 종이 그레인 텍스처 — 디자이너 리뷰(항목10) 반영해 켬.
+   PR #9에서 넣었지만 카드 인라인 style의 background 단축 속성이 background-image를
+   none으로 리셋해 한 번도 렌더되지 않았고, CSS 변수 리팩토링으로 인라인 background가
+   사라지면서 비로소 적용 가능해졌다. */
+/* 입력 필드 3종(모바일 현금·데스크톱 현금·보유수량)의 상자 모델과 포커스를 통일.
+   평소엔 은은한 채움 + 투명 보더, 포커스 시에만 브라스 테두리가 드러난다. */
+#main input:focus{ outline:none; border-color:var(--brass); }
 .paperCard{
+  background:var(--paper);
   background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNDAnIGhlaWdodD0nMTQwJz4KPGZpbHRlciBpZD0nbic+PGZlVHVyYnVsZW5jZSB0eXBlPSdmcmFjdGFsTm9pc2UnIGJhc2VGcmVxdWVuY3k9JzAuODUnIG51bU9jdGF2ZXM9JzInIHN0aXRjaFRpbGVzPSdzdGl0Y2gnLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAgMCAwIDAgMC4wNDMgIDAgMCAwIDAgMC4xMTQgIDAgMCAwIDAgMC4yICAwIDAgMCAwLjA1IDAnLz48L2ZpbHRlcj4KPHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI24pJy8+PC9zdmc+");
   background-size:140px 140px;
 }
-*/
 
 
 /* (2) 총 평가금액 숫자 아래 브라스 그라디언트 밑줄 — 표 헤더 밑줄과 같은 어휘 */
@@ -310,7 +313,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
         </div>
         <button class="plain" onclick="doLogout()" style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.6)">로그아웃</button>
       </div>
-      <span style="font:700 9px var(--sans);letter-spacing:.14em;color:rgba(var(--ink-rgb),.4)">ISA · FIVE-WAY</span>
+      <span style="font:700 9px var(--sans);letter-spacing:.14em;color:rgba(var(--ink-rgb),.65)">ISA · FIVE-WAY</span>
     </div>
 
     <div style="display:flex;background:rgba(var(--ink-rgb),.07);border-radius:var(--pill);padding:4px;gap:4px">
@@ -343,11 +346,11 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div style="display:flex;gap:10px">
       <div class="paperCard" style="flex:1;border-radius:var(--r-20);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
         <span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금</span>
-        <input data-bind="cash" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:none;background:none;width:100%;padding:0">
+        <input data-bind="cash" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);width:100%;padding:6px 10px">
       </div>
       <div class="paperCard" style="flex:1;border-radius:var(--r-20);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
         <span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
-        <input data-bind="dep" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:none;background:none;width:100%;padding:0">
+        <input data-bind="dep" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);width:100%;padding:6px 10px">
       </div>
     </div>
 
@@ -426,11 +429,11 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="paperCard" style="border-radius:var(--r-26);padding:22px 26px;display:flex;gap:26px;align-items:flex-end">
       <div style="display:flex;flex-direction:column;gap:6px;width:210px">
         <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금 · 잔액 + 배당</span>
-        <input data-bind="cash" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:none;width:100%">
+        <input data-bind="cash" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;width:210px">
         <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
-        <input data-bind="dep" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:none;width:100%">
+        <input data-bind="dep" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
       </div>
       <div style="flex:1;display:flex;gap:9px">
         <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:1;height:50px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.07);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">시세 조회</button>
@@ -459,7 +462,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="accH" onclick="tog(this)"><span>종목별 최근 수익률</span><span class="ar"></span></div>
     <div class="accB">
       <button class="sub2" id="retBtn" onclick="loadRet()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:var(--white);background:var(--ink);border:none;border-radius:var(--pill);cursor:pointer">최근 수익률 조회</button>
+              style="display:block;margin-left:auto;padding:8px 16px;font:500 12px var(--sans);color:var(--ink);background:none;border:1px solid rgba(var(--ink-rgb),.25);border-radius:var(--pill);cursor:pointer">최근 수익률 조회</button>
       <div class="prog" id="retProg" style="display:none"></div>
       <div id="retArea" style="margin-top:12px"></div>
     </div>
@@ -469,7 +472,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="accH" onclick="togLoad(this, loadLogs)"><span>최근 기록</span><span class="ar"></span></div>
     <div class="accB">
       <button class="sub2" onclick="reloadLogs()"
-              style="display:block;width:100%;padding:13px;font-size:14px;font-weight:700;color:var(--white);background:var(--ink);border:none;border-radius:var(--pill);cursor:pointer;margin-bottom:12px">다시 불러오기</button>
+              style="display:block;margin-left:auto;padding:8px 16px;font:500 12px var(--sans);color:var(--ink);background:none;border:1px solid rgba(var(--ink-rgb),.25);border-radius:var(--pill);cursor:pointer;margin-bottom:12px">다시 불러오기</button>
       <div id="logArea" class="quiet">펼치면 불러옵니다.</div>
     </div>
   </div>
@@ -986,7 +989,7 @@ function enter(id) {
   uid = id;
   document.getElementById('loginStage').style.display = 'none';
   document.getElementById('main').style.display = 'block';
-  putText('who', id + ' 님');
+  putText('who', id + ' 선장님');
   skin(); load();
 }
 
@@ -1281,7 +1284,12 @@ function show(d) {
   d.assets.forEach(function (a, i) {
     var buy = a.adjShares > 0, sell = a.adjShares < 0;
     // 원본: 매수는 브라스, 매도는 잉크. 그대로 두기는 원본에 없어 흐린 색을 쓴다.
-    var actColor = buy ? 'var(--brass)' : (sell ? 'var(--ink)' : 'var(--idle)');
+    // 액션(매수/매도)에는 색을 쓰지 않는다. --brass(매수)와 --gain(이익)의 대비가 1.42:1 이라
+    // 화면에서 두 의미가 구분되지 않았다. 색은 손익 전용으로 넘기고, 매수/매도 구분은
+    // ▲/▼ 아이콘과 "매수"/"매도" 텍스트가 담당한다.
+    var actColor = (buy || sell) ? 'var(--ink)' : 'var(--idle)';
+    // 좌측 바는 "조치 필요" 여부만 나타낸다. 그대로 두기는 투명 -> 여백으로 표현.
+    var actBar = (buy || sell) ? 'var(--ink)' : 'transparent';
     var act = buy ? '▲ 매수 ' + a.adjShares + '주'
             : (sell ? '▼ 매도 ' + (-a.adjShares) + '주' : '그대로 두기');
     var amt = signed(a.adjAmt);
@@ -1290,7 +1298,7 @@ function show(d) {
     var tgt = a.target + '% (' + a.upper + '%)';
     var metaFull = cd + ' · 목표 ' + tgt + ' · 현재가 ' + price(a.price) + ' · 보유 ' + a.shares + '주';
 
-    hm += '<div class="taskRow" style="display:flex;flex-direction:column;gap:6px;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-18);padding:12px 14px;border-left:3px solid ' + actColor + '">' +
+    hm += '<div class="taskRow" style="display:flex;flex-direction:column;gap:6px;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-18);padding:12px 14px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">' +
               '<span style="font:500 12.5px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:700 12.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
@@ -1305,18 +1313,18 @@ function show(d) {
             '</div>' +
             '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px;margin-top:2px">' +
               '<span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.55)">보유수량</span>' +
-              '<input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:80px;padding:8px 10px;font:500 14px var(--sans);color:var(--ink);text-align:right;border:1px solid rgba(var(--ink-rgb),.2);border-radius:var(--r-8);background:var(--paper);font-variant-numeric:tabular-nums lining-nums">' +
+              '<input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:80px;padding:8px 10px;font:500 14px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);font-variant-numeric:tabular-nums lining-nums">' +
             '</div>' +
           '</div>';
 
-    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actColor + '">' +
+    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;flex-direction:column;gap:2px">' +
               '<span style="font:500 13px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + '</span>' +
             '</div>' +
             '<span style="font:400 12px var(--sans);text-align:right;color:rgba(var(--ink-rgb),.65)">' + tgt + '</span>' +
             '<span data-bind="pr' + i + '" style="font:400 12px var(--sans);text-align:right;color:var(--ink)">' + price(a.price) + '</span>' +
-            '<span style="display:flex;justify-content:center"><input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:100%;max-width:72px;padding:6px 8px;font:500 12px var(--sans);color:var(--ink);text-align:right;border:1px solid rgba(var(--ink-rgb),.2);border-radius:var(--r-8);background:var(--paper);font-variant-numeric:tabular-nums lining-nums"></span>' +
+            '<span style="display:flex;justify-content:center"><input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:100%;max-width:72px;padding:6px 8px;font:500 12px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);font-variant-numeric:tabular-nums lining-nums"></span>' +
             '<span data-bind="amt' + i + '" style="font:400 12px var(--sans);text-align:right;color:var(--ink)">' + money(a.currentAmt) + '</span>' +
             '<span data-bind="pc' + i + '" style="font:500 12px var(--sans);text-align:right;color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
             '<div style="display:flex;flex-direction:column;gap:2px;text-align:right">' +
@@ -1337,7 +1345,7 @@ function show(d) {
       '<span style="font:400 11.5px var(--sans);color:rgba(var(--ink-rgb),.55)">예상 잔여현금</span>' +
       '<span style="font:700 11.5px var(--sans);color:var(--ink)">' + money(d.leftover) + '</span>');
     putHTML('sumBoxD',
-      '<span style="font:500 11.5px var(--sans);color:var(--brass)">예상 매수 ' + money(d.spent) + '</span>' +
+      '<span style="font:500 11.5px var(--sans);color:var(--ink)">예상 매수 ' + money(d.spent) + '</span>' +
       '<span style="font:500 11.5px var(--sans);color:var(--ink)">예상 매도 ' + money(d.gained) + '</span>' +
       '<span style="font:700 11.5px var(--sans);color:var(--ink);background:rgba(var(--ink-rgb),.06);border-radius:var(--pill);padding:8px 14px">잔여현금 ' + money(d.leftover) + '</span>');
   }
@@ -1442,11 +1450,16 @@ function next() {
   document.getElementById('retProg').innerText = '해류 확인 중 · ' + (idx + 1) + ' / ' + N;
   api({ action: 'ret', market: mkt, index: idx },
     function (r) { rows.push(r); idx++; next(); },
-    function () { rows.push({ name: '-', code: '', values: {}, mdd: null }); idx++; next(); });
+    function () { rows.push({ name: '-', code: '', values: {}, mdd: null, failed: true }); idx++; next(); });
 }
 
-function cell(v) {
-  if (v === null || v === undefined) return '<span class="retV na">-</span>';
+// failed=true 면 조회 자체가 실패한 것이고, 값만 null 이면 해당 기간 데이터가 없는 것
+// (상장 1년 미만 등). 둘 다 "-"로 뭉뚱그리면 원인을 알 수 없어 구분해서 표기한다.
+function cell(v, failed) {
+  if (v === null || v === undefined) {
+    return failed ? '<span class="retV na" title="시세를 불러오지 못했습니다">조회 실패</span>'
+                  : '<span class="retV na" title="해당 기간 데이터가 없습니다">-</span>';
+  }
   var cls = v > 0 ? 'up' : (v < 0 ? 'dn' : '');
   return '<span class="retV ' + cls + '">' + pct(v) + '</span>';
 }
@@ -1458,18 +1471,21 @@ function render() {
   var todayLabel = String(t.getFullYear() % 100).padStart(2, '0') + '-' +
                    String(t.getMonth() + 1).padStart(2, '0') + '-' +
                    String(t.getDate()).padStart(2, '0');
-  var h = '<div class="retbook">';
+  // 기준일은 5개 카드에 반복하지 않고 섹션 상단에 한 번만 적는다 (형식은 YY-MM-DD 유지)
+  var h = '<p class="quiet" style="font-size:12px;margin:0 0 8px">' + todayLabel + ' 기준 · 최근 1년</p>' +
+          '<div class="retbook">';
   rows.forEach(function (r) {
     h += '<div class="retCard">' +
            '<div class="retHead"><span class="retName">' + (r.short || r.name) + '</span>' +
              '<span class="retCode">' + (r.usTicker || r.code || '') + '</span></div>' +
            '<div class="retGrid">';
     keys.forEach(function (k) {
-      h += '<div class="retCell"><span class="retK">' + k + '</span>' + cell(r.values ? r.values[k] : null) + '</div>';
+      h += '<div class="retCell"><span class="retK">' + k + '</span>' + cell(r.values ? r.values[k] : null, r.failed) + '</div>';
     });
     h += '</div>' +
-         '<div class="retMdd">' + todayLabel + ' 기준 최근 1년 MDD ' + (r.mdd === null || r.mdd === undefined
-              ? '<span class="na">-</span>' : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</div>' +
+         '<div class="retMdd">MDD ' + (r.mdd === null || r.mdd === undefined
+              ? (r.failed ? '<span class="na">조회 실패</span>' : '<span class="na">-</span>')
+              : '<span class="dn">' + r.mdd.toFixed(2) + '%</span>') + '</div>' +
          '</div>';
   });
   h += '</div><p class="quiet" style="font-size:12px;margin-top:8px">종가 기준이며 시세 제공에 최대 20분 지연이 있을 수 있습니다.</p>';
