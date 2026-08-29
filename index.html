@@ -214,6 +214,13 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 @media (min-width:760px){
   .taskRow{transition:box-shadow .18s ease,transform .18s ease}
   .taskRow:hover{box-shadow:0 6px 18px rgba(var(--brass-rgb),.18);transform:translateY(-1px)}
+  /* 실행 버튼 3개도 같은 촉감으로 (비활성 상태에서는 뜨지 않게 :not(:disabled)) */
+  [data-bind="quoteBtn"],[data-bind="calcBtn"],[data-bind="saveBtn"]{
+    transition:box-shadow .18s ease,transform .18s ease}
+  [data-bind="quoteBtn"]:not(:disabled):hover,
+  [data-bind="calcBtn"]:not(:disabled):hover,
+  [data-bind="saveBtn"]:not(:disabled):hover{
+    box-shadow:0 6px 18px rgba(var(--brass-rgb),.18);transform:translateY(-1px)}
 }
 
 </style>
@@ -384,7 +391,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
         <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="height:32px;padding:0 15px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.06);display:flex;align-items:center;justify-content:center;font:500 11px var(--sans);color:rgba(var(--ink-rgb),.7)">시세 조회</button>
       </div>
       <div style="display:flex;gap:9px">
-        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:48px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.07);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">① 계산하기</button>
+        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:48px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.12);border:1px solid var(--brass);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">① 계산하기</button>
         <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1;height:48px;border-radius:var(--pill);background:var(--brass);display:flex;align-items:center;justify-content:center;font:700 13px var(--sans);color:var(--cream)">② 저장하기</button>
       </div>
     </div>
@@ -446,8 +453,8 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
         <input data-bind="dep" inputmode="numeric" placeholder="0" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
       </div>
       <div style="flex:1;display:flex;gap:9px">
-        <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:1;height:50px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.07);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">시세 조회</button>
-        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:50px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.07);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">① 계산하기</button>
+        <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:.8;height:50px;border-radius:var(--pill);background:none;border:1px solid rgba(var(--ink-rgb),.25);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">시세 조회</button>
+        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:50px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.12);border:1px solid var(--brass);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">① 계산하기</button>
         <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1.2;height:50px;border-radius:var(--pill);background:var(--brass);display:flex;align-items:center;justify-content:center;font:700 13px var(--sans);color:var(--cream)">② 매매 완료 · 저장</button>
       </div>
     </div>
