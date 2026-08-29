@@ -97,12 +97,22 @@ body{padding:14px}
 /* 보유수량 수정 모드 — 원본의 sc-if(editHoldings) 분기를 class 토글로 구현.
    각 분기 안의 인라인 스타일 값은 원본 그대로 유지된다. */
 .rowRead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.rowEdit{display:none}
+.rowEdit{display:none;opacity:0;transform:translateY(-4px);
+  transition:opacity .18s ease .06s,transform .18s ease .06s}
 .tasksCard.editing .rowRead{display:none}
-.tasksCard.editing .rowEdit{display:flex}
-.tasksCard.editing .editLink{display:none}
+.tasksCard.editing .rowEdit{display:flex;opacity:1;transform:none}
 .doneBtn{display:none}
 .tasksCard.editing .doneBtn{display:flex}
+/* ponytail: 높이(max-height) 트랜지션은 행마다 실제 높이를 상수로 박아야 해서 뺐다.
+   편집 필드를 줄이고(A-5) 카드 배경을 없애(A-4) 점프 폭 자체가 줄었다.
+   그래도 튄다고 느껴지면 그때 행 높이를 고정하고 max-height 트랜지션을 얹으면 된다. */
+/* 계산 후 값이 바뀐 행만 짧게 반짝인다 */
+@keyframes flash{from{background:rgba(var(--brass-rgb),.14)}to{background:transparent}}
+.taskRow.flash{animation:flash .6s ease-out 1}
+/* 모바일 종목 목록은 카드 배경 대신 구분선으로 나눈다. 마지막 줄은 아래 합계 구분선과 겹쳐 뺀다.
+   구분선을 인라인이 아니라 여기 두는 이유: 인라인 style 은 :last-child 규칙을 이긴다. */
+[data-bind="tbodyM"] .taskRow{border-bottom:1px solid rgba(var(--ink-rgb),.06)}
+[data-bind="tbodyM"] .taskRow:last-child{border-bottom:none}
 button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;color:inherit;text-align:inherit}
 
 /* 아코디언 — 원본 시안에는 펼친 샘플 본문 하나뿐이라 실제 본문(운용 규칙·종목 설명 등)의
@@ -377,23 +387,19 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <span style="font:700 11px var(--sans);color:var(--ink)">해야 할 일</span>
           <span data-bind="lastEditDate" style="font:400 9.5px var(--sans);color:rgba(var(--ink-rgb),.4)"></span>
         </div>
-        <button class="plain editLink" onclick="toggleEdit()" style="font:500 10.5px var(--sans);color:var(--brass);cursor:pointer">수정</button>
+        <button class="plain editLink" data-bind="editLink" onclick="toggleEdit()" style="font:500 10.5px var(--sans);color:var(--brass);cursor:pointer">수정</button>
       </div>
-      <div data-bind="tbodyM" style="display:flex;flex-direction:column;gap:10px"></div>
-      <button class="plain doneBtn" onclick="toggleEdit()" style="height:44px;border-radius:var(--pill);background:var(--ink);align-items:center;justify-content:center;cursor:pointer">
-        <span style="font:700 13px var(--sans);color:var(--shell)">완료</span>
+      <div data-bind="tbodyM" style="display:flex;flex-direction:column"></div>
+      <button class="plain doneBtn" onclick="endEdit()" style="align-self:flex-end;height:34px;padding:0 18px;border-radius:var(--pill);background:none;border:1px solid rgba(var(--ink-rgb),.25);align-items:center;justify-content:center;cursor:pointer">
+        <span style="font:500 12px var(--sans);color:var(--ink)">완료</span>
       </button>
-      <div data-bind="sumBoxM" style="display:flex;justify-content:space-between;padding-top:6px"></div>
+      <div data-bind="sumBoxM" style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(var(--ink-rgb),.1);margin-top:4px;padding-top:12px"></div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:9px">
-      <div style="display:flex;justify-content:flex-end">
-        <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="height:32px;padding:0 15px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.06);display:flex;align-items:center;justify-content:center;font:500 11px var(--sans);color:rgba(var(--ink-rgb),.7)">시세 조회</button>
-      </div>
-      <div style="display:flex;gap:9px">
-        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:48px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.12);border:1px solid var(--brass);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">① 계산하기</button>
-        <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1;height:48px;border-radius:var(--pill);background:var(--brass);display:flex;align-items:center;justify-content:center;font:700 13px var(--sans);color:var(--cream)">② 저장하기</button>
-      </div>
+    <div style="display:flex;gap:8px">
+      <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:.75;height:48px;border-radius:var(--pill);background:none;border:1px solid rgba(var(--ink-rgb),.25);display:flex;align-items:center;justify-content:center;font:500 12px var(--sans);color:var(--ink)">시세 조회</button>
+      <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:48px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.12);border:1px solid var(--brass);display:flex;align-items:center;justify-content:center;font:500 12px var(--sans);color:var(--ink)">① 계산하기</button>
+      <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1.15;height:48px;border-radius:var(--pill);background:var(--brass);display:flex;align-items:center;justify-content:center;font:700 12px var(--sans);color:var(--cream)">② 저장하기</button>
     </div>
 
     <div class="belowBanner" data-bind="belowBanner" style="display:none"></div>
@@ -1143,7 +1149,9 @@ function saveIt() {
       show(d);
       var el = document.querySelector('.acc[data-logs] .accH');
       if (el) delete el.dataset.loaded;
-      alert('저장했습니다. 최근 기록에서 확인하실 수 있습니다.');
+      // ponytail: alert 대신 버튼 라벨로 알린다. 시선이 안 움직이고 확인 클릭도 없다.
+      putText('saveBtn', '저장됨 ✓');
+      setTimeout(function () { busy(false, 'saveBtn'); }, 1500);
     }, fail);
 }
 
@@ -1262,10 +1270,36 @@ function renderProfit(d) {
 }
 
 // 보유수량 수정 모드 — 원본 sc-if(editHoldings) 분기를 class 토글로 재현 (모바일 카드에만 존재)
-function toggleEdit() {
+// 진입 시점의 보유수량을 스냅샷으로 들고 있다가 "취소"에서 되돌린다.
+var editSnap = null;
+
+function editing() {
   var e = all('tasksCardM');
-  for (var i = 0; i < e.length; i++) e[i].classList.toggle('editing');
+  return e.length > 0 && e[0].classList.contains('editing');
 }
+
+function setEditing(on) {
+  var e = all('tasksCardM');
+  for (var i = 0; i < e.length; i++) e[i].classList.toggle('editing', on);
+  putText('editLink', on ? '취소' : '수정');
+}
+
+// 헤더 우측 버튼: 일반 모드에서는 진입, 편집 모드에서는 취소
+function toggleEdit() {
+  if (editing()) {
+    for (var i = 0; i < N; i++) setVal('sh' + i, editSnap[i]);
+    setEditing(false);
+  } else {
+    editSnap = grab().shares;
+    setEditing(true);
+  }
+}
+
+// 하단 "완료": 지금 입력된 값을 그대로 확정하고 나간다
+function endEdit() { setEditing(false); }
+
+// 직전 렌더의 "해야 할 일" 문구. 값이 바뀐 행만 반짝이게 하려고 들고 있는다. (B-2)
+var lastAct = [];
 
 function show(d) {
   loaded = d;
@@ -1317,28 +1351,36 @@ function show(d) {
     var pctColor = a.isOver ? 'var(--brass)' : 'rgba(var(--ink-rgb),.65)';
     var cd = krw() ? [a.usTicker, a.code].filter(Boolean).join(' · ') : (a.usTicker || a.code);
     var tgt = a.target + '% (' + a.upper + '%)';
-    var metaFull = cd + ' · 목표 ' + tgt + ' · 현재가 ' + price(a.price) + ' · 보유 ' + a.shares + '주';
+    // 모바일 메타줄은 실제 주문에 쓰는 코드 하나만 남긴다.
+    // 목표 비중은 위 "비중 밴드"에, 미국 티커는 아코디언 종목 설명에 이미 있다.
+    var cdM = krw() ? a.code : (a.usTicker || a.code);
+    var metaM = cdM + ' · 현재가 ' + price(a.price) + ' · 보유 ' + a.shares + '주';
+    // 그대로 두기일 때 "0원"은 정보가 없으므로 아예 그리지 않는다.
+    var amtM = (buy || sell)
+      ? '<span style="font:400 10.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums;flex-shrink:0">' + amt + '</span>'
+      : '';
+    // 값이 바뀐 행만 짧게 반짝인다. innerHTML 을 새로 그리므로 클래스만 붙이면 재생된다.
+    var fl = (lastAct[i] !== undefined && lastAct[i] !== act) ? ' flash' : '';
+    lastAct[i] = act;
 
-    hm += '<div class="taskRow" style="display:flex;flex-direction:column;gap:6px;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-18);padding:12px 14px;border-left:3px solid ' + actBar + '">' +
+    hm += '<div class="taskRow' + fl + '" style="display:flex;flex-direction:column;gap:6px;padding:12px 2px 14px 11px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">' +
               '<span style="font:500 12.5px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:700 12.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
             '</div>' +
             '<div class="rowRead">' +
-              '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + metaFull + '</span>' +
-              '<span style="font:400 10.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums;flex-shrink:0">' + amt + '</span>' +
+              '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6);word-break:keep-all">' + metaM + '</span>' + amtM +
             '</div>' +
             '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px">' +
-              '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + ' · 목표 ' + tgt + ' · 현재가 <span data-bind="pr' + i + '">' + price(a.price) + '</span></span>' +
-              '<span style="font:400 10.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums;flex-shrink:0">' + amt + '</span>' +
+              '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6);word-break:keep-all">' + cdM + ' · 현재가 <span data-bind="pr' + i + '">' + price(a.price) + '</span></span>' + amtM +
             '</div>' +
             '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px;margin-top:2px">' +
               '<span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.55)">보유수량</span>' +
-              '<input data-bind="sh' + i + '" inputmode="numeric" value="' + a.shares + '" style="width:80px;padding:8px 10px;font:500 14px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);font-variant-numeric:tabular-nums lining-nums">' +
+              '<input data-bind="sh' + i + '" inputmode="numeric" enterkeyhint="' + (i === N - 1 ? 'done' : 'next') + '" value="' + a.shares + '" style="width:64px;padding:8px 8px;font:500 14px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);font-variant-numeric:tabular-nums lining-nums">' +
             '</div>' +
           '</div>';
 
-    hd += '<div class="taskRow" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actBar + '">' +
+    hd += '<div class="taskRow' + fl + '" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;flex-direction:column;gap:2px">' +
               '<span style="font:500 13px var(--sans);color:var(--ink)">' + a.name + '</span>' +
               '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + '</span>' +
