@@ -249,13 +249,13 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--ink-rgb),.28) 0%,rgba(var(--ink-rgb),.04) 34%,rgba(var(--ink-rgb),.3) 76%,rgba(var(--ink-rgb),.52) 100%)">
       <div style="position: absolute; left: 50%; transform: translateX(-86px); border: 1px solid rgba(var(--gold-rgb),.5); background: rgba(var(--ink-rgb),.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(var(--ink-rgb),.42); border-radius:var(--r-16); padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
         <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:5px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">선원 아이디</span>
+          <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">선장 ID</span>
           <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 12px var(--sans);color:rgba(var(--cream-rgb),.9)">
         </div>
         <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px;padding-bottom:5px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">암구호 (비밀번호)</span>
+          <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">암호</span>
           <input type="password" data-bind="lpw" autocomplete="current-password" placeholder="••••••••"
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 12px var(--sans);color:rgba(var(--cream-rgb),.9)">
@@ -264,7 +264,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <span style="font:700 10.5px var(--sans);letter-spacing:.1em;color:var(--ink)">승선하기</span>
         </button>
         <div style="display:flex;justify-content:center;margin-top:8px">
-          <button onclick="doSignUp()" style="font:500 9px var(--sans);color:rgba(var(--cream-rgb),.72);border-bottom:1px solid rgba(var(--gold-rgb),.5);padding-bottom:1px">새 선원 등록하기</button>
+          <button onclick="doSignUp()" style="font:500 9px var(--sans);color:rgba(var(--cream-rgb),.72);border-bottom:1px solid rgba(var(--gold-rgb),.5);padding-bottom:1px">명부 등록하기</button>
         </div>
       </div>
       <div class="loginMsg" data-bind="loginMsg" style="bottom:28px"></div>
@@ -305,13 +305,13 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div style="position:absolute;right:0px;bottom:56px;width:352px;display:flex;align-items:flex-end">
       <div style="width: 254px; border: 1px solid rgba(var(--gold-rgb),.46); border-radius:var(--r-20); background: rgba(var(--ink-rgb),.42); backdrop-filter: blur(10px); box-shadow: 0 14px 40px rgba(var(--ink-rgb),.4); padding: 26px 26px 20px; display: flex; flex-direction: column; min-height: 224px">
         <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:9px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">선원 아이디</span>
+          <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">선장 ID</span>
           <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 15px var(--sans);color:rgba(var(--cream-rgb),.92)">
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;margin-top:18px;padding-bottom:9px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">암구호 (비밀번호)</span>
+          <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">암호</span>
           <input type="password" data-bind="lpw" autocomplete="current-password" placeholder="••••••••"
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 15px var(--sans);color:rgba(var(--cream-rgb),.92)">
@@ -320,7 +320,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <span style="font:700 15px var(--sans);letter-spacing:.1em;color:var(--ink)">승선하기</span>
         </button>
         <div style="display:flex;justify-content:center;margin-top:14px">
-          <button onclick="doSignUp()" style="font:500 13px var(--sans);color:rgba(var(--cream-rgb),.8);border-bottom:1px solid rgba(var(--gold-rgb),.5);padding-bottom:2px">새 선원 등록하기</button>
+          <button onclick="doSignUp()" style="font:500 13px var(--sans);color:rgba(var(--cream-rgb),.8);border-bottom:1px solid rgba(var(--gold-rgb),.5);padding-bottom:2px">명부 등록하기</button>
         </div>
       </div>
     </div>
@@ -988,7 +988,7 @@ function msg(t) { putText('loginMsg', t || ''); }
 function doLogin() {
   var id = one('lid').value.trim(), pw = one('lpw').value;
   if (!id || !pw) { msg('아이디와 비밀번호를 입력해주세요.'); return; }
-  setDisabled('lbtn', true); msg('승선 확인중...');
+  setDisabled('lbtn', true); msg('승선 확인 중...');
   api({ action: 'login', user: id, pw: pw },
     function (r) {
       setDisabled('lbtn', false);
@@ -1013,16 +1013,37 @@ function doSignUp() {
 
 function enter(id) {
   uid = id;
-  document.getElementById('loginStage').style.display = 'none';
-  document.getElementById('main').style.display = 'block';
   putText('who', id + ' 선장님');
-  skin(); load();
+  skin();
+  msg('닻 올리는 중...');
+  // 로그인 성공 → 저장 데이터 로드까지 끝난 뒤 화면을 넘긴다.
+  // load()를 그대로 쓰지 않는 이유: load()는 main이 보이는 상태에서 totalTxt에
+  // "불러오는 중..."을 찍는 용도라, 아직 로그인 화면인 지금 시점엔 필요 없다.
+  api({ action: 'load', user: uid, market: mkt },
+    function (d) {
+      msg('돛 펴는 중...');
+      var ls = document.getElementById('loginStage');
+      ls.style.transition = 'opacity .4s ease';
+      ls.style.opacity = '0';
+      setTimeout(function () {
+        ls.style.display = 'none';
+        document.getElementById('main').style.display = 'block';
+        show(d);
+      }, 400);
+    },
+    function (e) {
+      document.getElementById('loginStage').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      fail(e);
+    });
 }
 
 function doLogout() {
   uid = null; loaded = null;
   document.getElementById('main').style.display = 'none';
-  document.getElementById('loginStage').style.display = 'block';
+  var ls = document.getElementById('loginStage');
+  ls.style.transition = ''; ls.style.opacity = ''; // 페이드아웃으로 남은 인라인값 초기화
+  ls.style.display = 'block';
   setVal('lpw', '');
   document.getElementById('retArea').innerHTML = '';
   msg('');
