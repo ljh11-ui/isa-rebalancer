@@ -1,6 +1,6 @@
 {
-  "name": "항해 — ISA 리밸런싱",
-  "short_name": "항해",
+  "name": "리밸런싱 계산기",
+  "short_name": "리밸런싱 계산기",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

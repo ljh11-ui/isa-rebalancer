@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" id="themeColor" content="#f5efe0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="항해">
+<meta name="apple-mobile-web-app-title" content="리밸런싱 계산기">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/assets/icon-192.png" sizes="192x192">
 <link rel="apple-touch-icon" href="/assets/icon-180.png">
@@ -250,13 +250,13 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       <div style="position: absolute; left: 50%; transform: translateX(-86px); border: 1px solid rgba(var(--gold-rgb),.5); background: rgba(var(--ink-rgb),.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(var(--ink-rgb),.42); border-radius:var(--r-16); padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
         <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:5px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
           <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">선장 ID</span>
-          <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
+          <input type="text" data-bind="lid" autocomplete="username" placeholder=""
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 12px var(--sans);color:rgba(var(--cream-rgb),.9)">
         </div>
         <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px;padding-bottom:5px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
           <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">암호</span>
-          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder="••••••••"
+          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder=""
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 12px var(--sans);color:rgba(var(--cream-rgb),.9)">
         </div>
@@ -306,13 +306,13 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       <div style="width: 254px; border: 1px solid rgba(var(--gold-rgb),.46); border-radius:var(--r-20); background: rgba(var(--ink-rgb),.42); backdrop-filter: blur(10px); box-shadow: 0 14px 40px rgba(var(--ink-rgb),.4); padding: 26px 26px 20px; display: flex; flex-direction: column; min-height: 224px">
         <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:9px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
           <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">선장 ID</span>
-          <input type="text" data-bind="lid" autocomplete="username" placeholder="선원 아이디를 입력하세요"
+          <input type="text" data-bind="lid" autocomplete="username" placeholder=""
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 15px var(--sans);color:rgba(var(--cream-rgb),.92)">
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;margin-top:18px;padding-bottom:9px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
           <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">암호</span>
-          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder="••••••••"
+          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder=""
                  onkeydown="if(event.key==='Enter')doLogin()"
                  style="font:400 15px var(--sans);color:rgba(var(--cream-rgb),.92)">
         </div>
@@ -830,6 +830,48 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       </div>
     </div>
   </div>
+
+  <!-- ④ 파도에 실려온 이야기 — 글이 늘어나면 sub-acc 블록만 하나씩 덧붙인다 -->
+  <div class="acc">
+    <div class="accH" onclick="tog(this)"><span>파도에 실려온 이야기</span><span class="ar"></span></div>
+    <div class="accB">
+      <div class="sub-acc">
+        <div class="sub-accH" onclick="tog2(this)"><span>돈은 단순한 놈이 번다 — 정주영</span><span class="ar"></span></div>
+        <div class="sub-accB">
+          <p class="quiet">정주영 · 현대그룹 창업자</p>
+          <p>단순함이 가장 강력하다. 사람들은 언제나 복잡함을 더 믿는다. 길고 화려한 계획을 보면
+            안심하고, 두꺼운 보고서를 보면 안정감을 얻는다. 하지만 현실은 이렇게 묻는다. 오늘
+            무엇이 달라졌고 어디까지 전진했는가. 아무리 논리가 뛰어나고 말이 유리해도 결국 무엇을
+            쌓았는지가 중요하다. 쌓임이 없다면 그날의 노력은 소음과 다름없다.</p>
+          <p>나는 평생 단순함 하나로 길을 냈다. 해보면 알게 된다. 알게 되면 길이 생기고, 길이
+            생기면 믿음이 자란다. 믿음이 자라면 더 큰 시도가 가능해진다. 이 단순한 공식이 나를
+            이끌었다.</p>
+          <p>사람들은 종종 나에게 묻는다. 어떻게 불가능한 일을 해낼 수 있었냐고. 그러나 나는 늘
+            고개를 저었다. 불가능을 이긴 것이 아니라 불가능이라는 말을 생각할 틈조차 없었을
+            뿐이다. 머뭇거리는 대신 나는 그냥 시작했다. 계산이 맞지 않아도, 조건이 부족해도
+            그랬다. 사람들은 기다리며 이유를 찾았지만 나는 이미 첫 삽을 들고 있었다. 남들은
+            이유를 늘어놓고 나는 방법을 찾았다. 남들은 분석을 길게 하고 나는 시도를 짧게 했다.
+            남들이 할 수 없다는 결론을 내렸을 때 나는 이미 작은 결과를 손에 쥐고 있었다. 그
+            차이가 인생을 갈랐다.</p>
+          <p>사람들은 세상이 바뀌었다고 말한다. 과거에는 의지가 통했지만 지금은 데이터와 네트워크가
+            세상을 지배한다고 한다. 맞는 말이다. 그러나 본질은 변하지 않는다. 데이터가 많아질수록
+            오히려 단순함이 더 중요하다. 수많은 지표도 한 줄로 요약되지 않으면 결국 아무 쓸모가
+            없다. 오늘의 핵심은 무엇인가. 고객이 지갑을 열고 다시 돌아오게 만든 단 한 가지는
+            무엇인가. 단순하게 물을수록 답은 가까워진다.</p>
+          <p>나는 수많은 사람을 만났다. 그들은 늘 화려한 계획으로 자신을 포장했다. 그러나 위기가
+            오면 복잡한 계획일수록 빨리 무너졌다. 반대로 단순한 원칙으로 움직이는 사람은 오래
+            버텼다. 원칙이란 거창한 것이 아니다. 약속은 지킨다. 돈은 흘려보내지 않는다. 모르면
+            묻고, 알면 가르친다. 이 단순한 규칙만 지켜도 사람은 흔들리지 않는다. 흔들리지 않으면
+            결국 버틴다. 버티는 자가 결국 이긴다.</p>
+          <p>나는 평생을 살아내며 깨달았다. 위대한 것은 단순하다. 단순한 것은 강하다. 강한 것은
+            오래 간다. 오래 가는 것이 결국 이긴다. 오늘도 나는 묻는다. 해봤나. 아직 아니라면 지금
+            시작하라. 복잡한 계획은 서랍에 넣어두고 단순한 행동을 오늘의 자리에서 실천하라. 그
+            순간 당신의 인생은 달라질 것이다. 그리고 부가 당신에게 찾아온 순간 당신도 알게 될
+            것이다. 단순함이 가장 강력하다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
   </div></div>
 </div>
 
@@ -1003,7 +1045,7 @@ function doLogin() {
 
 function doSignUp() {
   var id = one('lid').value.trim(), pw = one('lpw').value;
-  if (!id || !pw) { msg('만들 아이디와 비밀번호를 입력한 뒤 눌러주세요.'); return; }
+  if (!id || !pw) { msg('사용하실 ID와 암호를 입력한 뒤 눌러주세요.'); return; }
   if (!confirm("'" + id + "' 아이디로 새 계정을 만들까요?")) return;
   msg('생성 중...');
   api({ action: 'signup', user: id, pw: pw },
