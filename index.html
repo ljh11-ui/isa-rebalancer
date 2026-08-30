@@ -1274,13 +1274,11 @@ function renderProfit(d) {
   var pos = d.netValue >= 0;
   var c  = pos ? 'var(--gain)' : 'var(--loss)';
   var bg = pos ? 'rgba(179,69,47,.1)' : 'rgba(47,111,168,.1)';
-  var peak = (d.peakRate !== null && d.peakRate !== undefined);
 
   putHTML('profitBoxM',
     '<div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">' +
       '<span style="font:700 11.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:7px 13px;font-variant-numeric:tabular-nums lining-nums">평가손익 ' + signed(d.netValue) + '</span>' +
       '<span style="font:700 11.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:7px 13px">' + pct(d.rate) + '</span>' +
-      (peak ? '<span style="font:400 11px var(--sans);color:rgba(var(--ink-rgb),.68);align-self:center">역대 최고 ' + pct(d.peakRate) + '</span>' : '') +
     '</div>' +
     '<span style="font:400 11.5px var(--sans);color:rgba(var(--ink-rgb),.6);margin-top:14px">누적 원금 ' + money(d.cumDeposit) + '</span>');
 
@@ -1288,7 +1286,6 @@ function renderProfit(d) {
     '<div style="display:flex;gap:9px;margin-top:26px;flex-wrap:wrap">' +
       '<span style="font:700 12.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:9px 16px">평가손익 ' + signed(d.netValue) + '</span>' +
       '<span style="font:700 12.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:9px 16px">' + pct(d.rate) + '</span>' +
-      (peak ? '<span style="font:400 12px var(--sans);color:rgba(var(--ink-rgb),.58);align-self:center">역대 최고 ' + pct(d.peakRate) + '</span>' : '') +
     '</div>' +
     '<span style="font:400 12px var(--sans);color:rgba(var(--ink-rgb),.6);margin-top:18px">누적 원금 ' + money(d.cumDeposit) + '</span>');
 }
