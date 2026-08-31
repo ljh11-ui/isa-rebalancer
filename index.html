@@ -375,11 +375,11 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 
     <div style="display:flex;gap:10px">
       <div class="paperCard" style="flex:1;border-radius:var(--r-20);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
-        <span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금</span>
+        <span style="font:500 11.5px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금</span>
         <input data-bind="cash" inputmode="numeric" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);width:100%;padding:6px 10px">
       </div>
       <div class="paperCard" style="flex:1;border-radius:var(--r-20);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
-        <span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
+        <span style="font:500 11.5px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
         <input data-bind="dep" inputmode="numeric" placeholder="0" style="font:500 16px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);width:100%;padding:6px 10px">
       </div>
     </div>
@@ -454,11 +454,11 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 
     <div class="paperCard" style="border-radius:var(--r-26);padding:22px 26px;display:flex;gap:26px;align-items:flex-end">
       <div style="display:flex;flex-direction:column;gap:6px;width:210px">
-        <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금 · 잔액 + 배당</span>
+        <span style="font:500 12px var(--sans);color:rgba(var(--ink-rgb),.62)">계좌내 현금 · 잔액 + 배당</span>
         <input data-bind="cash" inputmode="numeric" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;width:210px">
-        <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
+        <span style="font:500 12px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
         <input data-bind="dep" inputmode="numeric" placeholder="0" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
       </div>
       <div style="flex:1;display:flex;gap:9px">
@@ -1206,11 +1206,32 @@ function calc() {
 
 // ② 실제 매매 후 저장 — 기록에 남고 입력칸이 비워짐
 function saveIt() {
-  if (!confirm('증권사에서 매매를 마치고 바뀐 보유수량을 입력하셨나요?\n\n저장하면 실제 매매 내역이 기록되고, 현금·입금액 칸은 0으로 초기화됩니다.')) return;
-  busy(true, 'saveBtn', '항해일지에 기록 중...');
+  if (!loaded) { alert('먼저 계산하기를 눌러주세요.'); return; }
   var v = grab();
+
+  // 화면의 "해야 할 일"은 loaded.assets[i].shares 를 기준으로 계산된 결과다.
+  // 그 뒤 보유수량을 손으로 고쳤다면 지금 보이는 매수/매도 수량은 이미 틀린 값이라
+  // 그대로 더하면 안 된다.
+  for (var i = 0; i < N; i++) {
+    if (v.shares[i] !== (Number(loaded.assets[i].shares) || 0)) {
+      alert('보유수량이 바뀌었습니다. 계산하기를 다시 눌러주세요.');
+      return;
+    }
+  }
+
+  var next = [], parts = [];
+  for (var j = 0; j < N; j++) {
+    var adj = Number(loaded.assets[j].adjShares) || 0;
+    next.push(v.shares[j] + adj);
+    if (adj) parts.push(loaded.assets[j].name + ' ' + (adj > 0 ? '매수 ' : '매도 ') + Math.abs(adj) + '주');
+  }
+
+  if (!confirm((parts.length ? parts.join('\n') + '\n\n' : '수량 변동 없음\n\n') +
+               '위 내용대로 매매를 마치셨나요?\n저장하면 보유수량이 자동으로 반영되고, 현금·입금액 칸은 0으로 초기화됩니다.')) return;
+
+  busy(true, 'saveBtn', '항해일지에 기록 중...');
   api({ action: 'save', user: uid, market: mkt, cash: v.cash, dep: v.dep,
-        shares: v.shares.join(',') },
+        shares: next.join(',') },
     function (d) {
       show(d);
       var el = document.querySelector('.acc[data-logs] .accH');
@@ -1322,14 +1343,14 @@ function renderProfit(d) {
       '<span style="font:700 11.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:7px 13px;font-variant-numeric:tabular-nums lining-nums">평가손익 ' + signed(d.netValue) + '</span>' +
       '<span style="font:700 11.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:7px 13px">' + pct(d.rate) + '</span>' +
     '</div>' +
-    '<span style="font:400 11.5px var(--sans);color:rgba(var(--ink-rgb),.6);margin-top:14px">누적 원금 ' + money(d.cumDeposit) + '</span>');
+    '<span style="font:400 12.5px var(--sans);color:rgba(var(--ink-rgb),.6);margin-top:14px">누적 원금 ' + money(d.cumDeposit) + '</span>');
 
   putHTML('profitBoxD',
     '<div style="display:flex;gap:9px;margin-top:26px;flex-wrap:wrap">' +
       '<span style="font:700 12.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:9px 16px">평가손익 ' + signed(d.netValue) + '</span>' +
       '<span style="font:700 12.5px var(--sans);color:' + c + ';background:' + bg + ';border-radius:var(--pill);padding:9px 16px">' + pct(d.rate) + '</span>' +
     '</div>' +
-    '<span style="font:400 12px var(--sans);color:rgba(var(--ink-rgb),.6);margin-top:18px">누적 원금 ' + money(d.cumDeposit) + '</span>');
+    '<span style="font:400 13px var(--sans);color:rgba(var(--ink-rgb),.6);margin-top:18px">누적 원금 ' + money(d.cumDeposit) + '</span>');
 }
 
 // 보유수량 수정 모드 — 원본 sc-if(editHoldings) 분기를 class 토글로 재현 (모바일 카드에만 존재)
@@ -1432,13 +1453,13 @@ function show(d) {
               '<span style="font:700 12.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
             '</div>' +
             '<div class="rowRead">' +
-              '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6);word-break:keep-all">' + metaM + '</span>' + amtM +
+              '<span style="font:400 11.5px var(--sans);color:rgba(var(--ink-rgb),.6);word-break:keep-all">' + metaM + '</span>' + amtM +
             '</div>' +
             '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px">' +
-              '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6);word-break:keep-all">' + cdM + ' · 현재가 <span data-bind="pr' + i + '">' + price(a.price) + '</span></span>' + amtM +
+              '<span style="font:400 11.5px var(--sans);color:rgba(var(--ink-rgb),.6);word-break:keep-all">' + cdM + ' · 현재가 <span data-bind="pr' + i + '">' + price(a.price) + '</span></span>' + amtM +
             '</div>' +
             '<div class="rowEdit" style="justify-content:space-between;align-items:center;gap:8px;margin-top:2px">' +
-              '<span style="font:500 10.5px var(--sans);color:rgba(var(--ink-rgb),.55)">보유수량</span>' +
+              '<span style="font:500 11.5px var(--sans);color:rgba(var(--ink-rgb),.55)">보유수량</span>' +
               '<input data-bind="sh' + i + '" inputmode="numeric" enterkeyhint="' + (i === N - 1 ? 'done' : 'next') + '" value="' + a.shares + '" style="width:64px;padding:8px 8px;font:500 14px var(--sans);color:var(--ink);text-align:right;border:1px solid transparent;border-radius:var(--r-8);background:rgba(var(--ink-rgb),.05);font-variant-numeric:tabular-nums lining-nums">' +
             '</div>' +
           '</div>';
@@ -1446,7 +1467,7 @@ function show(d) {
     hd += '<div class="taskRow' + fl + '" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;flex-direction:column;gap:2px">' +
               '<span style="font:500 13px var(--sans);color:var(--ink)">' + a.name + '</span>' +
-              '<span style="font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + '</span>' +
+              '<span style="font:400 11.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + '</span>' +
             '</div>' +
             '<span style="font:400 12px var(--sans);text-align:right;color:rgba(var(--ink-rgb),.65)">' + tgt + '</span>' +
             '<span data-bind="pr' + i + '" style="font:400 12px var(--sans);text-align:right;color:var(--ink)">' + price(a.price) + '</span>' +
