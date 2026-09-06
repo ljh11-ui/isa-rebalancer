@@ -226,18 +226,46 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 #main input::placeholder{ color:rgba(var(--ink-rgb),.62); opacity:1; }
 .paperCard{
   background:var(--paper);
-  /* 3겹. 위에서부터 (1) 가장자리 갈변 (2) 얼룩 (3) 미세 결.
-     얼룩을 약하게 두고 갈변을 가장자리로 몰아둔 건, 글자가 앉는 카드 안쪽 대비를
-     지키기 위해서다. 얼룩을 더 올리면 회색 보조 텍스트가 AA 아래로 내려간다. */
+  /* 종이가 실제 사진 결이라 흰 종이(#fffdf6) 시절보다 약간 어둡다. 카드 안에서만
+     ink-rgb를 살짝 진하게 스코프해 rgba(ink-rgb,.6)/.62 계열 보조 텍스트가 실제
+     렌더링 픽셀 기준 4.5:1을 유지하게 한다. 로그인 화면 등 카드 밖 ink-rgb는 그대로. */
+  --ink-rgb:6,17,29;
+  /* 사용자가 올려준 실제 오래된 종이 사진(assets/paper-grain.jpg)에서 무늬 없는
+     부분만 잘라 이어붙인 결. SVG feTurbulence로 흉내 낸 첫 시도는 "더러워 보인다"는
+     피드백을 받아 폐기하고 실사진으로 교체했다.
+     처음엔 스크래치·얼룩이 뚜렷한 부분도 같이 타일로 썼는데, 완벽하게 이어붙여도
+     같은 스크래치가 카드마다 반복되면 격자 무늬처럼 보였다. 그래서 반복 타일에는
+     무늬 없는 조용한 결만 쓰고, 스크래치·얼룩은 총자산 카드 한 곳에만 히어로로 쓴다
+     (아래 .paperCard--hero). */
   background-image:
-    linear-gradient(to bottom, rgba(94,68,32,.22), rgba(94,68,32,0) min(38px,13%)),
-    linear-gradient(to top,    rgba(94,68,32,.22), rgba(94,68,32,0) min(38px,13%)),
-    linear-gradient(to right,  rgba(94,68,32,.20), rgba(94,68,32,0) min(34px,11%)),
-    linear-gradient(to left,   rgba(94,68,32,.20), rgba(94,68,32,0) min(34px,11%)),
-    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0ODAnIGhlaWdodD0nNDgwJz48ZmlsdGVyIGlkPSdtJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC4wMTQnIG51bU9jdGF2ZXM9JzQnIHNlZWQ9JzExJyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAgMCAwIDAgMC40MiAgMCAwIDAgMCAwLjMwICAwIDAgMCAwIDAuMTQgIDAgMCAwIDAuMzQgLTAuMTA4Jy8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI20pJy8+PC9zdmc+"),
-    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNDAnIGhlaWdodD0nMTQwJz48ZmlsdGVyIGlkPSdnJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC45JyBudW1PY3RhdmVzPScyJyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAgMCAwIDAgMC4zMCAgMCAwIDAgMCAwLjIyICAwIDAgMCAwIDAuMTEgIDAgMCAwIDAuMDU1IDAnLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJyBmaWx0ZXI9J3VybCgjZyknLz48L3N2Zz4=");
-  background-size:100% 100%,100% 100%,100% 100%,100% 100%, 480px 480px, 140px 140px;
-  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat,repeat;
+    linear-gradient(to bottom, rgba(94,68,32,.16), rgba(94,68,32,0) min(30px,11%)),
+    linear-gradient(to top,    rgba(94,68,32,.16), rgba(94,68,32,0) min(30px,11%)),
+    linear-gradient(to right,  rgba(94,68,32,.14), rgba(94,68,32,0) min(26px,9%)),
+    linear-gradient(to left,   rgba(94,68,32,.14), rgba(94,68,32,0) min(26px,9%)),
+    url("assets/paper-grain.jpg");
+  background-size:100% 100%,100% 100%,100% 100%,100% 100%, 210px 210px;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat;
+}
+/* 총자산 카드 전용 — 반복 안 하는 히어로 텍스처 (assets/paper-hero.jpg, p2 사진의
+   스크래치·워터스테인 원본). 사진 자체가 밝기 편차가 커서(가장자리 갈변) 종이색
+   스크림을 얹어 글자 자리 대비를 확보한다. 실제 렌더링 픽셀로 대비를 재확인했다. */
+.paperCard--hero{
+  background-image:
+    linear-gradient(rgba(243,234,216,.78), rgba(243,234,216,.78)),
+    url("assets/paper-hero.jpg");
+  background-size:cover,cover;
+  background-position:center,center;
+  background-repeat:no-repeat,no-repeat;
+  /* 평가손익 배지는 배경이 옅게 비치는 워시(rgba(...,.1))라 사진 위에서 배지 자체를
+     진하게 칠하면 오히려 대비가 나빠진다(배지색·글자색이 같은 갈색 계열이라 서로
+     가까워짐). 대신 이 카드 안에서만 --gain/--loss 텍스트색을 어둡게 스코프해
+     실제 렌더링 픽셀(최악 지점) 기준 4.5:1을 확보한다. 배지 워시 자체나 다른
+     화면의 매수/매도색은 그대로다 — CLAUDE.md 규칙대로 색 구분은 유지. */
+  --gain:#913826; --loss:#255885;
+  /* rgba(var(--ink-rgb),.6~.62) 로 쓰는 회색 라벨("총 평가금액", "누적 원금")도
+     같은 이유로 재검증했다 — 알파 블렌딩이라 스크림을 올려도 대비가 잘 안 붙는다.
+     ink 자체(불투명 큰 숫자)는 영향 없고, 알파를 쓰는 보조 라벨만 어두워진다. */
+  --ink-rgb:2,10,20;
 }
 
 
@@ -405,7 +433,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 
     <div class="warnBox" data-bind="warnBox" style="display:none"></div>
 
-    <div class="paperCard" style="border-radius:var(--r-26);padding:26px 22px 22px;display:flex;flex-direction:column">
+    <div class="paperCard paperCard--hero" style="border-radius:var(--r-26);padding:26px 22px 22px;display:flex;flex-direction:column">
       <span style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.62)">총 평가금액</span>
       <div data-bind="totalTxt" style="font-family:var(--serif);font-weight:400;font-size:40px;line-height:1.08;color:var(--ink);letter-spacing:-1.2px;margin-top:10px">-</div>
       <div class="totalRule"></div>
@@ -484,7 +512,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="warnBox" data-bind="warnBox" style="display:none"></div>
 
     <div style="display:grid;grid-template-columns:1.02fr 1fr;gap:14px">
-      <div class="paperCard" style="border-radius:var(--r-26);padding:34px 32px;display:flex;flex-direction:column">
+      <div class="paperCard paperCard--hero" style="border-radius:var(--r-26);padding:34px 32px;display:flex;flex-direction:column">
         <span style="font:500 11.5px var(--sans);color:rgba(var(--ink-rgb),.62)">총 평가금액 · 종목 + 현금</span>
         <div data-bind="totalTxt" style="font-family:var(--serif);font-weight:400;font-size:58px;line-height:1.04;color:var(--ink);letter-spacing:-2px;margin-top:14px">-</div>
         <div class="totalRule"></div>
