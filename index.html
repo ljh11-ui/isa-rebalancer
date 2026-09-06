@@ -12,7 +12,7 @@
 <base target="_top">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    [원본 그대로] Wireframes v1.dc.html 의 <style> 안에 있던 실제 CSS 규칙 전부.
@@ -20,21 +20,24 @@
    ============================================================ */
 :root{
   /* 색 — 값은 기존 그대로, 이름만 붙였다 */
-  --ink:#0b1d33; --brass:#b5713f; --paper:#fffdf6;
-  --shell:#f5efe0; --gold:#e2b463; --cream:#fdf6e8;
-  --ink-deep:#071426; --gain:#b3452f; --loss:#2f6fa8; --white:#fff;
-  /* --idle: "그대로 두기" 텍스트색. 행 배경(#f5f4ee) 위 4.51:1 로 WCAG AA 통과.
+  --ink:#0b1d33; --brass:#b5713f; --paper:#f3ead8;
+  --shell:#e8dcc3; --gold:#e2b463; --cream:#fdf6e8;
+  --ink-deep:#071426; --gain:#a43f2b; --loss:#2a6396; --white:#fff;
+  /* --idle: "그대로 두기" 텍스트색. 누렇게 낡은 종이의 최악 지점(#e4d9c5) 위 4.49:1.
+     흰 종이 시절 값 #617281 은 이 종이에서 3.55 로 떨어져 다시 잡았다.
      이전 #b9c2ca 는 1.64:1 이라 사실상 안 보였다. 좌측 3px 바에는 이 색을 쓰지 않고
      투명 처리해서(아래 actBar) "조치 없음"을 색이 아니라 여백으로 표현한다. */
-  --idle:#617281;
+  --idle:#53626f;
   /* 알파를 섞어 쓰는 색은 rgb 성분만 토큰화해서 rgba(var(--x-rgb),a) 로 쓴다 */
   --ink-rgb:11,29,51; --brass-rgb:181,113,63;
   --cream-rgb:253,246,232; --gold-rgb:226,180,99;
-  --gain-rgb:179,69,47; --loss-rgb:47,111,168;
+  --gain-rgb:164,63,43; --loss-rgb:42,99,150;
   /* 서체 스택 */
   --sans:'Noto Sans KR',sans-serif;
   --serif:'Fraunces','Gowun Batang',serif;
-  --serif-body:'Cormorant Garamond','Gowun Batang',serif;
+  --serif-body:'Cormorant Garamond','Nanum Pen Script','Gowun Batang',serif;
+  /* 큰 제목용. 숫자·라틴은 Fraunces 가 먼저 잡고, 한글만 손글씨로 떨어진다 */
+  --hand-title:'Fraunces','Nanum Pen Script','Gowun Batang',serif;
   /* 알약 모양 */
   --pill:999px;
   /* border-radius 중 2번 이상 반복되는 값만 토큰화. xs/sm/md/lg 4단계로는 실제 종류(7개)를
@@ -95,8 +98,8 @@ body{padding:14px}
 .belowBanner{background:rgba(var(--brass-rgb),.1);border-radius:22px;padding:16px 18px;
   display:flex;flex-direction:column;gap:5px}
 .belowBanner b{font:700 10.5px var(--sans);color:var(--brass)}
-.belowBanner .below-body{font-family:var(--serif-body);font-size:16px;
-  line-height:1.55;color:rgba(var(--ink-rgb),.75)}
+.belowBanner .below-body{font-family:var(--serif-body);font-size:18.5px;
+  line-height:1.72;color:rgba(var(--ink-rgb),.75)}
 /* 보유수량 수정 모드 — 원본의 sc-if(editHoldings) 분기를 class 토글로 구현.
    각 분기 안의 인라인 스타일 값은 원본 그대로 유지된다. */
 .rowRead{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -141,9 +144,13 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .accB{display:none;padding:0 0 16px}
 .accB.open{display:flex;flex-direction:column;gap:10px;animation:accFade .22s ease}
 @keyframes accFade{from{opacity:0}to{opacity:1}}
-.accB h4{font-family:var(--serif);font-weight:600;font-size:14px;margin:18px 0 6px;color:var(--ink)}
+.accB h4{font-family:var(--serif);font-weight:600;font-size:15.5px;margin:18px 0 6px;color:var(--ink)}
 .accB h4:first-child{margin-top:0}
-.accB p,.accB li{font-family:var(--serif-body);font-size:14.5px;line-height:1.6;color:#3d4a57}
+.accB p,.accB li{font-family:var(--serif-body);font-size:17.5px;line-height:1.78;color:#33414f}
+/* 나눔손글씨 펜은 굵기가 하나뿐이라 <b>가 합성 볼드로 뭉갠다.
+   라벨만 인쇄 서체 굵은꼴로 되돌려 본문 손글씨와 위계를 만든다. */
+.accB p b,.accB li b,.accB p strong{font-family:'Gowun Batang',serif;font-weight:700;
+  font-size:.85em;color:var(--ink)}
 .accB ul,.accB ol{padding-left:20px;margin:6px 0}
 .accB li{margin-bottom:5px}
 .accB table{margin:10px 0;border-radius:var(--r-10);overflow:hidden;border-collapse:separate;border-spacing:0;background:rgba(var(--ink-rgb),.03)}
@@ -151,8 +158,9 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .accB th{background:var(--ink);color:var(--shell);font-weight:700;letter-spacing:.01em}
 .accB tr:nth-child(even) td{background:rgba(var(--brass-rgb),.05)}
 .accB td b{color:var(--brass)}
-.accB p.quiet{font-size:15px}
-.quiet{color:#687787;font-size:13px}  /* paper 위 4.51:1 (이전 #7c8a9a 는 3.46:1 로 AA 미달) */
+.accB p.quiet{font-size:17px;line-height:1.7}
+.quiet{color:#55616e;font-size:13px}  /* 누렇게 낡은 종이(얼룩 최악 지점 #e4d9c5) 위 4.52:1.
+   이전 #687787 은 흰 종이에선 4.51 이었으나 이 종이에선 3.28 로 떨어진다 */
 .sub-acc{border-bottom:1px solid rgba(var(--brass-rgb),.2);margin-bottom:4px}
 .sub-accH{padding:11px 4px;background:none;font-weight:600;font-size:15px;cursor:pointer;
   display:flex;justify-content:space-between;color:var(--ink);font-family:var(--serif)}
@@ -163,7 +171,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .sub-accH.open .ar{color:var(--brass);transform:rotate(90deg)}
 .sub-accB{display:none;padding:4px 4px 14px}
 .sub-accB.open{display:block;animation:accFade .2s ease}
-.lead{font-style:italic;color:var(--brass);font-size:18px;margin-top:0;font-family:var(--serif-body)}
+.lead{font-style:italic;color:var(--brass);font-size:21px;line-height:1.55;margin-top:0;font-family:var(--serif-body)}
 .prog{text-align:center;font-weight:700;font-size:15px;margin:12px 0;color:var(--ink)}
 .up{color:var(--gain);font-weight:700}
 .dn{color:var(--loss);font-weight:700}
@@ -207,8 +215,18 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 #main input::placeholder{ color:rgba(var(--ink-rgb),.62); opacity:1; }
 .paperCard{
   background:var(--paper);
-  background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNDAnIGhlaWdodD0nMTQwJz4KPGZpbHRlciBpZD0nbic+PGZlVHVyYnVsZW5jZSB0eXBlPSdmcmFjdGFsTm9pc2UnIGJhc2VGcmVxdWVuY3k9JzAuODUnIG51bU9jdGF2ZXM9JzInIHN0aXRjaFRpbGVzPSdzdGl0Y2gnLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAgMCAwIDAgMC4wNDMgIDAgMCAwIDAgMC4xMTQgIDAgMCAwIDAgMC4yICAwIDAgMCAwLjA1IDAnLz48L2ZpbHRlcj4KPHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI24pJy8+PC9zdmc+");
-  background-size:140px 140px;
+  /* 3겹. 위에서부터 (1) 가장자리 갈변 (2) 얼룩 (3) 미세 결.
+     얼룩을 약하게 두고 갈변을 가장자리로 몰아둔 건, 글자가 앉는 카드 안쪽 대비를
+     지키기 위해서다. 얼룩을 더 올리면 회색 보조 텍스트가 AA 아래로 내려간다. */
+  background-image:
+    linear-gradient(to bottom, rgba(94,68,32,.22), rgba(94,68,32,0) min(38px,13%)),
+    linear-gradient(to top,    rgba(94,68,32,.22), rgba(94,68,32,0) min(38px,13%)),
+    linear-gradient(to right,  rgba(94,68,32,.20), rgba(94,68,32,0) min(34px,11%)),
+    linear-gradient(to left,   rgba(94,68,32,.20), rgba(94,68,32,0) min(34px,11%)),
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0ODAnIGhlaWdodD0nNDgwJz48ZmlsdGVyIGlkPSdtJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC4wMTQnIG51bU9jdGF2ZXM9JzQnIHNlZWQ9JzExJyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAgMCAwIDAgMC40MiAgMCAwIDAgMCAwLjMwICAwIDAgMCAwIDAuMTQgIDAgMCAwIDAuMzQgLTAuMTA4Jy8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI20pJy8+PC9zdmc+"),
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNDAnIGhlaWdodD0nMTQwJz48ZmlsdGVyIGlkPSdnJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC45JyBudW1PY3RhdmVzPScyJyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAgMCAwIDAgMC4zMCAgMCAwIDAgMCAwLjIyICAwIDAgMCAwIDAuMTEgIDAgMCAwIDAuMDU1IDAnLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0nMTAwJScgaGVpZ2h0PScxMDAlJyBmaWx0ZXI9J3VybCgjZyknLz48L3N2Zz4=");
+  background-size:100% 100%,100% 100%,100% 100%,100% 100%, 480px 480px, 140px 140px;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat,repeat;
 }
 
 
@@ -281,7 +299,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     </div>
 
     <div style="position:absolute;left:26px;right:26px;top:132px;display:flex;flex-direction:column;gap:14px">
-      <div data-bind="lgTitle" style="font-family:var(--serif);font-style:italic;font-weight:300;font-size:35px;line-height:1.24;color:var(--cream);letter-spacing:-.8px">그대들은<br>어떻게 투자할 것인가</div>
+      <div data-bind="lgTitle" style="font-family:var(--hand-title);font-style:italic;font-weight:300;font-size:35px;line-height:1.24;color:var(--cream);letter-spacing:-.8px">그대들은<br>어떻게 투자할 것인가</div>
     </div>
   </div></div>
 
@@ -299,7 +317,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     </div>
 
     <div style="position: absolute; left: 48px; width: 470px; display: flex; flex-direction: column; gap: 18px; bottom: 174px">
-      <div data-bind="lgTitle" style="font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 50px; line-height: 1.16; color: var(--cream); letter-spacing: -1.6px">그대들은<br>어떻게 투자할 것인가</div>
+      <div data-bind="lgTitle" style="font-family: var(--hand-title); font-style: italic; font-weight: 300; font-size: 50px; line-height: 1.16; color: var(--cream); letter-spacing: -1.6px">그대들은<br>어떻게 투자할 것인가</div>
     </div>
 
     <div style="position:absolute;right:0px;bottom:56px;width:352px;display:flex;align-items:flex-end">
