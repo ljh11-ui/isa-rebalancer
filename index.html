@@ -44,6 +44,17 @@
      다 못 나눠서(2/8/10/16/18/20/26px), 값이 섞이는 걸 막으려고 이름에 px값을 그대로 썼다.
      1번만 쓰인 4px·22px·30px·34px는 반복이 아니라서 그대로 리터럴로 둔다. */
   --r-2:2px; --r-8:8px; --r-10:10px; --r-16:16px; --r-18:18px; --r-20:20px; --r-26:26px;
+  /* 비중 밴드 링 게이지 — 디자인 핸드오프(design_handoff_weight_band_gauges) 값.
+     '진한 호' 5색은 핸드오프 원본 그대로다. 종목의 신분증 색이라 다른 화면에서도 같이 쓴다.
+     '여유 톤'과 트랙은 핸드오프가 흰 카드(#fffdf9) 기준이라 우리 낡은 종이(#f3ead8) 위에서
+     1.02~1.09:1 로 사실상 보이지 않아, 같은 색상을 종이에 섞어 1.55:1 로 다시 잡았다. */
+  --g1:#3b6aa0; --g1s:#b6c0c6;   /* 나스닥100 */
+  --g2:#3f8f7c; --g2s:#aac5b3;   /* S&P500 */
+  --g3:#c98a3c; --g3s:#ddb988;   /* 슈드 */
+  --g4:#a4557a; --g4s:#d8b7b8;   /* 배당퀄리티 */
+  --g5:#6d6fa8; --g5s:#c1bdc6;   /* 미국 초단기채 */
+  --g-track:#dacbac;             /* 0~20% 트랙 (종이 대비 1.34:1) */
+  --g-muted:#5f5850;             /* 밴드 캡션·범례 (얼룩 최악 지점에서 5.00:1) */
 }
 body{margin:0;background:#dedacd}
 a{color:#33526f;text-decoration:none;border-bottom:1px solid rgba(51,82,111,.4)}
@@ -230,6 +241,29 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 }
 
 
+/* (1-b) 비중 밴드 링 게이지 — 핸드오프 명세를 우리 종이/서체 위에 얹은 것 */
+.gBadge{padding:6px 11px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.06);
+  font:500 11px/1 var(--sans);color:rgba(var(--ink-rgb),.72);white-space:nowrap}
+.gRow{display:flex;align-items:flex-start;gap:0}
+.gCell{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:12px}
+.gCell svg{width:100%;max-width:72px;overflow:visible;display:block}
+.gLab{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+/* "미국 초단기채" 처럼 두 줄로 접히는 이름이 있어 이름 칸을 두 줄로 고정한다.
+   그러지 않으면 그 칸만 밴드 캡션이 내려앉아 다섯 칸이 어긋난다. */
+.gName{font:500 11.5px/1.3 var(--sans);color:var(--ink);word-break:keep-all;
+  min-height:2.6em;display:flex;align-items:center}
+.gBand{font:400 11px/1 var(--sans);color:var(--g-muted)}
+.gNum{font:500 11.5px var(--sans);fill:var(--ink);font-variant-numeric:tabular-nums lining-nums}
+.gLegend{margin-top:6px;padding-top:14px;border-top:1px solid rgba(var(--ink-rgb),.12);
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.gLegend span{display:flex;align-items:center;gap:7px;font:400 11px/1.5 var(--sans);color:var(--g-muted)}
+.gLegend i{width:16px;height:5px;border-radius:var(--pill);flex:0 0 auto}
+/* 종목 색이 "현재 비중"으로 오해되지 않게 단색 대신 5색 띠를 쓴다 (핸드오프 지시) */
+.gLegend i.gSoft{background:linear-gradient(90deg,var(--g1s),var(--g2s),var(--g3s),var(--g4s),var(--g5s))}
+.gLegend i.gHue{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g5))}
+.gArc{transition:stroke-dasharray .6s cubic-bezier(.22,.61,.36,1)}
+@media (prefers-reduced-motion:reduce){ .gArc{transition:none} }
+
 /* (2) 총 평가금액 숫자 아래 브라스 그라디언트 밑줄 — 표 헤더 밑줄과 같은 어휘 */
 .totalRule{height:2px;margin-top:10px;border-radius:var(--r-2);
   background:linear-gradient(90deg,var(--brass) 0%,rgba(var(--brass-rgb),.15) 78%,rgba(var(--brass-rgb),0) 100%)}
@@ -380,15 +414,16 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     </div>
 
     <div class="paperCard" style="border-radius:var(--r-26);padding:22px;display:flex;flex-direction:column;gap:15px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font:700 11px var(--sans);color:var(--ink)">비중</span>
-        <div style="display:flex;gap:9px;font:400 9.5px var(--sans);color:rgba(var(--ink-rgb),.6);align-items:center">
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:2px;height:9px;background:rgba(var(--ink-rgb),.55);display:inline-block"></span>목표</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:2px;height:9px;background:var(--brass);display:inline-block"></span>상단 밴드</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:9px;height:9px;border-radius:var(--r-2);background:rgba(var(--brass-rgb),.55);display:inline-block"></span>초과분</span>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font:700 12px var(--sans);color:var(--ink)">비중 밴드</span>
+        <span data-bind="bandBadge" class="gBadge">-</span>
       </div>
-      <div data-bind="bandsAreaM" style="display:flex;flex-direction:column;gap:15px"></div>
+      <div data-bind="bandsAreaM" class="gRow"></div>
+      <div class="gLegend">
+        <span><i style="background:var(--g-track)"></i>0~20% 목표까지</span>
+        <span><i class="gSoft"></i>20%~밴드 여유 구간</span>
+        <span><i class="gHue"></i>진한 호 = 현재 비중 · 가운데 숫자 %</span>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px">
@@ -458,15 +493,16 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       </div>
 
       <div class="paperCard" style="border-radius:var(--r-26);padding:30px 32px;display:flex;flex-direction:column;gap:16px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline">
-          <span style="font:700 12px var(--sans);color:var(--ink)">비중 밴드</span>
-          <div style="display:flex;gap:14px;font:400 10.5px var(--sans);color:rgba(var(--ink-rgb),.6);align-items:center">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:2px;height:10px;background:rgba(var(--ink-rgb),.55);display:inline-block"></span>목표</span>
-            <span style="display:flex;align-items:center;gap:4px;color:var(--brass)"><span style="width:2px;height:10px;background:var(--brass);display:inline-block"></span>상단 밴드</span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:var(--r-2);background:rgba(var(--brass-rgb),.55);display:inline-block"></span>초과분</span>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font:700 13px var(--sans);color:var(--ink)">비중 밴드</span>
+          <span data-bind="bandBadge" class="gBadge">-</span>
         </div>
-        <div data-bind="bandsAreaD" style="display:flex;flex-direction:column;gap:16px"></div>
+        <div data-bind="bandsAreaD" class="gRow"></div>
+        <div class="gLegend">
+          <span><i style="background:var(--g-track)"></i>0~20% 목표까지</span>
+          <span><i class="gSoft"></i>20%~밴드 여유 구간</span>
+          <span><i class="gHue"></i>진한 호 = 현재 비중 · 가운데 숫자 %</span>
+        </div>
       </div>
     </div>
 
@@ -1298,47 +1334,56 @@ function animateTotal(target) {
    원본 mk() 의 값 계산식을 그대로 따른다: fill = pct/32*100, target = 20/32*100,
    upper = 밴드/32*100, transition = width 1.1s cubic-bezier(.22,.9,.25,1) {i*90}ms.
    초과 여부만 원본의 하드코딩(pct>25) 대신 백엔드가 준 a.isOver 를 쓴다(계산 로직 유지). */
-function bandFillPct(a, maxScale) {
-  return Math.max(0, Math.min(a.pct, maxScale)) / maxScale * 100;
-}
-
 function renderBands(assets) {
-  var maxScale = 32;
-  var hm = '', hd = '';
+  // 링 게이지. 기하는 디자인 핸드오프 명세 그대로다.
+  // 한 바퀴 = 0~30%. 다섯 게이지가 같은 스케일을 공유하므로 링끼리 직접 비교된다.
+  var SCALE = 30, C = 150.796, unit = C / SCALE;   // C = 2π × 24
+  var HUE  = ['var(--g1)','var(--g2)','var(--g3)','var(--g4)','var(--g5)'];
+  var SOFT = ['var(--g1s)','var(--g2s)','var(--g3s)','var(--g4s)','var(--g5s)'];
+  var h = '', over = 0, arcs = [];
+
   assets.forEach(function (a, i) {
-    var targetPct = (Math.min(a.target, maxScale) / maxScale * 100).toFixed(1);
-    var upperPct  = (Math.min(a.upper,  maxScale) / maxScale * 100).toFixed(1);
-    var fillColor = a.isOver ? 'rgba(var(--brass-rgb),.55)' : 'rgba(var(--ink-rgb),.3)';
-    var pctColor  = a.isOver ? 'var(--brass)' : 'rgba(var(--ink-rgb),.65)';
-    var trans     = 'width 1.1s cubic-bezier(.22,.9,.25,1) ' + (i * 90) + 'ms';
+    var trackLen = Math.min(a.target, SCALE) * unit;
+    var zoneLen  = Math.max(0, Math.min(a.upper, SCALE) - a.target) * unit;
+    var arcLen   = Math.max(0, Math.min(a.pct, SCALE)) * unit;
     var nm = a.short || a.name;
-    var track =
-      '<div style="position:absolute;left:0;top:0;bottom:0;width:0%;background:' + fillColor +
-        ';border-radius:var(--pill);transition:' + trans + '" data-bind="bandFill' + i + '"></div>' +
-      '<div style="position:absolute;left:' + targetPct + '%;top:-2px;bottom:-2px;width:2px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.55)"></div>' +
-      '<div style="position:absolute;left:' + upperPct + '%;top:-2px;bottom:-2px;width:2px;border-radius:var(--pill);background:var(--brass)"></div>';
+    if (a.pct > a.upper) over++;
 
-    hm += '<div style="display:flex;flex-direction:column;gap:6px">' +
-            '<div style="display:flex;justify-content:space-between;align-items:baseline">' +
-              '<span style="font:500 11.5px var(--sans);color:var(--ink)">' + nm + '</span>' +
-              '<span style="font:500 11.5px var(--sans);color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
-            '</div>' +
-            '<div style="position:relative;height:10px;background:rgba(var(--ink-rgb),.07);border-radius:var(--pill)">' + track + '</div>' +
-          '</div>';
+    h += '<div class="gCell">' +
+      '<svg viewBox="0 0 64 64" role="img" aria-label="' + nm + ' 현재 비중 ' + a.pct.toFixed(2) +
+        '%, 목표 ' + a.target + '%, 상단 밴드 ' + a.upper + '%">' +
+        // 1. 0~목표 트랙
+        '<circle cx="32" cy="32" r="24" fill="none" stroke="var(--g-track)" stroke-width="5.5"' +
+          ' stroke-dasharray="' + trackLen.toFixed(2) + ' ' + (C - trackLen).toFixed(2) + '"' +
+          ' transform="rotate(-90 32 32)"></circle>' +
+        // 2. 목표~상단 밴드 여유 구간. 상단 밴드 이후로는 트랙을 그리지 않는다 —
+        //    트랙이 그 종목의 한계에서 끝나는 것이 이 디자인의 핵심이라 별도 마커가 없다.
+        '<circle cx="32" cy="32" r="24" fill="none" stroke="' + SOFT[i] + '" stroke-width="5.5"' +
+          ' stroke-dasharray="' + zoneLen.toFixed(2) + ' ' + (C - zoneLen).toFixed(2) + '"' +
+          ' stroke-dashoffset="' + (-trackLen).toFixed(2) + '" transform="rotate(-90 32 32)"></circle>' +
+        // 3. 현재 비중 호
+        '<circle class="gArc" data-bind="bandFill' + i + '" cx="32" cy="32" r="24" fill="none"' +
+          ' stroke="' + HUE[i] + '" stroke-width="5.5" stroke-linecap="round"' +
+          ' stroke-dasharray="0 ' + C + '" transform="rotate(-90 32 32)"></circle>' +
+        '<text class="gNum" x="32" y="36" text-anchor="middle">' + a.pct.toFixed(2) + '%</text>' +
+      '</svg>' +
+      '<div class="gLab"><span class="gName">' + nm + '</span>' +
+        '<span class="gBand">밴드 ' + a.upper + '%</span></div>' +
+    '</div>';
 
-    hd += '<div style="display:grid;grid-template-columns:132px 1fr 58px;align-items:center;gap:14px">' +
-            '<span style="font:500 12px var(--sans);color:var(--ink)">' + nm + '</span>' +
-            '<div style="position:relative;height:11px;background:rgba(var(--ink-rgb),.07);border-radius:var(--pill)">' + track + '</div>' +
-            '<span style="font:500 11.5px var(--sans);text-align:right;color:' + pctColor + ';font-variant-numeric:tabular-nums lining-nums">' + a.pct.toFixed(2) + '%</span>' +
-          '</div>';
+    arcs.push(arcLen);
   });
-  putHTML('bandsAreaM', hm);
-  putHTML('bandsAreaD', hd);
+
+  putHTML('bandsAreaM', h);
+  putHTML('bandsAreaD', h);
+  putText('bandBadge', over ? over + '개 밴드 이탈' : assets.length + '개 모두 밴드 안');
+
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
-      assets.forEach(function (a, i) {
+      arcs.forEach(function (len, i) {
         var e = all('bandFill' + i);
-        for (var k = 0; k < e.length; k++) e[k].style.width = bandFillPct(a, maxScale).toFixed(1) + '%';
+        for (var k = 0; k < e.length; k++)
+          e[k].setAttribute('stroke-dasharray', len.toFixed(2) + ' ' + C);
       });
     });
   });
