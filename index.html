@@ -421,7 +421,10 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <span style="width:26px;height:26px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.16);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--brass)">⚓</span>
           <span data-bind="who" style="font:500 12px var(--sans);color:var(--ink)"></span>
         </div>
-        <button class="plain" onclick="doLogout()" style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.6)">로그아웃</button>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="plain" onclick="doWithdraw()" style="font:500 10px var(--sans);color:rgba(var(--ink-rgb),.4)">계정 삭제</button>
+          <button class="plain" onclick="doLogout()" style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.6)">로그아웃</button>
+        </div>
       </div>
       <span style="font:700 9px var(--sans);letter-spacing:.14em;color:rgba(var(--ink-rgb),.65)">ISA · FIVE-WAY</span>
     </div>
@@ -505,6 +508,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       </div>
       <div style="display:flex;align-items:center;gap:14px">
         <span data-bind="who" style="font:500 12px var(--sans);color:rgba(var(--ink-rgb),.55)"></span>
+        <button class="plain" onclick="doWithdraw()" style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.4)">계정 삭제</button>
         <button class="plain" onclick="doLogout()" style="font:500 11.5px var(--sans);color:rgba(var(--ink-rgb),.6);background:rgba(var(--ink-rgb),.06);border-radius:var(--pill);padding:7px 14px">로그아웃</button>
       </div>
     </div>
@@ -1171,6 +1175,22 @@ function doLogout() {
   setVal('lpw', '');
   document.getElementById('retArea').innerHTML = '';
   msg('');
+}
+
+// 계정 삭제 — 되돌릴 수 없는 작업이라 두 번 막는다: 경고 문구가 든 confirm() 하나,
+// 그리고 본인 확인용 비밀번호 재입력 하나. 로그인 세션엔 평문 비밀번호를 들고 있지
+// 않으므로(보안상 당연히 그래야 한다) 지울 때 새로 물어봐야 한다.
+function doWithdraw() {
+  if (!confirm('정말 계정을 삭제하시겠습니까?\n보유 기록과 매매 기록이 모두 영구히 삭제되며 되돌릴 수 없습니다.')) return;
+  var pw = prompt('본인 확인을 위해 암호를 다시 입력해주세요.');
+  if (pw === null) return;
+  api({ action: 'withdraw', user: uid, pw: pw },
+    function (d) {
+      if (!d.ok) { alert(d.msg || '삭제에 실패했습니다.'); return; }
+      alert('계정이 삭제되었습니다.');
+      doLogout();
+    },
+    function (e) { alert('삭제 중 오류: ' + e.message); });
 }
 
 // ===== 시장 =====

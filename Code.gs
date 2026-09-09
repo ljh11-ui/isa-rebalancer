@@ -54,6 +54,7 @@ function doGet(e) {
     switch (p.action) {
       case 'login':  out = login(p.user, p.pw); break;
       case 'signup': out = signUp(p.user, p.pw); break;
+      case 'withdraw': out = deleteAccount(p.user, p.pw); break;
       case 'load':   out = loadState(p.user, p.market); break;
       case 'calc':   out = calcOnly(p.user, p.market, p.cash, p.dep, p.shares); break;
       case 'save':   out = saveState(p.user, p.market, p.cash, p.dep, p.shares); break;
@@ -165,6 +166,40 @@ function login(userId, pw) {
   });
   SpreadsheetApp.flush();
   return { ok: true, userId: userId };
+}
+
+// 계정 탈퇴 — Users / UserData / Log 세 시트에서 해당 아이디 행을 전부 지운다.
+// 비밀번호를 다시 확인해 본인 확인 없이는 지울 수 없게 한다.
+// 시트에서 행을 지울 때는 아래에서 위로 지워야 한다 — 위에서부터 지우면
+// 남은 행들의 인덱스가 한 칸씩 당겨지면서 다음에 지울 행을 잘못 짚게 된다.
+function deleteAccount(userId, pw) {
+  userId = String(userId || '').trim();
+  const row = findUserRow_(userId);
+  if (row === -1) return { ok: false, msg: '가입되지 않은 아이디입니다.' };
+  if (String(usersSheet_().getRange(row, 2).getValue()) !== hashPw_(pw)) {
+    return { ok: false, msg: '비밀번호가 일치하지 않습니다.' };
+  }
+
+  usersSheet_().deleteRow(row);
+
+  const ud = udSheet_(), udLast = ud.getLastRow();
+  if (udLast >= 2) {
+    const ids = ud.getRange(2, 1, udLast - 1, 1).getValues();
+    for (let i = ids.length - 1; i >= 0; i--) {
+      if (String(ids[i][0]).trim() === userId) ud.deleteRow(i + 2);
+    }
+  }
+
+  const log = logSheet_(), logLast = log.getLastRow();
+  if (logLast >= 2) {
+    const ids = log.getRange(2, 1, logLast - 1, 1).getValues();
+    for (let i = ids.length - 1; i >= 0; i--) {
+      if (String(ids[i][0]).trim() === userId) log.deleteRow(i + 2);
+    }
+  }
+
+  SpreadsheetApp.flush();
+  return { ok: true };
 }
 
 // ===== 핵심 계산 =====
