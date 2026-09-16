@@ -1,8 +1,8 @@
-// 로그인 화면 배경 영상(day.mp4/night.mp4) 캐싱 전용 서비스 워커.
+// 로그인 화면 영상(login1=기본 배경, login2=진입 컷) 캐싱 전용 서비스 워커.
 // 최초 1회만 다운로드하고, 이후 재방문·홈 화면 추가(PWA) 시 캐시에서 즉시 재생한다.
 
-const CACHE_NAME = 'isa-rebalancer-video-v1';
-const VIDEO_PATHS = ['/assets/day.mp4', '/assets/night.mp4'];
+const CACHE_NAME = 'isa-rebalancer-video-v2';  // 영상이 바뀌면 올려야 옛 캐시가 지워진다
+const VIDEO_PATHS = ['/assets/login1.mp4', '/assets/login2.mp4'];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(

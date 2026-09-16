@@ -81,13 +81,47 @@ body{padding:14px}
 #loginStage input{border:none;background:transparent;padding:0;width:100%}
 #loginStage input:focus{outline:none}
 #loginStage button{border:none;background:none;padding:0;cursor:pointer;font:inherit;color:inherit}
-/* 원본 video는 5a가 object-position:60% 50%, 5b가 50% 50%. 영상을 두 번 내려받지 않도록
-   video 요소는 하나만 두고 위치만 미디어쿼리로 바꾼다. */
-#lgVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%}
-@media (min-width:760px){ #lgVideo{object-position:50% 50%} }
-/* 원본에 없는 요소: 로그인 실패 메시지 자리 */
-.loginMsg{position:absolute;left:0;right:0;text-align:center;color:#ffb4a0;
+/* 배경 영상 두 장을 겹쳐 둔다 — 기본(로그인1, 반복)과 진입(로그인2, 1회).
+   두 영상의 구도가 같아서 opacity만 바꿔도 컷이 튀지 않는다. */
+#lgVideo,#lgClip{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%}
+#lgClip{opacity:0;transition:opacity .4s ease;pointer-events:none}
+#lgClip.on{opacity:1}
+@media (min-width:1000px){ #lgVideo,#lgClip{object-position:50% 50%} }
+
+/* 영상 아래쪽이 밝은 양피지라 그 위에 바로 글자를 얹으면 읽히지 않는다 */
+#loginStage .lgScrim{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(var(--ink-rgb),.30) 0%,rgba(var(--ink-rgb),.05) 26%,
+             rgba(var(--ink-rgb),.34) 62%,rgba(var(--ink-rgb),.76) 100%)}
+
+#loginStage .lgDock{position:absolute;left:30px;right:30px;bottom:46px;
+  display:flex;flex-direction:column;gap:12px}
+#loginStage .lgPanel{display:flex;flex-direction:column;gap:10px}
+#loginStage .lgPanel.show{animation:lgRise .32s cubic-bezier(.32,.72,0,1) both}
+@keyframes lgRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+#loginStage .lgBtn{height:52px;border-radius:var(--pill);display:flex;align-items:center;justify-content:center;
+  font:700 14px var(--sans);letter-spacing:.06em;transition:transform .35s cubic-bezier(.32,.72,0,1)}
+#loginStage .lgBtn:active{transform:scale(.98)}
+#loginStage .lgBtn--go{background:var(--gold);color:var(--ink);box-shadow:0 10px 28px rgba(var(--ink-rgb),.45)}
+#loginStage .lgBtn--ghost{font-weight:600;color:var(--cream);border:1px solid rgba(var(--gold-rgb),.62);
+  background:rgba(var(--ink-rgb),.38);backdrop-filter:blur(8px)}
+
+#loginStage .lgCard{border:1px solid rgba(var(--gold-rgb),.5);border-radius:var(--r-20);
+  background:rgba(var(--ink-rgb),.46);backdrop-filter:blur(10px);
+  box-shadow:0 14px 26px rgba(var(--ink-rgb),.55);padding:12px 18px 18px;gap:15px}
+#loginStage .lgBack{align-self:flex-start;min-height:44px;min-width:64px;display:flex;align-items:center;
+  font:500 12px var(--sans);color:rgba(var(--cream-rgb),.78)}
+#loginStage .lgField{display:flex;flex-direction:column;gap:3px;padding-bottom:6px;
+  border-bottom:1.5px solid rgba(var(--gold-rgb),.62)}
+#loginStage .lgField > span{font:600 12px var(--sans);letter-spacing:.16em;color:rgba(var(--gold-rgb),.92)}
+/* 16px 아래로 내리면 iOS 사파리가 포커스할 때 화면을 확대해버린다 */
+#loginStage .lgField input{font:400 16px var(--sans);color:rgba(var(--cream-rgb),.95)}
+
+/* 원본에 없는 요소: 로그인 실패·진행 메시지 자리 (빈 줄에도 높이를 잡아 레이아웃이 안 튄다) */
+#loginStage .loginMsg{text-align:center;color:#ffb4a0;
   font:500 12px var(--sans);text-shadow:0 1px 6px rgba(var(--ink-rgb),.9);min-height:16px}
+/* 진입 컷이 도는 동안의 문구는 오류가 아니라 진행 상황이라 살구색을 쓰지 않는다 */
+#loginStage .lgDock.lgQuiet .loginMsg{color:rgba(var(--cream-rgb),.88)}
 
 /* (3) 원본에 없는 기능 요소 */
 .warnBox{background:rgba(var(--brass-rgb),.12);border-radius:var(--r-18);padding:12px 16px;
@@ -241,90 +275,67 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 <body>
 
 <!-- ================= 로그인 ================= -->
+<!-- 화면 제목("그대들은 어떻게 투자할 것인가")은 영상 안에 이미 찍혀 있다. HTML로 또 쓰면 겹친다. -->
 <div id="loginStage">
-  <video id="lgVideo" autoplay muted loop playsinline></video>
+  <video id="lgVideo" src="assets/login1.mp4" autoplay muted loop playsinline></video>
+  <video id="lgClip" muted playsinline preload="none"></video>
 
-  <!-- ---------- 5a 로그인 · 모바일 (인라인 스타일 = 원본 그대로) ---------- -->
+  <!-- ---------- 로그인 · 모바일 ---------- -->
   <div class="mobileOnly"><div class="stageInner">
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--ink-rgb),.28) 0%,rgba(var(--ink-rgb),.04) 34%,rgba(var(--ink-rgb),.3) 76%,rgba(var(--ink-rgb),.52) 100%)">
-      <div style="position: absolute; left: 50%; transform: translateX(-86px); border: 1px solid rgba(var(--gold-rgb),.5); background: rgba(var(--ink-rgb),.34); backdrop-filter: blur(8px); box-shadow: 0 12px 34px rgba(var(--ink-rgb),.42); border-radius:var(--r-16); padding: 12px 14px 10px; display: flex; flex-direction: column; bottom: 54px; width: 172px; min-height: 144px">
-        <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:5px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">선장 ID</span>
-          <input type="text" data-bind="lid" autocomplete="username" placeholder=""
-                 onkeydown="if(event.key==='Enter')doLogin()"
-                 style="font:400 12px var(--sans);color:rgba(var(--cream-rgb),.9)">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px;padding-bottom:5px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 7.5px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.9)">암호</span>
-          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder=""
-                 onkeydown="if(event.key==='Enter')doLogin()"
-                 style="font:400 12px var(--sans);color:rgba(var(--cream-rgb),.9)">
-        </div>
-        <button data-bind="lbtn" onclick="doLogin()" style="margin-top:11px;height:30px;flex-shrink:0;background:var(--gold);border-radius:var(--pill);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(var(--gold-rgb),.24);width:100%">
-          <span style="font:700 10.5px var(--sans);letter-spacing:.1em;color:var(--ink)">승선하기</span>
+    <div class="lgScrim"></div>
+    <div class="lgDock">
+      <div class="loginMsg" data-bind="loginMsg"></div>
+      <div class="lgPanel" data-bind="lgIdle">
+        <button class="lgBtn lgBtn--go" onclick="lgOpenForm('login')">로그인하기</button>
+        <button class="lgBtn lgBtn--ghost" onclick="lgOpenForm('signup')">회원가입</button>
+      </div>
+
+      <div class="lgPanel lgCard" data-bind="lgForm" style="display:none">
+        <button class="lgBack" onclick="lgCloseForm()">← 뒤로</button>
+        <label class="lgField">
+          <span>선장 ID</span>
+          <input type="text" data-bind="lid" autocomplete="username"
+                 onkeydown="if(event.key==='Enter')lgSubmit()">
+        </label>
+        <label class="lgField">
+          <span>암호</span>
+          <input type="password" data-bind="lpw" autocomplete="current-password"
+                 onkeydown="if(event.key==='Enter')lgSubmit()">
+        </label>
+        <button data-bind="lbtn" class="lgBtn lgBtn--go" onclick="lgSubmit()">
+          <span data-bind="lgSubmitLabel">승선하기</span>
         </button>
-        <div style="display:flex;justify-content:center;margin-top:8px">
-          <button onclick="doSignUp()" style="font:500 9px var(--sans);color:rgba(var(--cream-rgb),.72);border-bottom:1px solid rgba(var(--gold-rgb),.5);padding-bottom:1px">명부 등록하기</button>
-        </div>
       </div>
-      <div class="loginMsg" data-bind="loginMsg" style="bottom:28px"></div>
-    </div>
-
-    <div data-bind="topScrim" style="position:absolute;left:0;right:0;top:0;height:360px;pointer-events:none"></div>
-
-    <div style="position:absolute;top:22px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font:700 9.5px var(--sans);letter-spacing:.22em;color:var(--gold);text-shadow:0 1px 8px rgba(var(--ink-rgb),.7)"><br></span>
-      <div style="display:flex;border:1px solid rgba(var(--cream-rgb),.3);border-radius:var(--pill);padding:2px;gap:2px;background:rgba(var(--ink-rgb),.22);backdrop-filter:blur(8px)">
-        <span data-bind="dayTab" onclick="lgSetMode(true)">☀ 낮</span>
-        <span data-bind="nightTab" onclick="lgSetMode(false)">☾ 밤</span>
-      </div>
-    </div>
-
-    <div style="position:absolute;left:26px;right:26px;top:132px;display:flex;flex-direction:column;gap:14px">
-      <div data-bind="lgTitle" style="font-family:var(--serif);font-style:italic;font-weight:300;font-size:35px;line-height:1.24;color:var(--cream);letter-spacing:-.8px">그대들은<br>어떻게 투자할 것인가</div>
     </div>
   </div></div>
 
-  <!-- ---------- 5b 로그인 · 데스크톱 (인라인 스타일 = 원본 그대로) ---------- -->
+  <!-- ---------- 로그인 · 데스크톱 (모바일과 같은 흐름, 위치만 다름) ---------- -->
   <div class="deskOnly"><div class="stageInner">
-    <div data-bind="deskScrim" style="position:absolute;inset:0;pointer-events:none"></div>
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--ink-rgb),.2) 0%,rgba(var(--ink-rgb),0) 26%,rgba(var(--ink-rgb),.24) 100%)"></div>
-
-    <div style="position:absolute;top:28px;left:48px;right:48px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font:700 10px var(--sans);letter-spacing:.24em;color:var(--gold);text-shadow:0 1px 8px rgba(var(--ink-rgb),.7)"><br></span>
-      <div style="display:flex;border:1px solid rgba(var(--cream-rgb),.3);border-radius:var(--pill);padding:2px;gap:2px;background:rgba(var(--ink-rgb),.22);backdrop-filter:blur(8px)">
-        <span data-bind="dayTab" onclick="lgSetMode(true)">☀ 낮</span>
-        <span data-bind="nightTab" onclick="lgSetMode(false)">☾ 밤</span>
+    <div class="lgScrim"></div>
+    <div class="lgDock">
+      <div class="loginMsg" data-bind="loginMsg"></div>
+      <div class="lgPanel" data-bind="lgIdle">
+        <button class="lgBtn lgBtn--go" onclick="lgOpenForm('login')">로그인하기</button>
+        <button class="lgBtn lgBtn--ghost" onclick="lgOpenForm('signup')">회원가입</button>
       </div>
-    </div>
 
-    <div style="position: absolute; left: 48px; width: 470px; display: flex; flex-direction: column; gap: 18px; bottom: 174px">
-      <div data-bind="lgTitle" style="font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 50px; line-height: 1.16; color: var(--cream); letter-spacing: -1.6px">그대들은<br>어떻게 투자할 것인가</div>
-    </div>
-
-    <div style="position:absolute;right:0px;bottom:56px;width:352px;display:flex;align-items:flex-end">
-      <div style="width: 254px; border: 1px solid rgba(var(--gold-rgb),.46); border-radius:var(--r-20); background: rgba(var(--ink-rgb),.42); backdrop-filter: blur(10px); box-shadow: 0 14px 40px rgba(var(--ink-rgb),.4); padding: 26px 26px 20px; display: flex; flex-direction: column; min-height: 224px">
-        <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:9px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">선장 ID</span>
-          <input type="text" data-bind="lid" autocomplete="username" placeholder=""
-                 onkeydown="if(event.key==='Enter')doLogin()"
-                 style="font:400 15px var(--sans);color:rgba(var(--cream-rgb),.92)">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px;margin-top:18px;padding-bottom:9px;border-bottom:1.5px solid rgba(var(--gold-rgb),.62)">
-          <span style="font:600 11px var(--sans);letter-spacing:.18em;color:rgba(var(--gold-rgb),.95)">암호</span>
-          <input type="password" data-bind="lpw" autocomplete="current-password" placeholder=""
-                 onkeydown="if(event.key==='Enter')doLogin()"
-                 style="font:400 15px var(--sans);color:rgba(var(--cream-rgb),.92)">
-        </div>
-        <button data-bind="lbtn" onclick="doLogin()" style="margin-top:24px;height:50px;flex-shrink:0;background:var(--gold);border-radius:var(--pill);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(var(--gold-rgb),.3);width:100%">
-          <span style="font:700 15px var(--sans);letter-spacing:.1em;color:var(--ink)">승선하기</span>
+      <div class="lgPanel lgCard" data-bind="lgForm" style="display:none">
+        <button class="lgBack" onclick="lgCloseForm()">← 뒤로</button>
+        <label class="lgField">
+          <span>선장 ID</span>
+          <input type="text" data-bind="lid" autocomplete="username"
+                 onkeydown="if(event.key==='Enter')lgSubmit()">
+        </label>
+        <label class="lgField">
+          <span>암호</span>
+          <input type="password" data-bind="lpw" autocomplete="current-password"
+                 onkeydown="if(event.key==='Enter')lgSubmit()">
+        </label>
+        <button data-bind="lbtn" class="lgBtn lgBtn--go" onclick="lgSubmit()">
+          <span data-bind="lgSubmitLabel">승선하기</span>
         </button>
-        <div style="display:flex;justify-content:center;margin-top:14px">
-          <button onclick="doSignUp()" style="font:500 13px var(--sans);color:rgba(var(--cream-rgb),.8);border-bottom:1px solid rgba(var(--gold-rgb),.5);padding-bottom:2px">명부 등록하기</button>
-        </div>
       </div>
     </div>
-    <div class="loginMsg" data-bind="loginMsg" style="bottom:24px"></div>
   </div></div>
 </div>
 
@@ -911,55 +922,87 @@ document.addEventListener('input', function (ev) {
   for (var i = 0; i < e.length; i++) if (e[i] !== t) e[i].value = t.value;
 });
 
-/* ===== 원본 디자인 스크립트에 있던 상태별 스타일 값 (그대로 옮김) ===== */
-var DZ = {
-  titleShadow: {
-    night: '0 2px 20px rgba(var(--ink-rgb),.8), 0 0 44px rgba(var(--ink-rgb),.5)',
-    day:   '0 1px 0 rgba(0,0,0,.9), 0 -1px 0 rgba(0,0,0,.9), 1px 0 0 rgba(0,0,0,.9), -1px 0 0 rgba(0,0,0,.9), 0 4px 18px rgba(0,0,0,.75), 0 0 40px rgba(0,0,0,.5)'
-  },
-  topScrim: {
-    night: 'linear-gradient(180deg,rgba(var(--ink-rgb),.3) 0%,rgba(var(--ink-rgb),.2) 46%,rgba(var(--ink-rgb),0) 100%)',
-    day:   'linear-gradient(180deg,rgba(var(--ink-rgb),.24) 0%,rgba(var(--ink-rgb),.16) 40%,rgba(var(--ink-rgb),.06) 74%,rgba(var(--ink-rgb),0) 100%)'
-  },
-  deskScrim: {
-    night: 'linear-gradient(105deg,rgba(var(--ink-rgb),.4) 0%,rgba(var(--ink-rgb),.12) 45%,rgba(var(--ink-rgb),.02) 64%,rgba(var(--ink-rgb),.2) 100%)',
-    day:   'linear-gradient(28deg,rgba(var(--ink-rgb),.3) 0%,rgba(var(--ink-rgb),.2) 30%,rgba(var(--ink-rgb),.08) 60%,rgba(var(--ink-rgb),.02) 100%)'
-  },
-  // 원본 tab(on) 함수와 동일
-  tab: function (on) {
-    return "font:" + (on ? '700' : '500') + " 10px var(--sans);letter-spacing:.14em;" +
-           "padding:5px 13px;border-radius:var(--pill);cursor:pointer;" +
-           "background:" + (on ? 'rgba(var(--cream-rgb),.82)' : 'transparent') + ";" +
-           "color:" + (on ? 'var(--ink)' : 'rgba(var(--cream-rgb),.92)') + ";";
-  }
-};
+/* ===== 로그인 화면 =====
+   1단계는 버튼 두 개만 띄우고, 누르면 아이디·암호 칸을 연다.
+   인증 자체는 doLogin/doSignUp 이 그대로 처리한다 — 여기서 정하는 건 무엇을 언제 보여줄지뿐이다.
+   (낮/밤 전환은 폐기됨. 배경 영상은 login1 하나) */
+var lgMode = 'login';
 
-// ===== 로그인 화면: 낮/밤 (배경 영상 전환) =====
-function lgSetMode(day){
-  document.body.classList.toggle('day', day);
-  var k = day ? 'day' : 'night';
-  setStyle('dayTab', DZ.tab(day));
-  setStyle('nightTab', DZ.tab(!day));
-  var t = all('lgTitle');
-  for (var i = 0; i < t.length; i++) t[i].style.textShadow = DZ.titleShadow[k];
-  var ts = all('topScrim');
-  for (var j = 0; j < ts.length; j++) ts[j].style.background = DZ.topScrim[k];
-  var ds = all('deskScrim');
-  for (var m = 0; m < ds.length; m++) ds[m].style.background = DZ.deskScrim[k];
-
-  var vid = document.getElementById('lgVideo');
-  var src = day ? 'assets/day.mp4' : 'assets/night.mp4';
-  if (vid.dataset.src !== src) {
-    vid.dataset.src = src;
-    vid.src = src;
-    vid.load();
-    vid.play().catch(function () {}); // 자동재생 정책으로 막혀도 무시 (muted라 대부분 허용됨)
+function lgShow(name) {
+  var e = all(name);
+  for (var i = 0; i < e.length; i++) {
+    e[i].classList.remove('show');
+    void e[i].offsetWidth;   // 같은 애니메이션을 다시 태우려면 리플로우를 한 번 강제해야 한다
+    e[i].classList.add('show');
   }
 }
-(function () {
-  var h = new Date().getHours();
-  lgSetMode(h >= 6 && h < 18);
-})();
+
+function lgOpenForm(mode) {
+  lgMode = mode;
+  putText('lgSubmitLabel', mode === 'signup' ? '명부 등록하기' : '승선하기');
+  setDisp('lgIdle', 'none');
+  setDisp('lgForm', 'flex');
+  lgShow('lgForm');
+  msg('');
+  lgLoadClip();              // 입력을 시작한 시점에 진입 영상을 미리 받아둔다
+  var f = one('lid');
+  if (f) f.focus();
+}
+
+function lgCloseForm() {
+  setDisp('lgForm', 'none');
+  setDisp('lgIdle', 'flex');
+  lgShow('lgIdle');
+  msg('');
+}
+
+function lgSubmit() { if (lgMode === 'signup') doSignUp(); else doLogin(); }
+
+/* ----- 진입 영상: 로그인 성공 → 지도 속으로 빨려드는 컷 ----- */
+var lgClipDone = false, lgClipWaiting = null;
+
+function lgLoadClip() {
+  var c = document.getElementById('lgClip');
+  if (!c.getAttribute('src')) { c.src = 'assets/login2.mp4'; c.load(); }
+}
+
+function lgClipEnd() {
+  if (lgClipDone) return;
+  lgClipDone = true;
+  if (lgClipWaiting) { var f = lgClipWaiting; lgClipWaiting = null; f(); }
+}
+
+function lgPlayClip() {
+  setDisp('lgIdle', 'none');
+  setDisp('lgForm', 'none');
+  var d = document.querySelectorAll('.lgDock');
+  for (var i = 0; i < d.length; i++) d[i].classList.add('lgQuiet');
+  var c = document.getElementById('lgClip');
+  lgLoadClip();
+  c.classList.add('on');
+  c.addEventListener('ended', lgClipEnd, { once: true });
+  c.addEventListener('error', lgClipEnd, { once: true });
+  var p = c.play();
+  if (p && p.catch) p.catch(lgClipEnd);   // 자동재생이 막히면 기다리지 않고 넘어간다
+  // 영상이 안 받아지거나 중간에 멈춰도 로그인이 갇히지 않도록 상한을 둔다 (영상 길이 5초)
+  setTimeout(lgClipEnd, 7000);
+}
+
+// 영상이 끝난 뒤(또는 재생에 실패했으면 즉시) 실행한다
+function lgAfterClip(fn) { if (lgClipDone) fn(); else lgClipWaiting = fn; }
+
+function lgReset() {
+  lgClipDone = false; lgClipWaiting = null;
+  var c = document.getElementById('lgClip');
+  c.classList.remove('on');
+  c.pause();
+  try { c.currentTime = 0; } catch (e) {}
+  document.getElementById('lgVideo').play().catch(function () {});
+  var d = document.querySelectorAll('.lgDock');
+  for (var i = 0; i < d.length; i++) d[i].classList.remove('lgQuiet');
+  setDisp('lgForm', 'none');
+  setDisp('lgIdle', 'flex');
+}
 
 // 배경 영상은 최초 1회만 내려받고 이후에는 캐시에서 즉시 재생되도록 서비스 워커에 맡긴다
 if ('serviceWorker' in navigator) {
@@ -1061,6 +1104,7 @@ function enter(id) {
   uid = id;
   putText('who', id + ' 선장님');
   skin();
+  lgPlayClip();            // 지도 속으로 들어가는 컷을 먼저 틀고, 그 사이에 데이터를 받는다
   msg('닻 올리는 중...');
   // 로그인 성공 → 저장 데이터 로드까지 끝난 뒤 화면을 넘긴다.
   // load()를 그대로 쓰지 않는 이유: load()는 main이 보이는 상태에서 totalTxt에
@@ -1068,14 +1112,17 @@ function enter(id) {
   api({ action: 'load', user: uid, market: mkt },
     function (d) {
       msg('돛 펴는 중...');
-      var ls = document.getElementById('loginStage');
-      ls.style.transition = 'opacity .4s ease';
-      ls.style.opacity = '0';
-      setTimeout(function () {
-        ls.style.display = 'none';
-        document.getElementById('main').style.display = 'block';
-        show(d);
-      }, 400);
+      // 데이터가 먼저 도착해도 컷이 끝날 때까지 기다렸다가 넘어간다
+      lgAfterClip(function () {
+        var ls = document.getElementById('loginStage');
+        ls.style.transition = 'opacity .5s ease';
+        ls.style.opacity = '0';
+        setTimeout(function () {
+          ls.style.display = 'none';
+          document.getElementById('main').style.display = 'block';
+          show(d);
+        }, 500);
+      });
     },
     function (e) {
       document.getElementById('loginStage').style.display = 'none';
@@ -1090,6 +1137,7 @@ function doLogout() {
   var ls = document.getElementById('loginStage');
   ls.style.transition = ''; ls.style.opacity = ''; // 페이드아웃으로 남은 인라인값 초기화
   ls.style.display = 'block';
+  lgReset();
   setVal('lpw', '');
   document.getElementById('retArea').innerHTML = '';
   msg('');
