@@ -12,7 +12,7 @@
 <base target="_top">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,300&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Song+Myung&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    [원본 그대로] Wireframes v1.dc.html 의 <style> 안에 있던 실제 CSS 규칙 전부.
@@ -98,13 +98,6 @@ body{padding:14px}
   min-height:2.6em;display:flex;align-items:center}
 .gBand{font:400 11px/1 var(--sans);color:var(--g-muted)}
 .gNum{font:500 11.5px var(--sans);fill:var(--ink);font-variant-numeric:tabular-nums lining-nums}
-.gLegend{margin-top:6px;padding-top:14px;border-top:1px solid rgba(var(--ink-rgb),.12);
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.gLegend span{display:flex;align-items:center;gap:7px;font:400 11px/1.5 var(--sans);color:var(--g-muted)}
-.gLegend i{width:16px;height:5px;border-radius:var(--pill);flex:0 0 auto}
-/* 종목 색이 "현재 비중"으로 오해되지 않게 단색 대신 5색 띠를 쓴다 */
-.gLegend i.gSoft{background:linear-gradient(90deg,var(--g1s),var(--g2s),var(--g3s),var(--g4s),var(--g5s))}
-.gLegend i.gHue{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g5))}
 .gArc{transition:stroke-dasharray .6s cubic-bezier(.22,.61,.36,1)}
 
 /* 로그인 무대 — 원본 시안은 390x750 / 1040x700 고정 액자였으나 실제로는 화면 전체 */
@@ -139,11 +132,11 @@ body{padding:14px}
 /* 1단계 두 항목은 판때기 없이 글씨만 남긴다. 영상 위라 그림자로 읽히게 받친다.
    누르는 범위는 그대로 둔다 — 보이지 않을 뿐 44px 아래로 내려가지 않는다. */
 #loginStage .lgText{display:flex;align-items:center;justify-content:center;
-  font-family:'Nanum Myeongjo','Gowun Batang',serif;color:var(--cream);
+  font-family:'Song Myung','Gowun Batang',serif;color:var(--cream);
   text-shadow:0 1px 3px rgba(var(--ink-rgb),.92),0 3px 16px rgba(var(--ink-rgb),.8);
   transition:opacity .35s cubic-bezier(.32,.72,0,1)}
 #loginStage .lgText:active{opacity:.55}
-#loginStage .lgText--go{min-height:56px;font-size:22px;font-weight:800;letter-spacing:.04em}
+#loginStage .lgText--go{min-height:56px;font-size:25px;font-weight:400;letter-spacing:.05em}
 #loginStage .lgText--sub{min-height:44px;font-size:12px;font-weight:400;
   color:rgba(var(--cream-rgb),.9);letter-spacing:.08em}
 
@@ -422,11 +415,6 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
         <span data-bind="bandBadge" class="gBadge">-</span>
       </div>
       <div data-bind="bandsAreaM" class="gRow"></div>
-      <div class="gLegend">
-        <span><i style="background:var(--g-track)"></i>0~20% 목표까지</span>
-        <span><i class="gSoft"></i>20%~밴드 여유 구간</span>
-        <span><i class="gHue"></i>진한 호 = 현재 비중 · 가운데 숫자 %</span>
-      </div>
     </div>
 
     <div style="display:flex;gap:10px">
@@ -502,11 +490,6 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <span data-bind="bandBadge" class="gBadge">-</span>
         </div>
         <div data-bind="bandsAreaD" class="gRow"></div>
-        <div class="gLegend">
-          <span><i style="background:var(--g-track)"></i>0~20% 목표까지</span>
-          <span><i class="gSoft"></i>20%~밴드 여유 구간</span>
-          <span><i class="gHue"></i>진한 호 = 현재 비중 · 가운데 숫자 %</span>
-        </div>
       </div>
     </div>
 
