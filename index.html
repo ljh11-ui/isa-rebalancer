@@ -112,11 +112,20 @@ body{padding:14px}
 #lgClip{opacity:0;transition:opacity .4s ease;pointer-events:none}
 #lgClip.on{opacity:1}
 @media (min-width:1000px){ #lgVideo,#lgClip{object-position:50% 50%} }
+/* 데스크톱은 이번 작업 범위가 아니라 동작만 맞추는데, 지금 폭 그대로 두면 밑줄 입력칸이
+   화면 끝까지 늘어난다 (버튼은 배경이 없어서 안 보였을 뿐 똑같이 늘어나 있었다). */
+@media (min-width:1000px){ #loginStage .deskOnly .lgDock{max-width:360px} }
 
 /* 영상 아래쪽이 밝은 양피지라 그 위에 바로 글자를 얹으면 읽히지 않는다 */
 #loginStage .lgScrim{position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(var(--ink-rgb),.30) 0%,rgba(var(--ink-rgb),.05) 26%,
-             rgba(var(--ink-rgb),.40) 62%,rgba(var(--ink-rgb),.88) 100%)}
+             rgba(var(--ink-rgb),.40) 62%,rgba(var(--ink-rgb),.88) 100%);
+  transition:background .3s ease}
+/* 2단계 폼은 박스가 없어져서 라벨이 더 높이(덜 어두운 구간에) 걸린다.
+   카드 대신 이 구간만 화면 전체 그라디언트를 살짝 더 깊게 만든다. */
+#loginStage .lgScrim.lgFormDark{
+  background:linear-gradient(180deg,rgba(var(--ink-rgb),.30) 0%,rgba(var(--ink-rgb),.05) 20%,
+             rgba(var(--ink-rgb),.62) 46%,rgba(var(--ink-rgb),.92) 100%)}
 
 #loginStage .lgDock{position:absolute;left:30px;right:30px;bottom:46px;
   display:flex;flex-direction:column;gap:12px}
@@ -140,16 +149,20 @@ body{padding:14px}
 #loginStage .lgText--sub{min-height:44px;font-size:13px;font-weight:400;
   color:rgba(var(--cream-rgb),.9);letter-spacing:.08em}
 
-#loginStage .lgCard{border:1px solid rgba(var(--gold-rgb),.5);border-radius:var(--r-20);
-  background:rgba(var(--ink-rgb),.46);backdrop-filter:blur(10px);
-  box-shadow:0 14px 26px rgba(var(--ink-rgb),.55);padding:12px 18px 18px;gap:15px}
+/* 2단계 유리판(테두리+블러+그림자)은 이전(영상 이전) 로그인 화면에서 그대로 넘어온
+   껍데기였다 — 지금 영상 위 미니멀 톤과 안 맞아 없앴다. 아래쪽 어둠(.lgScrim)이
+   이미 있어서 카드 배경 없이도 글자는 그대로 읽힌다. */
+#loginStage .lgCard{gap:16px}
 #loginStage .lgBack{align-self:flex-start;min-height:44px;min-width:64px;display:flex;align-items:center;
-  font:500 12px var(--sans);color:rgba(var(--cream-rgb),.78)}
-#loginStage .lgField{display:flex;flex-direction:column;gap:3px;padding-bottom:6px;
-  border-bottom:1.5px solid rgba(var(--gold-rgb),.62)}
-#loginStage .lgField > span{font:600 12px var(--sans);letter-spacing:.16em;color:rgba(var(--gold-rgb),.92)}
+  font:500 13px var(--sans);color:rgba(var(--cream-rgb),.8);
+  text-shadow:0 1px 3px rgba(var(--ink-rgb),.92),0 3px 14px rgba(var(--ink-rgb),.7)}
+#loginStage .lgField{display:flex;flex-direction:column;gap:5px;padding-bottom:7px;
+  border-bottom:1px solid rgba(var(--cream-rgb),.4)}
+#loginStage .lgField > span{font:600 11.5px var(--sans);letter-spacing:.16em;color:rgba(var(--gold-rgb),.95);
+  text-shadow:0 1px 3px rgba(var(--ink-rgb),.9)}
 /* 16px 아래로 내리면 iOS 사파리가 포커스할 때 화면을 확대해버린다 */
-#loginStage .lgField input{font:400 16px var(--sans);color:rgba(var(--cream-rgb),.95)}
+#loginStage .lgField input{font:400 16px var(--sans);color:var(--cream);
+  text-shadow:0 1px 3px rgba(var(--ink-rgb),.85)}
 
 /* 원본에 없는 요소: 로그인 실패·진행 메시지 자리 (빈 줄에도 높이를 잡아 레이아웃이 안 튄다) */
 #loginStage .loginMsg{text-align:center;color:#ffb4a0;
@@ -968,6 +981,8 @@ function lgOpenForm(mode) {
   putText('lgSubmitLabel', mode === 'signup' ? '명부 등록하기' : '승선하기');
   setDisp('lgIdle', 'none');
   setDisp('lgForm', 'flex');
+  var sc = document.querySelectorAll('.lgScrim');
+  for (var i = 0; i < sc.length; i++) sc[i].classList.add('lgFormDark');
   lgShow('lgForm');
   msg('');
   lgLoadClip();              // 입력을 시작한 시점에 진입 영상을 미리 받아둔다
@@ -978,6 +993,8 @@ function lgOpenForm(mode) {
 function lgCloseForm() {
   setDisp('lgForm', 'none');
   setDisp('lgIdle', 'flex');
+  var sc = document.querySelectorAll('.lgScrim');
+  for (var i = 0; i < sc.length; i++) sc[i].classList.remove('lgFormDark');
   lgShow('lgIdle');
   msg('');
 }
@@ -1026,6 +1043,8 @@ function lgReset() {
   document.getElementById('lgVideo').play().catch(function () {});
   var d = document.querySelectorAll('.lgDock');
   for (var i = 0; i < d.length; i++) d[i].classList.remove('lgQuiet');
+  var sc = document.querySelectorAll('.lgScrim');
+  for (var i = 0; i < sc.length; i++) sc[i].classList.remove('lgFormDark');
   setDisp('lgForm', 'none');
   setDisp('lgIdle', 'flex');
 }
@@ -1103,7 +1122,7 @@ function msg(t) { putText('loginMsg', t || ''); }
 function doLogin() {
   var id = one('lid').value.trim(), pw = one('lpw').value;
   if (!id || !pw) { msg('아이디와 비밀번호를 입력해주세요.'); return; }
-  setDisabled('lbtn', true); msg('승선 확인 중...');
+  setDisabled('lbtn', true);
   api({ action: 'login', user: id, pw: pw },
     function (r) {
       setDisabled('lbtn', false);
@@ -1131,13 +1150,11 @@ function enter(id) {
   putText('who', id + ' 선장님');
   skin();
   lgPlayClip();            // 지도 속으로 들어가는 컷을 먼저 틀고, 그 사이에 데이터를 받는다
-  msg('닻 올리는 중...');
   // 로그인 성공 → 저장 데이터 로드까지 끝난 뒤 화면을 넘긴다.
   // load()를 그대로 쓰지 않는 이유: load()는 main이 보이는 상태에서 totalTxt에
   // "불러오는 중..."을 찍는 용도라, 아직 로그인 화면인 지금 시점엔 필요 없다.
   api({ action: 'load', user: uid, market: mkt },
     function (d) {
-      msg('돛 펴는 중...');
       // 데이터가 먼저 도착해도 컷이 끝날 때까지 기다렸다가 넘어간다
       lgAfterClip(function () {
         var ls = document.getElementById('loginStage');
