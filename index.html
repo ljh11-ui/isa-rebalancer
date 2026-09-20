@@ -157,12 +157,14 @@ body{padding:14px}
    이미 있어서 카드 배경 없이도 글자는 그대로 읽힌다. */
 #loginStage .lgCard{gap:16px}
 #loginStage .lgBack{align-self:flex-start;min-height:44px;min-width:64px;display:flex;align-items:center;
-  font:500 13px var(--sans);color:rgba(var(--cream-rgb),.8);
+  font-family:'Nanum Brush Script','Gowun Batang',serif;font-size:18px;color:rgba(var(--cream-rgb),.85);
   text-shadow:0 1px 3px rgba(var(--ink-rgb),.92),0 3px 14px rgba(var(--ink-rgb),.7)}
 #loginStage .lgField{display:flex;flex-direction:column;gap:5px;padding-bottom:7px;
   border-bottom:1px solid rgba(var(--cream-rgb),.4)}
-#loginStage .lgField > span{font:600 11.5px var(--sans);letter-spacing:.16em;color:rgba(var(--gold-rgb),.95);
-  text-shadow:0 1px 3px rgba(var(--ink-rgb),.9)}
+/* 붓글씨는 자간을 넓히면 획 연결이 끊겨 보여서 letter-spacing을 없앴다.
+   작은 크기에서 획이 겹쳐 읽기 어려우니 18px까지 올린다 (뒤로/제출과 동일선상) */
+#loginStage .lgField > span{font-family:'Nanum Brush Script','Gowun Batang',serif;font-size:18px;
+  color:rgba(var(--gold-rgb),.95);text-shadow:0 1px 3px rgba(var(--ink-rgb),.9)}
 /* 16px 아래로 내리면 iOS 사파리가 포커스할 때 화면을 확대해버린다 */
 #loginStage .lgField input{font:400 16px var(--sans);color:var(--cream);
   text-shadow:0 1px 3px rgba(var(--ink-rgb),.85)}
