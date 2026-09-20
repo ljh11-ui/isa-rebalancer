@@ -134,10 +134,13 @@ body{padding:14px}
 #loginStage .lgPanel.show{animation:lgRise .32s cubic-bezier(.32,.72,0,1) both}
 @keyframes lgRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
-#loginStage .lgBtn{height:52px;border-radius:var(--pill);display:flex;align-items:center;justify-content:center;
-  font:700 14px var(--sans);letter-spacing:.06em;transition:transform .35s cubic-bezier(.32,.72,0,1)}
-#loginStage .lgBtn:active{transform:scale(.98)}
-#loginStage .lgBtn--go{background:var(--gold);color:var(--ink);box-shadow:0 10px 28px rgba(var(--ink-rgb),.45)}
+/* 제출 버튼("승선하기")도 이전(영상 이전) 로그인 화면의 황동 알약 그대로였다.
+   1단계 버튼과 같은 붓글씨·판때기 없는 스타일로 맞춘다. */
+/* color는 안 적는다 — 뒤에 나오는 .lgText의 크림색이 순서상 이긴다.
+   실제로 그게 더 낫다: 다른 텍스트와 톤이 통일되고, 크기(22px)만으로 주 버튼임이 드러난다. */
+#loginStage .lgSubmit{min-height:52px;font-size:22px;font-weight:400;margin-top:4px;
+  letter-spacing:.03em}
+#loginStage .lgSubmit:disabled{opacity:.5}
 /* 1단계 두 항목은 판때기 없이 글씨만 남긴다. 영상 위라 그림자로 읽히게 받친다.
    누르는 범위는 그대로 둔다 — 보이지 않을 뿐 44px 아래로 내려가지 않는다. */
 #loginStage .lgText{display:flex;align-items:center;justify-content:center;
@@ -349,7 +352,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <input type="password" data-bind="lpw" autocomplete="current-password"
                  onkeydown="if(event.key==='Enter')lgSubmit()">
         </label>
-        <button data-bind="lbtn" class="lgBtn lgBtn--go" onclick="lgSubmit()">
+        <button data-bind="lbtn" class="lgText lgSubmit" onclick="lgSubmit()">
           <span data-bind="lgSubmitLabel">승선하기</span>
         </button>
       </div>
@@ -378,7 +381,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <input type="password" data-bind="lpw" autocomplete="current-password"
                  onkeydown="if(event.key==='Enter')lgSubmit()">
         </label>
-        <button data-bind="lbtn" class="lgBtn lgBtn--go" onclick="lgSubmit()">
+        <button data-bind="lbtn" class="lgText lgSubmit" onclick="lgSubmit()">
           <span data-bind="lgSubmitLabel">승선하기</span>
         </button>
       </div>
