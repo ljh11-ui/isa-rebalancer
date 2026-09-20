@@ -22,6 +22,9 @@
   /* 색 — 값은 기존 그대로, 이름만 붙였다 */
   --ink:#0b1d33; --brass:#b5713f; --paper:#fffdf6;
   --shell:#f5efe0; --gold:#e2b463; --cream:#fdf6e8;
+  /* 밀어서 저장 슬라이더 전용 — 브라스에 흰색 45% 섞은 파스텔.
+     크림 글자와는 대비가 다 깨져서(3.6:1 이하) 이 색 위에서는 글자를 --ink로 쓴다. */
+  --brass-pastel:#d6b195;
 
   /* 비중 밴드 링 게이지 — 진한 호 5색은 디자인 핸드오프 원본 그대로다.
      종목의 신분증 색이라 다른 화면에서 또 쓰게 되면 같은 값을 쓴다. */
@@ -313,13 +316,55 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 @media (min-width:760px){
   .taskRow{transition:box-shadow .18s ease,transform .18s ease}
   .taskRow:hover{box-shadow:0 6px 18px rgba(var(--brass-rgb),.18);transform:translateY(-1px)}
-  /* 실행 버튼 3개도 같은 촉감으로 (비활성 상태에서는 뜨지 않게 :not(:disabled)) */
-  [data-bind="quoteBtn"],[data-bind="calcBtn"],[data-bind="saveBtn"]{
-    transition:box-shadow .18s ease,transform .18s ease}
-  [data-bind="quoteBtn"]:not(:disabled):hover,
-  [data-bind="calcBtn"]:not(:disabled):hover,
-  [data-bind="saveBtn"]:not(:disabled):hover{
-    box-shadow:0 6px 18px rgba(var(--brass-rgb),.18);transform:translateY(-1px)}
+}
+
+/* (5) 실행 영역 — 버튼 3개 대신 "아이콘 탭 2개 + 밀어서 저장 1개".
+   조회·계산은 되돌릴 수 있는 가벼운 동작이라 아이콘+라벨로 낮췄고, 저장만 이 앱에서
+   유일하게 되돌릴 수 없는 실행이라 끝까지 밀어야 실행되는 제스처로 분리했다(오탭 방지).
+   진짜 안전장치는 saveIt() 안의 confirm()이고, 이 슬라이더는 그 앞단의 촉감적 확인
+   절차일 뿐이다. 그림자·그라디언트 없이 평면으로, 반경은 이 영역 안에서 --r-10 통일. */
+.actRow{display:flex;align-items:center;gap:8px}
+.actIcon{flex:0 0 auto;width:58px;height:46px;border-radius:var(--r-10);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:rgba(var(--ink-rgb),.06);border:none;cursor:pointer;color:var(--ink)}
+.actIcon svg{width:15px;height:15px;stroke:var(--ink);fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.actIcon span{font:500 9.5px var(--sans);color:rgba(var(--ink-rgb),.6);letter-spacing:-.01em}
+.actIcon:disabled{background:rgba(var(--ink-rgb),.03);cursor:default}
+.actIcon:disabled svg{stroke:rgba(var(--ink-rgb),.28)}
+.actIcon:disabled span{color:rgba(var(--ink-rgb),.3)}
+/* 새로고침은 실제로 도는 아이콘이라 회전이 자연스럽다 */
+.actIcon.spin svg{animation:actSpin 1s linear infinite}
+@keyframes actSpin{to{transform:rotate(360deg)}}
+/* 계산기는 회전하면 뒤집힌 모양이 어색해서, 도는 대신 좌우로 까딱인다 */
+.actIcon.wiggle svg{animation:actWiggle .6s ease-in-out infinite}
+@keyframes actWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+
+.actTrack{position:relative;flex:1;height:46px;border-radius:var(--pill);
+  background:rgba(var(--ink-rgb),.07);overflow:hidden;border:none;padding:0;
+  cursor:pointer;touch-action:none}
+.actTrack:disabled{cursor:default}
+.actFill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--brass-pastel);
+  transition:width .22s ease;pointer-events:none}
+.actTrack.filled .actFill{width:calc(100% - 3px)}
+.actTrackLbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font:600 13px var(--sans);color:rgba(var(--ink-rgb),.55);letter-spacing:.02em;
+  transition:color .2s;white-space:nowrap;pointer-events:none}
+.actTrackLbl.onFill{color:var(--ink)}
+.actThumb{position:absolute;top:3px;left:3px;width:40px;height:40px;border-radius:50%;
+  background:var(--brass-pastel);display:flex;align-items:center;justify-content:center;
+  transition:left .22s ease;pointer-events:none}
+.actTrack.filled .actThumb{left:calc(100% - 43px)}
+.actThumb svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.actTrack:disabled .actFill,.actTrack:disabled .actThumb{background:rgba(var(--ink-rgb),.12)}
+.actTrack:disabled .actThumb svg{stroke:rgba(var(--ink-rgb),.4)}
+.actTrack:disabled .actTrackLbl{color:rgba(var(--ink-rgb),.32)}
+@media (min-width:760px){
+  .actIcon{width:64px;height:50px}
+  .actTrack{height:50px}
+  .actThumb{width:44px;height:44px}
+  .actTrack.filled .actThumb{left:calc(100% - 47px)}
 }
 
 </style>
@@ -461,10 +506,20 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       <div data-bind="sumBoxM" style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(var(--ink-rgb),.1);margin-top:4px;padding-top:12px"></div>
     </div>
 
-    <div style="display:flex;gap:8px">
-      <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:.75;height:48px;border-radius:var(--pill);background:none;border:1px solid rgba(var(--ink-rgb),.25);display:flex;align-items:center;justify-content:center;font:500 12px var(--sans);color:var(--ink)">시세 조회</button>
-      <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:48px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.12);border:1px solid var(--brass);display:flex;align-items:center;justify-content:center;font:500 12px var(--sans);color:var(--ink)">① 계산하기</button>
-      <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1.15;height:48px;border-radius:var(--pill);background:var(--brass);display:flex;align-items:center;justify-content:center;font:700 12px var(--sans);color:var(--cream)">② 저장하기</button>
+    <div class="actRow">
+      <button class="actIcon" data-bind="quoteBtn" onclick="refreshQuote()" title="시세 조회">
+        <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 6.3M20 5v6h-6"/></svg>
+        <span data-bind="quoteBtnLbl">시세 조회</span>
+      </button>
+      <button class="actIcon" data-bind="calcBtn" onclick="calc()" title="계산하기">
+        <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="13" x2="8" y2="13"/><line x1="12" y1="13" x2="12" y2="13"/><line x1="16" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="8" y2="17"/><line x1="12" y1="17" x2="12" y2="17"/><line x1="16" y1="17" x2="16" y2="17"/></svg>
+        <span data-bind="calcBtnLbl">계산하기</span>
+      </button>
+      <button class="actTrack" data-bind="saveBtn" onclick="saveIt()">
+        <span class="actFill"></span>
+        <span class="actTrackLbl" data-bind="saveBtnLbl">밀어서 저장</span>
+        <span class="actThumb"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
     </div>
 
     <div class="belowBanner" data-bind="belowBanner" style="display:none"></div>
@@ -520,10 +575,20 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
         <span style="font:500 12px var(--sans);color:rgba(var(--ink-rgb),.62)">신규 입금액</span>
         <input data-bind="dep" inputmode="numeric" placeholder="0" style="background:rgba(var(--ink-rgb),.05);border-radius:var(--r-16);padding:12px 16px;text-align:right;font:500 17px var(--sans);color:var(--ink);border:1px solid transparent;width:100%">
       </div>
-      <div style="flex:1;display:flex;gap:9px">
-        <button class="plain" data-bind="quoteBtn" onclick="refreshQuote()" style="flex:.8;height:50px;border-radius:var(--pill);background:none;border:1px solid rgba(var(--ink-rgb),.25);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">시세 조회</button>
-        <button class="plain" data-bind="calcBtn" onclick="calc()" style="flex:1;height:50px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.12);border:1px solid var(--brass);display:flex;align-items:center;justify-content:center;font:500 13px var(--sans);color:var(--ink)">① 계산하기</button>
-        <button class="plain" data-bind="saveBtn" onclick="saveIt()" style="flex:1.2;height:50px;border-radius:var(--pill);background:var(--brass);display:flex;align-items:center;justify-content:center;font:700 13px var(--sans);color:var(--cream)">② 매매 완료 · 저장</button>
+      <div class="actRow" style="flex:1">
+        <button class="actIcon" data-bind="quoteBtn" onclick="refreshQuote()" title="시세 조회">
+          <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 6.3M20 5v6h-6"/></svg>
+          <span data-bind="quoteBtnLbl">시세 조회</span>
+        </button>
+        <button class="actIcon" data-bind="calcBtn" onclick="calc()" title="계산하기">
+          <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="13" x2="8" y2="13"/><line x1="12" y1="13" x2="12" y2="13"/><line x1="16" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="8" y2="17"/><line x1="12" y1="17" x2="12" y2="17"/><line x1="16" y1="17" x2="16" y2="17"/></svg>
+          <span data-bind="calcBtnLbl">계산하기</span>
+        </button>
+        <button class="actTrack" data-bind="saveBtn" onclick="saveIt()">
+          <span class="actFill"></span>
+          <span class="actTrackLbl" data-bind="saveBtnLbl">밀어서 매매 완료 · 저장</span>
+          <span class="actThumb"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </button>
       </div>
     </div>
 
@@ -1267,17 +1332,97 @@ function grab() {
 }
 
 function busy(on, name, txt) {
-  var idle = { calcBtn: '① 계산하기', saveBtn: '② 매매 완료 · 저장하기', quoteBtn: '시세 조회' };
-  // 데스크톱 시안의 저장 버튼 문구는 '② 매매 완료 · 저장', 모바일은 '② 저장하기'
-  var e = all(name);
+  var idle = { calcBtn: '계산하기', quoteBtn: '시세 조회' };
+  // 저장 버튼은 아이콘 버튼이 아니라 밀어서 저장 트랙이라, 글자는 트랙 안의
+  // saveBtnLbl 쪽에 쓴다(트랙 자체에 innerText를 쓰면 채움·손잡이가 같이 지워진다).
+  // 데스크톱은 '밀어서 매매 완료 · 저장', 모바일은 '밀어서 저장'.
+  var e = all(name), lbl = all(name + 'Lbl');
   for (var i = 0; i < e.length; i++) {
     e[i].disabled = on;
-    if (on) { e[i].innerText = txt; }
-    else if (name === 'saveBtn') { e[i].innerText = e[i].closest('.mobileOnly') ? '② 저장하기' : '② 매매 완료 · 저장'; }
-    else if (name === 'calcBtn') { e[i].innerText = idle.calcBtn; }
-    else { e[i].innerText = idle[name]; }
+    var t;
+    if (on) { t = txt; }
+    else if (name === 'saveBtn') { t = e[i].closest('.mobileOnly') ? '밀어서 저장' : '밀어서 매매 완료 · 저장'; }
+    else if (name === 'calcBtn') { t = idle.calcBtn; }
+    else { t = idle[name]; }
+    if (lbl[i]) { lbl[i].innerText = t; } else { e[i].innerText = t; }
+    // 새로고침은 도는 아이콘, 계산기는 회전하면 어색해서 좌우로 까딱이는 아이콘으로 처리
+    if (name === 'quoteBtn') { e[i].classList.toggle('spin', on); }
+    if (name === 'calcBtn') { e[i].classList.toggle('wiggle', on); }
+    // 저장 트랙은 처리 중일 땐 끝까지 채워진 모습을 유지한다(드래그 없이 saveIt()이
+    // 직접 호출된 경우에도 동일하게 보이도록)
+    if (name === 'saveBtn') {
+      e[i].classList.toggle('filled', on);
+      if (lbl[i]) { lbl[i].classList.toggle('onFill', on); }
+    }
   }
 }
+
+// 밀어서 저장 — 진짜 안전장치는 saveIt() 안의 confirm()이고, 이 드래그는
+// 그 앞에서 오탭을 거르는 촉감적 확인 단계일 뿐이다. 끝까지 밀어야 그 뒤에
+// 이어지는 click(=onclick="saveIt()")이 통과한다. 도중에 놓으면 원위치로 되돌아가고
+// click 자체를 막는다. 포인터 없이 들어온 클릭(키보드 Enter/Space, 스크린리더)은
+// 드래그 기록이 없으므로 그대로 통과시킨다 — 접근성 폴백.
+function bindSaveDrag(track) {
+  var thumb = track.querySelector('.actThumb');
+  var fill = track.querySelector('.actFill');
+  var lbl = track.querySelector('.actTrackLbl');
+  var dragging = false, dragAttempted = false, committed = false;
+  var trackW = 0, thumbW = 0, inset = 3;
+
+  function place(x) {
+    var usable = trackW - thumbW - inset * 2;
+    var left = x - thumbW / 2;
+    if (left < inset) left = inset;
+    if (left > inset + usable) left = inset + usable;
+    thumb.style.left = left + 'px';
+    fill.style.width = (left + thumbW) + 'px';
+    return usable > 0 ? (left - inset) / usable : 0;
+  }
+  function reset() {
+    thumb.style.left = ''; fill.style.width = '';
+    track.classList.remove('filled');
+    if (lbl) lbl.classList.remove('onFill');
+  }
+
+  track.addEventListener('pointerdown', function (e) {
+    if (track.disabled) return;
+    dragging = true; dragAttempted = true; committed = false;
+    trackW = track.clientWidth; thumbW = thumb.offsetWidth;
+    try { track.setPointerCapture(e.pointerId); } catch (err) {}
+    place(e.clientX - track.getBoundingClientRect().left);
+  });
+  track.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var progress = place(e.clientX - track.getBoundingClientRect().left);
+    if (progress >= 0.86) { committed = true; }
+  });
+  function finish() {
+    if (!dragging) return;
+    dragging = false;
+    if (committed) {
+      thumb.style.left = ''; fill.style.width = '';
+      track.classList.add('filled');
+      if (lbl) lbl.classList.add('onFill');
+      // saveIt()이 confirm()에서 취소되거나 검증에서 걸리면 busy()가 한 번도 안 불려서
+      // disabled가 그대로 false다 — 그 경우만 채워진 채로 멈춰 보이니 한 틱 뒤 되돌린다.
+      setTimeout(function () { if (!track.disabled) reset(); }, 0);
+    } else {
+      reset();
+    }
+  }
+  track.addEventListener('pointerup', finish);
+  track.addEventListener('pointercancel', function () { dragging = false; reset(); });
+
+  document.addEventListener('click', function (e) {
+    if (e.target !== track && !track.contains(e.target)) return;
+    if (dragAttempted && !committed) { e.stopPropagation(); }
+    dragAttempted = false;
+  }, true);
+}
+(function () {
+  var tracks = all('saveBtn');
+  for (var i = 0; i < tracks.length; i++) bindSaveDrag(tracks[i]);
+})();
 
 // ① 시세만 새로고침 — 보유수량·해야 할 일은 건드리지 않음
 function refreshQuote() {
@@ -1353,7 +1498,7 @@ function saveIt() {
       var el = document.querySelector('.acc[data-logs] .accH');
       if (el) delete el.dataset.loaded;
       // ponytail: alert 대신 버튼 라벨로 알린다. 시선이 안 움직이고 확인 클릭도 없다.
-      putText('saveBtn', '저장됨 ✓');
+      putText('saveBtnLbl', '저장됨 ✓');
       setTimeout(function () { busy(false, 'saveBtn'); }, 1500);
     }, fail);
 }
