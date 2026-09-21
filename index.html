@@ -357,9 +357,13 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
 .actTrack.filled .actThumb{left:calc(100% - 43px)}
 .actThumb svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round}
-.actTrack:disabled .actFill,.actTrack:disabled .actThumb{background:rgba(var(--ink-rgb),.12)}
-.actTrack:disabled .actThumb svg{stroke:rgba(var(--ink-rgb),.4)}
-.actTrack:disabled .actTrackLbl{color:rgba(var(--ink-rgb),.32)}
+/* 처리 중(.filled + :disabled)에는 채운 색을 그대로 유지해야 한다 —
+   :disabled 회색이 이기면 "기록 중..."일 때 바가 죽은 것처럼 보인다.
+   :not(.filled)로 막아둔다. */
+.actTrack:disabled:not(.filled) .actFill,
+.actTrack:disabled:not(.filled) .actThumb{background:rgba(var(--ink-rgb),.12)}
+.actTrack:disabled:not(.filled) .actThumb svg{stroke:rgba(var(--ink-rgb),.4)}
+.actTrack:disabled:not(.filled) .actTrackLbl{color:rgba(var(--ink-rgb),.32)}
 @media (min-width:760px){
   .actIcon{width:64px;height:50px}
   .actTrack{height:50px}
@@ -1358,16 +1362,27 @@ function busy(on, name, txt) {
 }
 
 // 밀어서 저장 — 진짜 안전장치는 saveIt() 안의 confirm()이고, 이 드래그는
-// 그 앞에서 오탭을 거르는 촉감적 확인 단계일 뿐이다. 끝까지 밀어야 그 뒤에
-// 이어지는 click(=onclick="saveIt()")이 통과한다. 도중에 놓으면 원위치로 되돌아가고
-// click 자체를 막는다. 포인터 없이 들어온 클릭(키보드 Enter/Space, 스크린리더)은
-// 드래그 기록이 없으므로 그대로 통과시킨다 — 접근성 폴백.
+// 그 앞에서 오탭을 거르는 촉감적 확인 단계일 뿐이다.
+//
+// 하드 원 레슨: 터치 기기는 드래그 뒤에 click 이벤트를 만들어주지 않는다.
+// 손가락이 크게 움직이면 브라우저가 그걸 "탭"으로 치지 않기 때문이다. 그래서
+// 실행을 onclick에 맡기면 데스크톱 마우스로만 되고 모바일에서는 아무리 밀어도
+// 저장이 안 된다. 실행은 pointerup에서 직접 하고, 포인터로 시작된 click은
+// 전부 막아 두 번 저장되는 것을 방지한다.
+// 포인터 기록이 없는 click(키보드 Enter/Space, 스크린리더)만 통과시켜
+// onclick="saveIt()"이 그대로 동작하게 둔다 — 접근성 폴백.
 function bindSaveDrag(track) {
   var thumb = track.querySelector('.actThumb');
   var fill = track.querySelector('.actFill');
   var lbl = track.querySelector('.actTrackLbl');
-  var dragging = false, dragAttempted = false, committed = false;
+  var dragging = false, pointerClick = false;
   var trackW = 0, thumbW = 0, inset = 3;
+  var startX = 0, moved = 0, progress = 0;
+
+  var DONE = 0.85;   // 이만큼 밀면 실행 — 끝(100%)까지 안 가도 된다
+  var SLOP = 24;     // 톡 누른 것과 실제로 민 것을 가르는 최소 이동 거리(px).
+                     // 이게 없으면 트랙 오른쪽 끝을 그냥 한 번 누르는 것만으로
+                     // 손잡이가 끝으로 점프해서 바로 저장돼 버린다.
 
   function place(x) {
     var usable = trackW - thumbW - inset * 2;
@@ -1386,26 +1401,32 @@ function bindSaveDrag(track) {
 
   track.addEventListener('pointerdown', function (e) {
     if (track.disabled) return;
-    dragging = true; dragAttempted = true; committed = false;
+    dragging = true; pointerClick = true;
+    progress = 0; moved = 0; startX = e.clientX;
     trackW = track.clientWidth; thumbW = thumb.offsetWidth;
     try { track.setPointerCapture(e.pointerId); } catch (err) {}
     place(e.clientX - track.getBoundingClientRect().left);
   });
   track.addEventListener('pointermove', function (e) {
     if (!dragging) return;
-    var progress = place(e.clientX - track.getBoundingClientRect().left);
-    if (progress >= 0.86) { committed = true; }
+    moved = Math.max(moved, Math.abs(e.clientX - startX));
+    progress = place(e.clientX - track.getBoundingClientRect().left);
   });
   function finish() {
     if (!dragging) return;
     dragging = false;
-    if (committed) {
+    // click이 끝내 안 올 수도 있으니(모바일 드래그) 플래그를 시간으로도 풀어준다.
+    // 안 그러면 다음에 키보드로 누른 click까지 막힌다.
+    setTimeout(function () { pointerClick = false; }, 500);
+
+    if (progress >= DONE && moved >= SLOP) {
       thumb.style.left = ''; fill.style.width = '';
       track.classList.add('filled');
       if (lbl) lbl.classList.add('onFill');
-      // saveIt()이 confirm()에서 취소되거나 검증에서 걸리면 busy()가 한 번도 안 불려서
-      // disabled가 그대로 false다 — 그 경우만 채워진 채로 멈춰 보이니 한 틱 뒤 되돌린다.
-      setTimeout(function () { if (!track.disabled) reset(); }, 0);
+      saveIt();
+      // saveIt()이 confirm() 취소나 검증 실패로 그냥 return했으면 busy()가 안 불려
+      // disabled가 false 그대로다 — 그 경우만 채워진 채 멈춰 보이니 되돌린다.
+      if (!track.disabled) reset();
     } else {
       reset();
     }
@@ -1415,8 +1436,7 @@ function bindSaveDrag(track) {
 
   document.addEventListener('click', function (e) {
     if (e.target !== track && !track.contains(e.target)) return;
-    if (dragAttempted && !committed) { e.stopPropagation(); }
-    dragAttempted = false;
+    if (pointerClick) { e.stopPropagation(); pointerClick = false; }
   }, true);
 }
 (function () {
