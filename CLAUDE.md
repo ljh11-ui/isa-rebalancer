@@ -1,6 +1,7 @@
-# ISA 5분할 리밸런싱 웹앱
+# 분할 리밸런싱 웹앱 (자유 포트폴리오)
 
-국내 ISA 계좌 + 미국 직투 계좌용 5종목 ETF 동적 리밸런싱 계산기.
+계좌별 동적 리밸런싱 계산기. 사용자가 계좌(최대 5개, 원화/달러)를 만들고, 등록된 종목
+중에서 최대 10개를 골라 목표 비중(합계 100%)·상단 밴드를 직접 정한다.
 보유수량·현금을 입력하면 무엇을 얼마나 사고팔지 계산해준다.
 매매는 시스템이 하지 않고, 계산 결과를 보고 사용자가 증권사 앱에서 직접 한다.
 
@@ -36,17 +37,28 @@ Apps Script 배포 설정은 **실행 = 나 / 액세스 권한 = 모든 사용�
 
 ### 구글시트 탭 구성
 
-- **1번째 시트**: 국내 5종목 `A6:E10` (이름/코드/목표비중/밴드/현재가 수식)
-- **Overseas**: 해외 5종목, 같은 구조 (티커/달러 현재가)
+- **Assets** (자동 생성): 종목 카탈로그, 모든 사용자 공유. market | code | name | short | symbol | price(수식).
+  처음 만들어질 때 예전 기본 10종목이 미리 들어간다. 새 종목은 화면의 등록 절차로 추가된다
+- **Accounts** (자동 생성): 계좌 한 개 = 한 행. userId | acctId | name | market(domestic/overseas) |
+  cash | deposit | cumDeposit | peakNet | peakCum | **assetsJson** | createdAt.
+  assetsJson = `[{code, target, band, shares, below}]` — 구성·보유수량·하단관찰일이 전부 여기 한 칸에
 - **Users**: userId, pwHash, createdAt
-- **UserData**: userId, market, cashAsset, newDeposit, shares1~5, cumDeposit,
-  peakNetValue, peakCumDeposit, belowStart1~5 (17열)
-- **Log**: userId, market, date, summary, cash, deposit (자동 생성)
-- **_tmpQuote**: 시세 조회용 임시 시트 (숨김, 자동 생성)
+- **Log**: userId, market(= **계좌 id**), date, summary, cash, deposit
+- **1번째 시트 / Overseas** (예전 고정 5종목): 더 이상 목표·밴드를 읽지 않는다. 하지만
+  **E열(현재가)은 Assets 기본 10종목의 가격 원본으로 계속 참조한다 — 지우면 그 10종목 가격이 0이 된다**
+- **UserData** (예전 17열 구조): 첫 로그인 이관의 원본으로 읽기만 한다. 코드가 더 이상 쓰지 않는다
+- **_tmpQuote / _tmpHist / _tmpReg**: 환율 / 과거시세 묶음조회 / 종목 등록 조회용 임시 시트 (숨김, 자동 생성).
+  서로 지우지 않도록 용도별로 나눴다
+
+### 첫 로그인 이관 (accountsFor_)
+
+계좌가 하나도 없는 사용자가 load 하면 예전 UserData 행을 그대로 옮겨 기본 계좌 두 개를 만든다.
+id 를 `domestic` / `overseas` 로 두어 예전 Log 행이 그대로 새 계좌의 기록이 된다.
+**마지막 계좌는 삭제할 수 없게 막아뒀다** — 0개가 되면 다음 load 때 이관이 또 돌아서 지운 계좌가 되살아난다.
 
 ---
 
-## 포트폴리오 (5종, 각 목표비중 20%)
+## 기본 포트폴리오 (이관·신규 가입 시 기본값 — 5종, 각 목표비중 20%)
 
 | 짧은 이름 | 종목명 | 국내코드 | 해외티커 | 상단밴드 |
 |---|---|---|---|---|
@@ -87,7 +99,12 @@ HTML + CSS + JS 한 파일. 프레임워크 없음, 순수 바닐라 JS.
 | `show(d)` | 계산 결과를 화면에 렌더링 |
 | `loadAum(el)` | ETF 운용자산 규모 + 괴리율 (`action=aum`) |
 | `loadLogs(el)` | 최근 기록, 항해일지 카드형 (`action=logs`) |
-| `loadRet()` / `next()` / `render()` | 종목별 최근 수익률, 1종목씩 5번 호출 (`action=ret`) |
+| `loadRet()` / `render()` | 종목별 최근 수익률, 계좌의 모든 종목을 한 번에 (`action=retAll`) |
+| `renderTabs()` / `switchAcct(id)` | 계좌 탭 그리기 / 계좌 전환. 탭 목록은 서버 응답의 `accounts` 가 기준 |
+| `forAcct(id, fn)` | 응답이 왔을 때 이미 다른 계좌로 넘어갔으면 버림 (탭 빠르게 넘길 때 덮어쓰기 방지) |
+| `openNewAcct()` / `openEditor()` | 새 계좌 / 계좌 구성 편집 (네이티브 `<dialog id="dlg">` 한 벌을 모드별로 다시 그림) |
+| `pfLookup()` / `pfRegister()` | 종목 등록 — 코드 조회 → 이름·가격을 사람이 확인 → 카탈로그에 등록 |
+| `sharesParam(arr)` | 보유수량을 `코드:수량,…` 으로 만든다. 서버는 순서가 아니라 코드로 짝짓는다 |
 | `fmtDate(v)` | 서버가 어떤 형태로 날짜를 보내도 `yyyy-MM-dd`로 표시 |
 | `lgOpenForm(mode)` / `lgCloseForm()` | 로그인 1단계(버튼 2개) ↔ 2단계(아이디·암호) 전환 |
 | `lgSubmit()` | 2단계 제출 — mode에 따라 `doLogin()` 또는 `doSignUp()` 호출 |
@@ -98,12 +115,14 @@ HTML + CSS + JS 한 파일. 프레임워크 없음, 순수 바닐라 JS.
 | 함수 | 역할 |
 |---|---|
 | `doGet(e)` | 라우터. `action` 파라미터로 분기 |
-| `compute_(...)` | 핵심 계산 로직. `persist=true`일 때만 시트에 기록 |
-| `loadState` / `calcOnly` / `saveState` | 각각 load / calc / save 액션 처리 |
-| `getAumInfo(market)` | 네이버 목록 API에서 순자산 + 괴리율 계산 |
-| `getReturnOne(market, index)` | 종목 1개 수익률. 국내는 네이버, 해외는 GOOGLEFINANCE |
-| `fetchNaverDaily_(code, days)` | 네이버 일별 종가 시계열 |
-| `fetchGoogleFinanceDaily_(...)` | GOOGLEFINANCE 폴백 |
+| `compute_(acct, ...)` | 핵심 계산 로직. `persist=true`일 때만 시트에 기록 |
+| `loadState` / `calcOnly` / `saveState` | 각각 load / calc / save 액션 처리. 계좌 id 없으면 첫 계좌 |
+| `acct_` / `accountsFor_` / `migrateLegacy_` | 계좌 읽기 / 목록(없으면 이관) / 예전 데이터 이관 |
+| `addAcct` / `savePortfolio` / `deleteAcct` | 계좌 추가(최대 5) / 구성 저장(최대 10종목, 합계 100 검증) / 삭제(마지막은 불가) |
+| `catalog_` / `lookupAsset` / `registerAsset` | 카탈로그 / 코드로 거래소 후보 일괄 조회 / 등록 |
+| `getAumInfo(user, acct)` | 네이버 목록 API에서 순자산 + 괴리율 계산 |
+| `getReturns(user, acct)` | 계좌 전체 수익률. 국내는 네이버 `fetchAll` 병렬, 실패분만 GOOGLEFINANCE 묶음 조회 |
+| `parseShares_` | `코드:수량` 파싱. 구성과 안 맞으면(빠진 종목) 멈춘다. 콜론 없는 예전 형식도 받는다 |
 | `debugAum()` / `debugRet()` | 편집기에서 직접 실행하는 진단용 |
 
 ### `api/proxy.js` (Vercel 서버 함수)
@@ -165,7 +184,8 @@ HTML + CSS + JS 한 파일. 프레임워크 없음, 순수 바닐라 JS.
 - 낮/밤 전환은 폐기됨 (영상이 1종이라 토글할 대상이 없다). `lgSetMode`·`DZ`·day.mp4/night.mp4 전부 제거
 
 **비중 밴드** — 종목당 링 게이지 하나 (`renderBands`)
-- 한 바퀴 = 0~30%. 다섯 링이 같은 자를 쓰므로 링끼리 바로 비교된다
+- 한 바퀴 = 0~30%. 상단 밴드가 30%를 넘는 종목이 있으면 10% 단위로 늘린다. 모든 링이 같은 자를 쓰므로 링끼리 바로 비교된다
+- 한 줄에 5개, 6개부터 다음 줄 (최대 10). 6~10번째 색 `--g6`~`--g10`은 추가분이다
 - 트랙은 **상단 밴드에서 끊긴다**. 그 종목의 한계가 어디인지를 트랙 길이로 보여주는 게 핵심이라
   별도 마커가 없다. 트랙을 한 바퀴 다 그리면 이 디자인은 의미를 잃는다
 - 진한 호 5색(`--g1`~`--g5`)은 디자인 핸드오프 원본 값이다. 종목의 신분증 색이라 바꾸지 않는다
@@ -239,7 +259,28 @@ ffmpeg -i 원본.mp4 -an -c:v libx264 -preset slow -crf 28 \
 현재 login1은 CRF 28(2.0MB), login2는 CRF 26(1.6MB). 영상을 갈아끼우면 `sw.js`의
 `CACHE_NAME` 버전도 올려야 기존 방문자의 옛 캐시가 지워진다.
 
-### 7. CORS
+### 7. 배포 순서 — Apps Script 먼저, 화면(main 푸시)은 그 다음
+
+새 화면은 보유수량을 `코드:수량`으로 보낸다. 예전 서버는 이걸 못 읽어 0으로 저장한다.
+그래서 화면은 응답에 `account` 가 없으면(= 예전 서버) 경고를 띄우고 계산·저장·편집을 막는다(`oldServer()`).
+반대로 새 서버는 예전 화면의 `market=` / 순서형 수량을 받아준다. 둘 중 한쪽이 먼저 나가도
+데이터는 안 망가지지만, **Apps Script 를 먼저 재배포하는 게 정상 순서다.**
+
+### 8. `button.plain` 이 새 버튼 스타일을 덮어쓴다
+
+`button.plain{font:inherit;padding:0;…}` 은 요소+클래스라 `.acctTab` 같은 클래스 하나짜리 규칙보다 세다.
+새로 만드는 버튼 스타일은 `button.xxx` 로 쓴다 (안 그러면 글자가 부모 세리프 크기로 커진다).
+
+### 9. dialog 의 close 이벤트로 상태를 비우지 말 것
+
+`close` 이벤트는 한 박자 늦게 온다. 닫고 곧바로 다시 여는 흐름(새 계좌 → 구성 편집)에서
+새로 연 창의 데이터를 지워버린다. 늦게 온 응답은 `live(forId)` (창이 열려 있고 같은 계좌인지)로 거른다.
+
+### 10. 종목코드를 객체 키로 쓸 때 순서
+
+`Object.keys` 는 `"133690"` 처럼 숫자로만 된 키를 먼저 숫자순으로 늘어놓는다. 순서가 필요하면 배열로 들고 다닌다.
+
+### 11. CORS
 
 Vercel에서 Apps Script를 직접 fetch하면 CORS에 막힌다. JSONP도 시도했으나 실패.
 현재 구조(서버 함수 프록시)가 최종 해결책이다.
@@ -249,11 +290,12 @@ Vercel에서 Apps Script를 직접 fetch하면 CORS에 막힌다. JSONP도 시�
 ## 검증 안 된 것 / 남은 일
 
 ### 검증 필요
+- 국내 신규 종목(특히 영문 섞인 코드) 등록 시 GOOGLEFINANCE 가 `KRX:코드`로 시세를 찾는지 — 못 찾으면 등록 화면에 "시세를 찾지 못했습니다"가 뜬다
+- 운용 규칙 / 종목 상세 설명 아코디언은 기본 5종목 기준 글이다 (사용자 요청 전까지 그대로 둠)
 - 하단 관찰 배너 — 이탈 자산 없을 때 안 보이는지, 있을 때만 뜨는지
 - 최근 기록의 매매 수량이 실제 보유수량 diff와 일치하는지
 
 ### 미착수 (나중으로 미룸)
-- 종목·비중 자유 설정 페이지
 - 배당 정보(배당월 + 참고 배당수익률) 표시
 - 해외 계좌 출금 이력 추적
 - Vercel 프로젝트 이름(= URL) 변경 — Settings > General > Project Name

@@ -33,6 +33,12 @@
   --g3:#c98a3c; --g3s:#ddb988;   /* 슈드 */
   --g4:#a4557a; --g4s:#d8b7b8;   /* 배당퀄리티 */
   --g5:#6d6fa8; --g5s:#c1bdc6;   /* 미국 초단기채 */
+  /* 자유 포트폴리오 6~10번째 종목 — 위 다섯 색과 같은 채도·명도대에서 색상만 벌렸다 */
+  --g6:#8b6b3d; --g6s:#d3c1a4;
+  --g7:#4f7f9e; --g7s:#b3c3cc;
+  --g8:#6f8a3c; --g8s:#c3cca7;
+  --g9:#b0604a; --g9s:#dcb8ab;
+  --g10:#5b6773; --g10s:#bcc0c2;
   --g-track:#dacbac;             /* 0~20% 트랙 */
   --g-muted:#5f5850;             /* 밴드 캡션·범례 */
   --ink-deep:#071426; --gain:#b3452f; --loss:#2f6fa8; --white:#fff;
@@ -91,8 +97,10 @@ body{padding:14px}
 /* 비중 밴드 링 게이지 — 한 바퀴가 0~30%라 다섯 링이 같은 자로 재어 서로 비교된다 */
 .gBadge{padding:6px 11px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.06);
   font:500 11px/1 var(--sans);color:rgba(var(--ink-rgb),.72);white-space:nowrap}
-.gRow{display:flex;align-items:flex-start;gap:0}
-.gCell{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:12px}
+/* 한 줄에 다섯 개. 여섯 개부터는 다음 줄로, 덜 차면 가운데로 모인다 */
+.gRow{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:18px 0}
+.gCell{flex:0 0 20%;min-width:0;display:flex;flex-direction:column;align-items:center;gap:12px}
+.gEmpty{width:100%;padding:18px 0 8px;text-align:center;font:400 12.5px var(--sans);color:rgba(var(--ink-rgb),.55)}
 .gCell svg{width:100%;max-width:72px;overflow:visible;display:block}
 .gLab{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
 /* "미국 초단기채"처럼 두 줄로 접히는 이름이 있어 이름 칸 높이를 고정한다.
@@ -318,6 +326,94 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
   .taskRow:hover{box-shadow:0 6px 18px rgba(var(--brass-rgb),.18);transform:translateY(-1px)}
 }
 
+/* (6) 계좌 탭 — 계좌 수만큼 그린다. 넘치면 옆으로 밀어서 본다 */
+.acctTabs{display:flex;gap:4px;padding:4px;border-radius:var(--pill);background:rgba(var(--ink-rgb),.07);
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.acctTabs::-webkit-scrollbar{display:none}
+button.acctTab{flex:1 0 auto;padding:10px 14px;border-radius:var(--pill);text-align:center;white-space:nowrap;
+  font:500 12.5px var(--sans);color:rgba(var(--ink-rgb),.62);transition:background .2s,color .2s}
+button.acctTab.on{background:var(--ink);color:var(--shell);font-weight:700}
+button.acctAdd{flex:0 0 38px;border-radius:var(--pill);font:400 18px/1 var(--sans);color:var(--brass)}
+.deskOnly .acctTabs{max-width:560px}
+.deskOnly button.acctTab{flex:0 0 auto;padding:8px 18px;font-size:12px}
+.deskOnly button.acctAdd{flex-basis:34px}
+
+.bandTools{display:flex;align-items:center;gap:10px}
+button.pfOpen{font:500 10.5px var(--sans);color:var(--brass);padding:6px 0}
+.deskOnly button.pfOpen{font-size:11.5px}
+
+/* (7) 계좌 만들기 / 구성 편집 — 모바일은 아래에서 올라오는 시트, 데스크톱은 가운데 카드 */
+dialog.sheet{border:none;padding:0;width:100%;max-width:440px;max-height:calc(100dvh - 48px);
+  background:var(--paper);color:var(--ink);border-radius:24px;overflow:hidden;
+  box-shadow:0 24px 64px rgba(var(--ink-rgb),.28);font-family:var(--sans)}
+dialog.sheet[open]{display:flex;flex-direction:column}
+dialog.sheet::backdrop{background:rgba(var(--ink-rgb),.4)}
+@media (max-width:759px){
+  dialog.sheet{max-width:none;margin:auto 0 0;max-height:90dvh;border-radius:24px 24px 0 0}
+  dialog.sheet[open]{animation:shUp .28s cubic-bezier(.32,.72,0,1)}
+}
+@keyframes shUp{from{transform:translateY(48px)}to{transform:none}}
+.shHd{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 6px}
+.shHd b{font:700 16px var(--sans);letter-spacing:-.01em}
+button.shX{width:32px;height:32px;margin-right:-8px;border-radius:50%;font-size:15px;color:rgba(var(--ink-rgb),.5)}
+.shBd{flex:1;overflow-y:auto;padding:10px 22px 18px;display:flex;flex-direction:column;gap:14px}
+.shFt{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 22px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(var(--ink-rgb),.08)}
+.shBtn{height:44px;padding:0 24px;border:none;border-radius:var(--pill);background:var(--ink);color:var(--shell);
+  font:700 13px var(--sans);cursor:pointer;white-space:nowrap}
+.shBtn:disabled{opacity:.3;cursor:default}
+.shBtn2{height:40px;padding:0 16px;border:1px solid rgba(var(--ink-rgb),.2);border-radius:var(--pill);
+  background:none;color:var(--ink);font:600 12.5px var(--sans);cursor:pointer;white-space:nowrap}
+.shBtn2:disabled{opacity:.4}
+.shNote{font:400 11.5px/1.55 var(--sans);color:rgba(var(--ink-rgb),.55)}
+button.shDanger{align-self:center;margin-top:6px;padding:8px;font:500 11.5px var(--sans);color:rgba(var(--ink-rgb),.42)}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld span{font:600 11px var(--sans);color:rgba(var(--ink-rgb),.55)}
+.fld input,.regLine input{width:100%;min-width:0;height:44px;padding:0 14px;border:1px solid transparent;border-radius:12px;
+  background:rgba(var(--ink-rgb),.05);font:500 15px var(--sans);color:var(--ink)}
+.fld input:focus,.regLine input:focus,.pfNum:focus-within{outline:none;border-color:rgba(var(--ink-rgb),.3)}
+
+.seg{display:flex;gap:6px;padding:4px;border-radius:16px;background:rgba(var(--ink-rgb),.05)}
+button.segO{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 8px;border-radius:12px;
+  transition:background .2s,box-shadow .2s}
+button.segO b{font:700 14px var(--sans)}
+button.segO small{font:400 11px var(--sans);color:rgba(var(--ink-rgb),.55)}
+button.segO.on{background:var(--paper);box-shadow:0 1px 4px rgba(var(--ink-rgb),.14)}
+
+.pfHead,.pfRow{display:grid;grid-template-columns:minmax(0,1fr) 68px 60px 28px;gap:8px;align-items:center}
+.pfHead{margin-bottom:-6px;font:600 10.5px var(--sans);color:rgba(var(--ink-rgb),.45)}
+.pfHead span:nth-child(2),.pfHead span:nth-child(3){text-align:center}
+.pfRow{padding:10px 0;border-bottom:1px solid rgba(var(--ink-rgb),.07)}
+.pfName{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pfName b{font:600 13.5px var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pfName small{font:400 11px var(--sans);color:rgba(var(--ink-rgb),.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pfNum{display:flex;align-items:center;height:38px;padding:0 8px;border:1px solid transparent;border-radius:10px;
+  background:rgba(var(--ink-rgb),.05)}
+.pfNum input{width:100%;min-width:0;border:none;background:none;padding:0;text-align:right;
+  font:600 14px var(--sans);color:var(--ink);font-variant-numeric:tabular-nums}
+.pfNum input:focus{outline:none}
+.pfNum i{font:400 12px var(--sans);font-style:normal;color:rgba(var(--ink-rgb),.45);padding:0 2px}
+button.pfDel{width:28px;height:28px;border-radius:50%;font-size:12px;color:rgba(var(--ink-rgb),.38)}
+.pfEmpty{padding:18px 0;text-align:center;font:400 12.5px var(--sans);color:rgba(var(--ink-rgb),.5)}
+button.pfAdd{align-self:flex-start;padding:6px 0;font:600 13px var(--sans);color:var(--brass)}
+.pfPick{display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:14px;background:rgba(var(--ink-rgb),.035)}
+button.pfOpt{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:11px 12px;border-radius:10px}
+button.pfOpt:hover{background:rgba(var(--ink-rgb),.05)}
+button.pfOpt b{font:600 13px var(--sans)}
+button.pfOpt small{font:400 11px var(--sans);color:rgba(var(--ink-rgb),.5);font-variant-numeric:tabular-nums}
+button.pfLink{align-self:flex-start;padding:8px 12px;font:500 12px var(--sans);color:var(--slate, #33526f);
+  text-decoration:underline;text-underline-offset:3px}
+.pfMuted{padding:10px 12px;font:400 12px var(--sans);color:rgba(var(--ink-rgb),.5)}
+#pfSum{font:500 12.5px var(--sans);color:rgba(var(--ink-rgb),.6)}
+#pfSum b{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+#pfSum.warn b{color:var(--brass)}
+.regBox{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:14px;border:1px dashed rgba(var(--ink-rgb),.18)}
+.regLine{display:flex;gap:8px}
+.regHit{display:flex;flex-direction:column;gap:10px}
+.regMeta{font:400 12px var(--sans);color:rgba(var(--ink-rgb),.6);font-variant-numeric:tabular-nums}
+.regMeta b{font-weight:700;color:var(--ink)}
+.regAsk{font:600 12.5px var(--sans)}
+
 /* (5) 실행 영역 — 버튼 3개 대신 "아이콘 탭 2개 + 밀어서 저장 1개".
    조회·계산은 되돌릴 수 있는 가벼운 동작이라 아이콘+라벨로 낮췄고, 저장만 이 앱에서
    유일하게 되돌릴 수 없는 실행이라 끝까지 밀어야 실행되는 제스처로 분리했다(오탭 방지).
@@ -458,13 +554,10 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
           <button class="plain" onclick="doLogout()" style="font:500 11px var(--sans);color:rgba(var(--ink-rgb),.6)">로그아웃</button>
         </div>
       </div>
-      <span style="font:700 9px var(--sans);letter-spacing:.14em;color:rgba(var(--ink-rgb),.65)">ISA · FIVE-WAY</span>
+      <span data-bind="acctTag" style="font:700 9px var(--sans);letter-spacing:.14em;color:rgba(var(--ink-rgb),.65)">&nbsp;</span>
     </div>
 
-    <div style="display:flex;background:rgba(var(--ink-rgb),.07);border-radius:var(--pill);padding:4px;gap:4px">
-      <button class="plain" data-bind="tabD" onclick="switchMarket('domestic')" style="flex:1;text-align:center;padding:10px 0;border-radius:var(--pill)"><span>국내 ISA</span></button>
-      <button class="plain" data-bind="tabO" onclick="switchMarket('overseas')" style="flex:1;text-align:center;padding:10px 0;border-radius:var(--pill)"><span>미국 직투</span></button>
-    </div>
+    <div class="acctTabs" data-bind="tabsM"></div>
 
     <div class="warnBox" data-bind="warnBox" style="display:none"></div>
 
@@ -479,7 +572,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
     <div class="paperCard" style="border-radius:var(--r-26);padding:22px;display:flex;flex-direction:column;gap:15px">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font:700 12px var(--sans);color:var(--ink)">비중 밴드</span>
-        <span data-bind="bandBadge" class="gBadge">-</span>
+        <div class="bandTools"><span data-bind="bandBadge" class="gBadge">-</span><button class="plain pfOpen" onclick="openEditor()">구성 편집</button></div>
       </div>
       <div data-bind="bandsAreaM" class="gRow"></div>
     </div>
@@ -536,12 +629,9 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       <div style="display:flex;align-items:center;gap:22px">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="width:28px;height:28px;border-radius:var(--pill);background:rgba(var(--brass-rgb),.16);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--brass)">⚓</span>
-          <span style="font:700 12.5px var(--sans);color:var(--ink)">5분할 리밸런싱</span>
+          <span data-bind="acctTitle" style="font:700 12.5px var(--sans);color:var(--ink)">리밸런싱</span>
         </div>
-        <div style="display:flex;background:rgba(var(--ink-rgb),.07);border-radius:var(--pill);padding:4px;gap:4px">
-          <button class="plain" data-bind="tabD" onclick="switchMarket('domestic')" style="padding:8px 18px;border-radius:var(--pill)"><span>국내 ISA</span></button>
-          <button class="plain" data-bind="tabO" onclick="switchMarket('overseas')" style="padding:8px 18px;border-radius:var(--pill)"><span>미국 직투</span></button>
-        </div>
+        <div class="acctTabs" data-bind="tabsD"></div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
         <span data-bind="who" style="font:500 12px var(--sans);color:rgba(var(--ink-rgb),.55)"></span>
@@ -564,7 +654,7 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
       <div class="paperCard" style="border-radius:var(--r-26);padding:30px 32px;display:flex;flex-direction:column;gap:16px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font:700 13px var(--sans);color:var(--ink)">비중 밴드</span>
-          <span data-bind="bandBadge" class="gBadge">-</span>
+          <div class="bandTools"><span data-bind="bandBadge" class="gBadge">-</span><button class="plain pfOpen" onclick="openEditor()">구성 편집</button></div>
         </div>
         <div data-bind="bandsAreaD" class="gRow"></div>
       </div>
@@ -1003,6 +1093,9 @@ button.plain{border:none;background:none;padding:0;cursor:pointer;font:inherit;c
   </div></div>
 </div>
 
+<!-- 계좌 만들기 / 구성 편집 — 네이티브 dialog 한 벌을 모드별로 다시 그린다 -->
+<dialog id="dlg" class="sheet" aria-label="계좌"></dialog>
+
 <script>
 /* ============================================================
    [새로 작성] 모바일/데스크톱 두 벌 DOM 동기화 헬퍼.
@@ -1147,7 +1240,10 @@ function api(params, onOk, onErr) {
     });
 }
 
-var uid = null, mkt = 'domestic', loaded = null, N = 5;
+// aid = 지금 보고 있는 계좌 id, accts = 계좌 목록(서버 응답의 accounts), N = 이 계좌 종목 수
+var uid = null, mkt = 'domestic', aid = null, accts = [], loaded = null, N = 0;
+var MAX_ACCTS = 5, MAX_ASSETS = 10;   // 서버(Code.gs)와 같은 값
+var dlg = document.getElementById('dlg');
 
 // <meta name="theme-color">는 HTML 속성이라 var(--x)가 해석되지 않는다(브라우저가 CSS
 // 캐스케이드 없이 값을 그대로 색으로 파싱). :root 값을 한 번 읽어서 실제 색 문자열로
@@ -1166,6 +1262,12 @@ function signed(v) { return (v > 0 ? '+' : '') + money(v); }
 function price(v) { return krw() ? Math.round(v).toLocaleString('ko-KR') : '$' + Number(v).toFixed(2); }
 function num(el) { return parseFloat(String(el.value).replace(/[^0-9.\-]/g, '')) || 0; }
 function pct(v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; }
+// 종목 이름은 모든 사용자가 같이 쓰는 카탈로그에서 오므로 화면에 넣기 전에 한 번 더 막는다
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
 
 // 서버가 어떤 형태로 날짜를 보내도 항상 yyyy-MM-dd 로 표시한다
 function fmtDate(v) {
@@ -1227,7 +1329,7 @@ function enter(id) {
   // 로그인 성공 → 저장 데이터 로드까지 끝난 뒤 화면을 넘긴다.
   // load()를 그대로 쓰지 않는 이유: load()는 main이 보이는 상태에서 totalTxt에
   // "불러오는 중..."을 찍는 용도라, 아직 로그인 화면인 지금 시점엔 필요 없다.
-  api({ action: 'load', user: uid, market: mkt },
+  api({ action: 'load', user: uid },
     function (d) {
       // 데이터가 먼저 도착해도 컷이 끝날 때까지 기다렸다가 넘어간다
       lgAfterClip(function () {
@@ -1249,7 +1351,8 @@ function enter(id) {
 }
 
 function doLogout() {
-  uid = null; loaded = null;
+  uid = null; loaded = null; aid = null; accts = []; lastAct = []; lastTotal = null;
+  if (dlg.open) dlg.close();
   document.getElementById('main').style.display = 'none';
   var ls = document.getElementById('loginStage');
   ls.style.transition = ''; ls.style.opacity = ''; // 페이드아웃으로 남은 인라인값 초기화
@@ -1276,46 +1379,53 @@ function doWithdraw() {
     function (e) { alert('삭제 중 오류: ' + e.message); });
 }
 
-// ===== 시장 =====
-// 원본 디자인의 탭 인라인 스타일 값 (선택 / 비선택)
-function tabStyleM(on) {
-  return 'flex:1;text-align:center;padding:10px 0;border-radius:var(--pill);' +
-         (on ? 'background:var(--ink);font:700 12.5px var(--sans);color:var(--shell)'
-             : 'font:500 12.5px var(--sans);color:rgba(var(--ink-rgb),.62)');
+// ===== 계좌 =====
+var WAY = ['EMPTY', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN'];
+
+// 계좌 탭 — 서버가 준 목록대로 그린다. 5개 미만이면 끝에 "+"
+function renderTabs() {
+  var h = '';
+  accts.forEach(function (a) {
+    h += '<button class="plain acctTab' + (a.id === aid ? ' on' : '') + '" onclick="switchAcct(\'' + esc(a.id) + '\')"' +
+         (a.id === aid ? ' aria-current="true"' : '') + '>' + esc(a.name) + '</button>';
+  });
+  if (accts.length < MAX_ACCTS) h += '<button class="plain acctAdd" onclick="openNewAcct()" aria-label="계좌 추가">+</button>';
+  putHTML('tabsM', h); putHTML('tabsD', h);
+  putText('acctTag', (mkt === 'overseas' ? 'USD' : 'KRW') + ' · ' + (WAY[N] || N) + (N ? '-WAY' : ''));
+  putText('acctTitle', N ? N + '분할 리밸런싱' : '리밸런싱');
 }
-function tabStyleD(on) {
-  return 'padding:8px 18px;border-radius:var(--pill);' +
-         (on ? 'background:var(--ink);font:700 12px var(--sans);color:var(--shell)'
-             : 'font:500 12px var(--sans);color:rgba(var(--ink-rgb),.5)');
-}
+
 function skin() {
   var o = mkt === 'overseas';
   document.getElementById('themeColor').setAttribute('content', o ? THEME_COLOR.inkDeep : THEME_COLOR.shell);
-  var td = all('tabD'), to = all('tabO');
-  for (var i = 0; i < td.length; i++) {
-    var isM = td[i].closest('.mobileOnly');
-    td[i].setAttribute('style', isM ? tabStyleM(!o) : tabStyleD(!o));
-  }
-  for (var j = 0; j < to.length; j++) {
-    var isM2 = to[j].closest('.mobileOnly');
-    to[j].setAttribute('style', isM2 ? tabStyleM(o) : tabStyleD(o));
-  }
   putHTML('thP', o ? '현재가<br>($)' : '현재가<br>(원)');
   putHTML('thA', o ? '평가금액<br>($)' : '평가금액<br>(원)');
 }
 
-function switchMarket(m) {
-  if (m === mkt) return;
-  setDisabled('tabD', true); setDisabled('tabO', true);
-  mkt = m; skin();
+// 계좌를 바꾸면 수익률·AUM·기록도 다시 불러야 한다
+function resetAcctViews() {
   document.getElementById('retArea').innerHTML = '';
   document.getElementById('retProg').style.display = 'none';
-  document.getElementById('retBtn').innerText = '최근 수익률 조회';
-  // 시장을 바꾸면 AUM·기록도 다시 불러야 한다
+  var rb = document.getElementById('retBtn');
+  rb.disabled = false; rb.innerText = '최근 수익률 조회';
   var accs = document.querySelectorAll('.accH');
   for (var j = 0; j < accs.length; j++) delete accs[j].dataset.loaded;
+  lastAct = []; lastTotal = null;
+  if (editing()) setEditing(false);
+}
+
+function switchAcct(id) {
+  if (id === aid) return;
+  var a = accts.filter(function (x) { return x.id === id; })[0];
+  if (!a) return;
+  aid = a.id; mkt = a.market;
+  renderTabs(); skin(); resetAcctViews();
   load();
-  setDisabled('tabD', false); setDisabled('tabO', false);
+}
+
+// 응답이 도착했을 때 이미 다른 계좌로 넘어갔으면 버린다 (탭을 빠르게 넘길 때 옛 계좌가 덮어쓰는 것 방지)
+function forAcct(id, fn) {
+  return function (d) { if (id === aid) fn(d); };
 }
 
 // ===== 데이터 =====
@@ -1323,7 +1433,12 @@ function load() {
   // totalTxt는 Fraunces 40~58px 큰 숫자 자리라, 로딩 문구는 작은 산세리프로 덮어 써야
   // 화면에 거대한 글씨로 안 나온다. show()/showQuote()가 실제 숫자로 다시 채운다.
   putHTML('totalTxt', '<span style="font-family:var(--sans);font-size:16px;font-weight:500;color:rgba(var(--ink-rgb),.6)">불러오는 중...</span>');
-  api({ action: 'load', user: uid, market: mkt }, show, fail);
+  api({ action: 'load', user: uid, acct: aid }, forAcct(aid, show), fail);
+}
+
+// 서버에는 "코드:수량"으로 보낸다 — 순서가 아니라 코드로 짝지어져서 엉뚱한 종목에 들어가지 않는다
+function sharesParam(arr) {
+  return (loaded ? loaded.assets : []).map(function (a, i) { return a.code + ':' + (arr[i] || 0); }).join(',');
 }
 
 function grab() {
@@ -1446,10 +1561,11 @@ function bindSaveDrag(track) {
 
 // ① 시세만 새로고침 — 보유수량·해야 할 일은 건드리지 않음
 function refreshQuote() {
+  if (oldServer()) { alert(OLD_SERVER_MSG); return; }
   busy(true, 'quoteBtn', '시세 살피는 중...');
   var v = grab();
-  api({ action: 'calc', user: uid, market: mkt, cash: v.cash, dep: v.dep,
-        shares: v.shares.join(',') }, showQuote, failQuote);
+  api({ action: 'calc', user: uid, acct: aid, cash: v.cash, dep: v.dep,
+        shares: sharesParam(v.shares) }, forAcct(aid, showQuote), failQuote);
 }
 
 function showQuote(d) {
@@ -1479,15 +1595,17 @@ function failQuote(e) {
 
 // ① 계산만 — 시트에 아무것도 쓰지 않음
 function calc() {
+  if (oldServer()) { alert(OLD_SERVER_MSG); return; }
   busy(true, 'calcBtn', '항로 계산 중...');
   var v = grab();
-  api({ action: 'calc', user: uid, market: mkt, cash: v.cash, dep: v.dep,
-        shares: v.shares.join(',') }, show, fail);
+  api({ action: 'calc', user: uid, acct: aid, cash: v.cash, dep: v.dep,
+        shares: sharesParam(v.shares) }, forAcct(aid, show), fail);
 }
 
 // ② 실제 매매 후 저장 — 기록에 남고 입력칸이 비워짐
 function saveIt() {
   if (!loaded) { alert('먼저 계산하기를 눌러주세요.'); return; }
+  if (oldServer()) { alert(OLD_SERVER_MSG); return; }
   var v = grab();
 
   // 화면의 "해야 할 일"은 loaded.assets[i].shares 를 기준으로 계산된 결과다.
@@ -1511,8 +1629,8 @@ function saveIt() {
                '위 내용대로 매매를 마치셨나요?\n저장하면 보유수량이 자동으로 반영되고, 현금·입금액 칸은 0으로 초기화됩니다.')) return;
 
   busy(true, 'saveBtn', '항해일지에 기록 중...');
-  api({ action: 'save', user: uid, market: mkt, cash: v.cash, dep: v.dep,
-        shares: next.join(',') },
+  api({ action: 'save', user: uid, acct: aid, cash: v.cash, dep: v.dep,
+        shares: sharesParam(next) },
     function (d) {
       show(d);
       var el = document.querySelector('.acc[data-logs] .accH');
@@ -1558,20 +1676,23 @@ function animateTotal(target) {
 }
 
 /* ===== 비중 밴드 =====
-   한 바퀴 = 0~30%. 다섯 게이지가 같은 스케일을 공유하므로 링끼리 직접 비교된다.
+   한 바퀴 = 0~30%(상단 밴드가 30%를 넘는 종목이 있으면 10% 단위로 늘린다).
+   모든 게이지가 같은 스케일을 공유하므로 링끼리 직접 비교된다.
    상단 밴드 이후로는 트랙을 아예 그리지 않는다 — 트랙이 그 종목의 한계에서
    끝나는 것이 이 디자인의 핵심이라 별도 마커가 없다. */
 function renderBands(assets) {
-  var SCALE = 30, C = 150.796, unit = C / SCALE;   // C = 2π × 24
-  var HUE  = ['var(--g1)','var(--g2)','var(--g3)','var(--g4)','var(--g5)'];
-  var SOFT = ['var(--g1s)','var(--g2s)','var(--g3s)','var(--g4s)','var(--g5s)'];
+  var maxUpper = assets.reduce(function (m, a) { return Math.max(m, a.upper); }, 0);
+  var SCALE = Math.max(30, Math.min(100, Math.ceil(maxUpper / 10) * 10));
+  var C = 150.796, unit = C / SCALE;   // C = 2π × 24
+  var HUE = [], SOFT = [];
+  for (var k = 1; k <= MAX_ASSETS; k++) { HUE.push('var(--g' + k + ')'); SOFT.push('var(--g' + k + 's)'); }
   var h = '', over = 0, arcs = [];
 
   assets.forEach(function (a, i) {
     var trackLen = Math.min(a.target, SCALE) * unit;
     var zoneLen  = Math.max(0, Math.min(a.upper, SCALE) - a.target) * unit;
     var arcLen   = Math.max(0, Math.min(a.pct, SCALE)) * unit;
-    var nm = a.short || a.name;
+    var nm = esc(a.short || a.name);
     if (a.pct > a.upper) over++;
 
     h += '<div class="gCell">' +
@@ -1597,9 +1718,12 @@ function renderBands(assets) {
     arcs.push(arcLen);
   });
 
+  if (!assets.length) {
+    h = '<div class="gEmpty">아직 종목이 없습니다 · <button class="plain pfOpen" onclick="openEditor()">구성하기</button></div>';
+  }
   putHTML('bandsAreaM', h);
   putHTML('bandsAreaD', h);
-  putText('bandBadge', over ? over + '개 밴드 이탈' : assets.length + '개 모두 밴드 안');
+  putText('bandBadge', !assets.length ? '비어 있음' : (over ? over + '개 밴드 이탈' : assets.length + '개 모두 밴드 안'));
 
   // 0에서 그려 넣어야 호가 자라는 게 보인다 (프레임 두 번 미룬 뒤 실제 길이를 준다)
   requestAnimationFrame(function () {
@@ -1672,14 +1796,24 @@ function endEdit() { setEditing(false); }
 // 직전 렌더의 "해야 할 일" 문구. 값이 바뀐 행만 반짝이게 하려고 들고 있는다. (B-2)
 var lastAct = [];
 
+// 서버(Apps Script)가 아직 예전 버전이면 응답에 account 가 없다. 그 상태로 계산·저장하면
+// 예전 서버가 "코드:수량"을 못 읽어 보유수량이 0으로 저장되므로, 알리고 막는다.
+var OLD_SERVER_MSG = '서버(Apps Script)가 아직 예전 버전입니다. 새 버전으로 배포한 뒤 새로고침해주세요. 그 전까지 계산·저장은 막아둡니다.';
+function oldServer() { return loaded && !loaded.account; }
+
 function show(d) {
   loaded = d;
+  N = d.assets.length;
+  if (d.account) { aid = d.account.id; mkt = d.account.market; }
+  if (d.accounts) accts = d.accounts;
+  renderTabs(); skin();
 
   // 헤더 아래 "보유수량 최종 수정" 표기 — 백엔드에 저장된 날짜가 없어 오늘 날짜로 표시
   var today = new Date();
   putText('lastEditDate', '보유수량 최종 수정 · ' + (today.getMonth() + 1) + '월 ' + today.getDate() + '일');
 
-  if (d.priceWarning) { putText('warnBox', d.priceWarning); setDisp('warnBox', 'block'); }
+  var warn = !d.account ? OLD_SERVER_MSG : d.priceWarning;
+  if (warn) { putText('warnBox', warn); setDisp('warnBox', 'block'); }
   else setDisp('warnBox', 'none');
 
   animateTotal(d.newTotal);
@@ -1699,7 +1833,7 @@ function show(d) {
   // 하단 관찰 — 실제로 이탈 자산이 있을 때만 배너로 등장
   if (d.below && d.below.length) {
     var bh = '<b>참고 사항</b><div class="below-body">목표보다 낮은 상태가 이어지는 자산입니다. 조치는 없고 인지 목적입니다.';
-    d.below.forEach(function (x) { bh += '<div>· ' + x.name + ' — ' + months(x.days) + '</div>'; });
+    d.below.forEach(function (x) { bh += '<div>· ' + esc(x.name) + ' — ' + months(x.days) + '</div>'; });
     bh += '</div>';
     putHTML('belowBanner', bh);
     setDisp('belowBanner', 'flex');
@@ -1736,7 +1870,7 @@ function show(d) {
 
     hm += '<div class="taskRow' + fl + '" style="display:flex;flex-direction:column;gap:6px;padding:12px 2px 14px 11px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">' +
-              '<span style="font:500 12.5px var(--sans);color:var(--ink)">' + a.name + '</span>' +
+              '<span style="font:500 12.5px var(--sans);color:var(--ink)">' + esc(a.name) + '</span>' +
               '<span style="font:700 12.5px var(--sans);color:' + actColor + ';font-variant-numeric:tabular-nums lining-nums">' + act + '</span>' +
             '</div>' +
             '<div class="rowRead">' +
@@ -1753,7 +1887,7 @@ function show(d) {
 
     hd += '<div class="taskRow' + fl + '" style="display:grid;grid-template-columns:2.7fr .85fr .75fr .65fr .85fr .7fr 1fr;gap:0 14px;align-items:center;background:rgba(var(--ink-rgb),.04);border-radius:var(--r-20);padding:13px 14px 13px 11px;border-left:3px solid ' + actBar + '">' +
             '<div style="display:flex;flex-direction:column;gap:2px">' +
-              '<span style="font:500 13px var(--sans);color:var(--ink)">' + a.name + '</span>' +
+              '<span style="font:500 13px var(--sans);color:var(--ink)">' + esc(a.name) + '</span>' +
               '<span style="font:400 11.5px var(--sans);color:rgba(var(--ink-rgb),.6)">' + cd + '</span>' +
             '</div>' +
             '<span style="font:400 12px var(--sans);text-align:right;color:rgba(var(--ink-rgb),.65)">' + tgt + '</span>' +
@@ -1799,8 +1933,8 @@ function togLoad(el, fn) {
 
 function loadAum(el) {
   document.getElementById('aumArea').innerHTML = '선단 규모 확인 중... (몇 초 걸릴 수 있습니다)';
-  api({ action: 'aum', market: mkt },
-    function (rows) {
+  api({ action: 'aum', user: uid, acct: aid },
+    forAcct(aid, function (rows) {
       el.dataset.loaded = '1';
       var h = '';
       rows.forEach(function (r) {
@@ -1812,13 +1946,14 @@ function loadAum(el) {
         }
         var gap = (r.gap === null || r.gap === undefined)
           ? '' : ' · 괴리율 ' + (r.gap >= 0 ? '+' : '') + r.gap.toFixed(2) + '%';
-        h += '<div>· ' + nm + ' — ' + aum + gap + '</div>';
+        h += '<div>· ' + esc(nm) + ' — ' + aum + gap + '</div>';
       });
+      if (!rows.length) h = '<div class="quiet">이 계좌에 종목이 없습니다.</div>';
       h += '<p class="quiet" style="font-size:11px;margin-top:8px">' +
            '순자산이 50억원 아래로 오래 머물면 관리종목을 거쳐 상장폐지될 수 있습니다. ' +
-           '괴리율이 5%를 넘으면 체결을 미루는 게 안전합니다.</p>';
+           '괴리율이 5%를 넘으면 체결을 미루는 게 안전합니다. 국내 상장 ETF만 조회됩니다.</p>';
       document.getElementById('aumArea').innerHTML = h;
-    },
+    }),
     function (e) {
       document.getElementById('aumArea').innerHTML =
         '<span class="na">불러오지 못했습니다 (' + (e ? e.message : '알 수 없음') + '). 다시 펼쳐보세요.</span>';
@@ -1832,8 +1967,8 @@ function reloadLogs() {
 
 function loadLogs(el) {
   document.getElementById('logArea').innerHTML = '항해일지 불러오는 중...';
-  api({ action: 'logs', user: uid, market: mkt },
-    function (rows) {
+  api({ action: 'logs', user: uid, acct: aid },
+    forAcct(aid, function (rows) {
       el.dataset.loaded = '1';
       if (!rows || !rows.length) {
         document.getElementById('logArea').innerHTML = '<span class="quiet">아직 기록이 없습니다. 매매 완료·저장하기를 누르면 여기에 쌓입니다.</span>';
@@ -1847,44 +1982,44 @@ function loadLogs(el) {
         h += '<div class="logEntry">' +
                '<div class="logDate">' + fmtDate(r.date) + '</div>' +
                '<div class="logBody">' +
-                 '<div class="logSummary">' + r.summary + '</div>' +
+                 '<div class="logSummary">' + esc(r.summary) + '</div>' +
                  (meta ? '<div class="logMeta">' + meta + '</div>' : '') +
                '</div>' +
              '</div>';
       });
       h += '</div>';
       document.getElementById('logArea').innerHTML = h;
-    },
+    }),
     function (e) {
       document.getElementById('logArea').innerHTML =
         '<span class="na">불러오지 못했습니다 (' + (e ? e.message : '알 수 없음') + '). 다시 펼쳐보세요.</span>';
     });
 }
 
-// ===== 최근 수익률 (1종목씩, 카운터 N/5) =====
-var rows = [], idx = 0;
+// ===== 최근 수익률 — 계좌의 모든 종목을 한 번에 =====
+var rows = [];
 
 function loadRet() {
   var b = document.getElementById('retBtn');
-  b.disabled = true; b.innerText = '해류 확인 중...';
-  rows = []; idx = 0;
-  document.getElementById('retArea').innerHTML = '';
   var p = document.getElementById('retProg');
-  p.style.display = 'block'; p.innerText = '해류 확인 중 · 1 / ' + N;
-  next();
-}
-
-function next() {
-  if (idx >= N) {
-    document.getElementById('retProg').style.display = 'none';
-    var b = document.getElementById('retBtn');
+  var id = aid;
+  function done() {
+    if (id !== aid) return;
+    p.style.display = 'none';
     b.disabled = false; b.innerText = '최근 수익률 다시 조회';
-    render(); return;
+    render();
   }
-  document.getElementById('retProg').innerText = '해류 확인 중 · ' + (idx + 1) + ' / ' + N;
-  api({ action: 'ret', market: mkt, index: idx },
-    function (r) { rows.push(r); idx++; next(); },
-    function () { rows.push({ name: '-', code: '', values: {}, mdd: null, failed: true }); idx++; next(); });
+  b.disabled = true; b.innerText = '해류 확인 중...';
+  document.getElementById('retArea').innerHTML = '';
+  p.style.display = 'block'; p.innerText = '해류 확인 중 · ' + N + '종목';
+  api({ action: 'retAll', user: uid, acct: id },
+    function (r) { rows = r; done(); },
+    function () {
+      rows = (loaded ? loaded.assets : []).map(function (a) {
+        return { name: a.name, short: a.short, code: a.code, values: {}, mdd: null, failed: true };
+      });
+      done();
+    });
 }
 
 // failed=true 면 조회 자체가 실패한 것이고, 값만 null 이면 해당 기간 데이터가 없는 것
@@ -1905,13 +2040,13 @@ function render() {
   var todayLabel = String(t.getFullYear() % 100).padStart(2, '0') + '-' +
                    String(t.getMonth() + 1).padStart(2, '0') + '-' +
                    String(t.getDate()).padStart(2, '0');
-  // 기준일은 5개 카드에 반복하지 않고 섹션 상단에 한 번만 적는다 (형식은 YY-MM-DD 유지)
+  // 기준일은 카드마다 반복하지 않고 섹션 상단에 한 번만 적는다 (형식은 YY-MM-DD 유지)
   var h = '<p class="quiet" style="font-size:12px;margin:0 0 8px">' + todayLabel + ' 기준 · 최근 1년</p>' +
           '<div class="retbook">';
   rows.forEach(function (r) {
     h += '<div class="retCard">' +
-           '<div class="retHead"><span class="retName">' + (r.short || r.name) + '</span>' +
-             '<span class="retCode">' + (r.usTicker || r.code || '') + '</span></div>' +
+           '<div class="retHead"><span class="retName">' + esc(r.short || r.name) + '</span>' +
+             '<span class="retCode">' + esc(r.usTicker || r.code || '') + '</span></div>' +
            '<div class="retGrid">';
     keys.forEach(function (k) {
       h += '<div class="retCell"><span class="retK">' + k + '</span>' + cell(r.values ? r.values[k] : null, r.failed) + '</div>';
@@ -1924,6 +2059,247 @@ function render() {
   });
   h += '</div><p class="quiet" style="font-size:12px;margin-top:8px">종가 기준이며 시세 제공에 최대 20분 지연이 있을 수 있습니다.</p>';
   document.getElementById('retArea').innerHTML = h;
+}
+// ===== 계좌 만들기 / 구성 편집 (dialog 한 벌) =====
+function closeDlg() { if (dlg.open) dlg.close(); }
+
+// --- 새 계좌 ---
+var nwMarket = 'domestic';
+function openNewAcct() {
+  if (accts.length >= MAX_ACCTS) return;
+  nwMarket = 'domestic';
+  dlg.innerHTML =
+    '<div class="shHd"><b>새 계좌</b><button class="plain shX" onclick="closeDlg()" aria-label="닫기">✕</button></div>' +
+    '<div class="shBd">' +
+      '<div class="seg" role="radiogroup" aria-label="통화">' +
+        '<button class="plain segO on" role="radio" aria-checked="true" data-m="domestic" onclick="nwPick(this)"><b>원화</b><small>국내 상장 종목</small></button>' +
+        '<button class="plain segO" role="radio" aria-checked="false" data-m="overseas" onclick="nwPick(this)"><b>달러</b><small>미국 상장 종목</small></button>' +
+      '</div>' +
+      '<label class="fld"><span>계좌 이름</span><input id="naName" maxlength="20" placeholder="예) 연금저축" enterkeyhint="done"></label>' +
+      '<p class="shNote">통화는 만든 뒤에 바꿀 수 없습니다. 종목과 비중은 다음 화면에서 정합니다.</p>' +
+    '</div>' +
+    '<div class="shFt"><span></span><button class="shBtn" id="naGo" onclick="createAcct()">만들기</button></div>';
+  dlg.showModal();
+  document.getElementById('naName').addEventListener('keydown', function (e) { if (e.key === 'Enter') createAcct(); });
+}
+
+function nwPick(el) {
+  nwMarket = el.getAttribute('data-m');
+  var o = dlg.querySelectorAll('.segO');
+  for (var i = 0; i < o.length; i++) {
+    var on = o[i] === el;
+    o[i].classList.toggle('on', on);
+    o[i].setAttribute('aria-checked', on ? 'true' : 'false');
+  }
+}
+
+function createAcct() {
+  var name = document.getElementById('naName').value.trim();
+  if (!name) { document.getElementById('naName').focus(); return; }
+  var b = document.getElementById('naGo');
+  b.disabled = true; b.innerText = '만드는 중...';
+  api({ action: 'addAcct', user: uid, name: name, market: nwMarket },
+    function (d) {
+      closeDlg(); resetAcctViews(); show(d);
+      openEditor();            // 새 계좌는 비어 있으니 바로 종목을 고르게 한다
+    },
+    function (e) { alert(e.message); b.disabled = false; b.innerText = '만들기'; });
+}
+
+// --- 구성 편집 ---
+// pf.rows 는 편집 중인 값(문자열 그대로). 저장 버튼을 눌러야 서버에 간다.
+var pf = null;
+// 늦게 도착한 응답은 편집 창이 이미 닫혔거나 다른 계좌로 넘어갔으면 버린다.
+// (dialog 의 close 이벤트로 pf 를 비우면 안 된다 — 닫고 곧바로 다시 열 때 이벤트가 한 박자
+//  늦게 와서 새로 연 창의 데이터를 지워버린다. 새 계좌 만들기 → 편집 창이 그 경우다.)
+function live(forId) { return pf && dlg.open && forId === aid; }
+
+function openEditor() {
+  if (oldServer()) { alert(OLD_SERVER_MSG); return; }
+  if (!loaded || !loaded.account) return;
+  pf = {
+    name: loaded.account.name,
+    rows: loaded.assets.map(function (a) {
+      return { code: a.code, short: a.short || a.name, target: String(a.target), band: String(a.band) };
+    }),
+    cat: null, adding: !loaded.assets.length, reg: null
+  };
+  renderEditor();
+  dlg.showModal();
+  var forId = aid;
+  api({ action: 'catalog', user: uid, market: mkt },
+    function (c) { if (live(forId)) { pf.cat = c; renderEditor(); } },
+    function (e) { if (live(forId)) { pf.catErr = e.message; renderEditor(); } });
+}
+
+function hint(r) {
+  var t = parseFloat(r.target), b = parseFloat(r.band);
+  if (!(t > 0) || !(b >= 0)) return '비중을 입력하세요';
+  return (Math.round((t + b) * 100) / 100) + '% 넘으면 매도';
+}
+
+function catItem(code) {
+  return (pf.cat || []).filter(function (c) { return c.code === code; })[0];
+}
+
+function pickerHtml() {
+  if (!pf.adding) return '<button class="plain pfAdd" onclick="pfToggleAdd()">+ 종목 추가</button>';
+  var h = '<div class="pfPick">';
+  if (pf.catErr) h += '<div class="pfMuted">목록을 불러오지 못했습니다: ' + esc(pf.catErr) + '</div>';
+  else if (!pf.cat) h += '<div class="pfMuted">등록된 종목 불러오는 중...</div>';
+  else {
+    var avail = pf.cat.filter(function (c) { return !pf.rows.some(function (r) { return r.code === c.code; }); });
+    if (!avail.length) h += '<div class="pfMuted">추가할 수 있는 등록 종목이 없습니다.</div>';
+    avail.forEach(function (c) {
+      h += '<button class="plain pfOpt" onclick="pfAdd(\'' + esc(c.code) + '\')"><b>' + esc(c.short) + '</b>' +
+           '<small>' + esc(c.code) + ' · ' + (c.price > 0 ? price(c.price) : '시세 없음') + '</small></button>';
+    });
+  }
+  h += '</div>';
+  if (!pf.reg) return h + '<button class="plain pfLink" onclick="pfRegOpen()">목록에 없는 종목 등록하기</button>';
+
+  // 새 종목 등록 — 코드 입력 → 조회 → 이름·가격을 사람이 확인 → 등록
+  var r = pf.reg;
+  h += '<div class="regBox">' +
+         '<div class="regLine"><input id="regCode" value="' + esc(r.code || '') + '" placeholder="' +
+           (mkt === 'overseas' ? '티커 (예: VOO)' : '종목코드 (예: 005930)') +
+           '" autocapitalize="characters" autocomplete="off" enterkeyhint="search">' +
+         '<button class="shBtn2" onclick="pfLookup()"' + (r.busy ? ' disabled' : '') + '>' + (r.busy ? '찾는 중' : '조회') + '</button></div>';
+  if (r.busy) h += '<div class="pfMuted">시세를 찾는 중입니다. 몇 초 걸립니다...</div>';
+  else if (r.err) h += '<div class="pfMuted">' + esc(r.err) + '</div>';
+  else if (r.hit) {
+    h += '<div class="regHit">' +
+           '<label class="fld"><span>표시 이름 (고칠 수 있어요)</span><input id="regName" maxlength="40" value="' + esc(r.hit.name) + '"></label>' +
+           '<div class="regMeta">현재가 <b>' + price(r.hit.price) + '</b> · ' + esc(r.hit.symbol) + '</div>' +
+           '<div class="regAsk">이 종목과 가격이 맞나요?</div>' +
+           '<button class="shBtn" onclick="pfRegister()">맞아요, 등록하고 추가</button>' +
+         '</div>';
+  }
+  return h + '</div>';
+}
+
+function renderEditor() {
+  var h = '<div class="shHd"><b>계좌 구성</b><button class="plain shX" onclick="closeDlg()" aria-label="닫기">✕</button></div>' +
+    '<div class="shBd">' +
+      '<label class="fld"><span>계좌 이름</span><input id="pfName" maxlength="20" value="' + esc(pf.name) + '" oninput="pf.name=this.value"></label>';
+  if (pf.rows.length) h += '<div class="pfHead"><span>종목</span><span>목표</span><span>여유</span><span></span></div>';
+  pf.rows.forEach(function (r, i) {
+    h += '<div class="pfRow">' +
+      '<div class="pfName"><b>' + esc(r.short) + '</b><small>' + esc(r.code) + ' · <span id="pfHint' + i + '">' + hint(r) + '</span></small></div>' +
+      '<label class="pfNum"><input id="pfT' + i + '" inputmode="decimal" value="' + esc(r.target) + '" aria-label="' + esc(r.short) + ' 목표 비중" oninput="pfSet(' + i + ',\'target\',this.value)"><i>%</i></label>' +
+      '<label class="pfNum"><i>+</i><input inputmode="decimal" value="' + esc(r.band) + '" aria-label="' + esc(r.short) + ' 여유(상단 밴드)" oninput="pfSet(' + i + ',\'band\',this.value)"></label>' +
+      '<button class="plain pfDel" onclick="pfRemove(' + i + ')" aria-label="' + esc(r.short) + ' 빼기">✕</button>' +
+    '</div>';
+  });
+  if (!pf.rows.length && !pf.adding) h += '<p class="pfEmpty">아직 종목이 없습니다.</p>';
+  if (pf.rows.length < MAX_ASSETS) h += pickerHtml();
+  else h += '<p class="shNote">종목은 계좌당 최대 ' + MAX_ASSETS + '개까지입니다.</p>';
+  h += '<p class="shNote">목표 비중의 합이 100%가 되어야 저장됩니다. 여유는 목표 위로 얼마까지 두고 볼지(상단 밴드)입니다.</p>';
+  if (accts.length > 1) h += '<button class="plain shDanger" onclick="pfDeleteAcct()">이 계좌 삭제</button>';
+  h += '</div><div class="shFt"><span id="pfSum"></span><button class="shBtn" id="pfSave" onclick="pfSave()">저장</button></div>';
+  dlg.innerHTML = h;
+  pfTotal();
+  var rc = document.getElementById('regCode');
+  if (rc) rc.addEventListener('keydown', function (e) { if (e.key === 'Enter') pfLookup(); });
+}
+
+function pfTotal() {
+  var sum = 0, bad = false;
+  pf.rows.forEach(function (r) {
+    var t = parseFloat(r.target), b = parseFloat(r.band);
+    if (!(t > 0) || !(b >= 0) || t + b > 100) bad = true;
+    if (t > 0) sum += t;
+  });
+  sum = Math.round(sum * 100) / 100;
+  var ok = pf.rows.length > 0 && !bad && Math.abs(sum - 100) < 0.001;
+  var el = document.getElementById('pfSum');
+  var gap = Math.round(Math.abs(100 - sum) * 100) / 100;
+  el.className = ok ? '' : 'warn';
+  el.innerHTML = '합계 <b>' + sum + '%</b>' + (ok || !pf.rows.length ? '' : (bad && Math.abs(sum - 100) < 0.001
+    ? ' · 비어 있는 칸이 있어요' : (sum < 100 ? ' · ' + gap + '% 남음' : ' · ' + gap + '% 넘침')));
+  document.getElementById('pfSave').disabled = !ok;
+}
+
+function pfSet(i, k, v) {
+  pf.rows[i][k] = v;
+  document.getElementById('pfHint' + i).innerText = hint(pf.rows[i]);
+  pfTotal();
+}
+
+function pfRemove(i) { pf.rows.splice(i, 1); renderEditor(); }
+function pfToggleAdd() { pf.adding = true; renderEditor(); }
+
+function pfAdd(code) {
+  var c = catItem(code);
+  if (!c || pf.rows.length >= MAX_ASSETS) return;
+  pf.rows.push({ code: c.code, short: c.short || c.name, target: '', band: '5' });
+  pf.adding = false; pf.reg = null;
+  renderEditor();
+  var t = document.getElementById('pfT' + (pf.rows.length - 1));
+  if (t) t.focus();
+}
+
+function pfRegOpen() {
+  pf.reg = { code: '' };
+  renderEditor();
+  document.getElementById('regCode').focus();
+}
+
+function pfLookup() {
+  var code = document.getElementById('regCode').value.trim().toUpperCase();
+  if (!code) return;
+  pf.reg = { code: code, busy: true };
+  renderEditor();
+  var forId = aid;
+  api({ action: 'lookup', user: uid, market: mkt, code: code },
+    function (r) {
+      if (!live(forId)) return;
+      if (!r.ok) { pf.reg = { code: code, err: r.msg }; renderEditor(); return; }
+      if (r.exists) {       // 이미 등록된 종목이면 바로 추가
+        if (!catItem(r.code)) (pf.cat = pf.cat || []).push({ code: r.code, name: r.name, short: r.name, price: r.price });
+        pfAdd(r.code); return;
+      }
+      pf.reg = { code: code, hit: r };
+      renderEditor();
+      dlg.querySelector('.regHit').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    },
+    function (e) { if (live(forId)) { pf.reg = { code: code, err: e.message }; renderEditor(); } });
+}
+
+function pfRegister() {
+  var hit = pf.reg.hit;
+  var name = document.getElementById('regName').value.trim() || hit.name;
+  var b = dlg.querySelector('.regHit .shBtn');
+  var forId = aid;
+  b.disabled = true; b.innerText = '등록 중...';
+  api({ action: 'register', user: uid, market: mkt, code: hit.code, symbol: hit.symbol, name: name },
+    function () {
+      if (!live(forId)) return;
+      if (!catItem(hit.code)) (pf.cat = pf.cat || []).push({ code: hit.code, name: name, short: name, price: hit.price });
+      pfAdd(hit.code);
+    },
+    function (e) { alert(e.message); b.disabled = false; b.innerText = '맞아요, 등록하고 추가'; });
+}
+
+function pfSave() {
+  var gone = loaded.assets.filter(function (a) {
+    return a.shares > 0 && !pf.rows.some(function (r) { return r.code === a.code; });
+  });
+  if (gone.length && !confirm(gone.map(function (a) { return (a.short || a.name) + ' ' + a.shares + '주'; }).join(', ') +
+      '\n\n보유 중인 종목을 빼면 이 계좌에서 그 수량 기록이 사라집니다. 계속할까요?')) return;
+  var spec = pf.rows.map(function (r) { return r.code + ':' + parseFloat(r.target) + ':' + parseFloat(r.band); }).join(',');
+  var b = document.getElementById('pfSave');
+  b.disabled = true; b.innerText = '저장 중...';
+  api({ action: 'savePf', user: uid, acct: aid, name: (pf.name || '').trim(), spec: spec },
+    function (d) { pf = null; closeDlg(); resetAcctViews(); show(d); },
+    function (e) { alert(e.message); b.disabled = false; b.innerText = '저장'; });
+}
+
+function pfDeleteAcct() {
+  if (!confirm("'" + loaded.account.name + "' 계좌를 삭제할까요?\n이 계좌의 종목 구성과 보유수량이 지워지며 되돌릴 수 없습니다.")) return;
+  api({ action: 'delAcct', user: uid, acct: aid },
+    function (d) { pf = null; closeDlg(); resetAcctViews(); show(d); },
+    function (e) { alert(e.message); });
 }
 </script>
 </body>
